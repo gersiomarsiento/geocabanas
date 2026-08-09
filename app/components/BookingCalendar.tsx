@@ -10,6 +10,7 @@ import {
   buildCalendarDays,
   rangeHasDateInSet,
 } from "@/lib/calendar/dates";
+import PropertyCarousel from "./PropertyCarousel";
 
 const WEEKDAYS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const MONTHS = [
@@ -62,6 +63,11 @@ interface AvailabilityResponse {
   days: DayInfo[];
 }
 
+interface CarouselImage {
+  id: string;
+  url: string;
+}
+
 export default function BookingCalendar() {
   const today = startOfToday();
   const [viewYear, setViewYear] = useState(today.getFullYear());
@@ -80,6 +86,7 @@ export default function BookingCalendar() {
   const [properties, setProperties] = useState<PublicProperty[] | null>(null);
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const [propertiesError, setPropertiesError] = useState<string | null>(null);
+  const [carouselImages, setCarouselImages] = useState<CarouselImage[]>([]);
 
   const selectedProperty = useMemo(
     () => properties?.find((p) => p.slug === selectedSlug) ?? null,
@@ -103,6 +110,24 @@ export default function BookingCalendar() {
   const [days, setDays] = useState<Map<string, DayInfo> | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [rangeError, setRangeError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!selectedProperty) return;
+    setCarouselImages([]);
+
+    fetch(`/api/properties/${selectedProperty.id}/images`)
+      .then((res) => {
+        if (!res.ok) throw new Error("No se pudieron cargar las fotos");
+        return res.json() as Promise<CarouselImage[]>;
+      })
+      .then(setCarouselImages)
+      .catch(() => {
+        // Fine to fail quietly here — PropertyCarousel already renders
+        // nothing when the images array is empty, so this degrades to
+        // "no carousel shown" rather than a visible error for something
+        // non-essential to actually booking.
+      });
+  }, [selectedProperty]);
 
   useEffect(() => {
     if (!selectedSlug) return;
@@ -329,6 +354,11 @@ export default function BookingCalendar() {
               </option>
             ))}
           </select>
+        </div>
+      )}
+      {carouselImages.length > 0 && (
+        <div className="overflow-hidden rounded-xl border border-zinc-200 shadow-sm dark:border-zinc-800">
+          <PropertyCarousel images={carouselImages} />
         </div>
       )}
 

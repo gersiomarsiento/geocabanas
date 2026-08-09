@@ -1,6 +1,7 @@
 import Image from "next/image";
 import BookingCalendar from "./components/BookingCalendar";
-import AdminAvailabilityCalendar from "./components/AdminAvailabilityCalendar";
+import ContactSection from "./components/ContactSection";
+import HeroImage from "./components/HeroImage";
 
 export default function Home() {
   return (
@@ -16,13 +17,7 @@ export default function Home() {
         className="relative flex h-[60vh] w-full items-center justify-center bg-zinc-300 dark:bg-zinc-800"
       >
         <div className="flex h-full w-full flex-col items-center gap-2 text-zinc-500 dark:text-zinc-400">
-          <Image
-            src="/images/hero.jpg"
-            alt="Imagen principal"
-            width={1000}
-            height={1000}
-            className="h-full w-full object-cover"
-          />
+          <HeroImage />
         </div>
       </section>
 
@@ -31,7 +26,7 @@ export default function Home() {
           Disponibilidad
         </h2>
         <BookingCalendar />
-        <AdminAvailabilityCalendar />
+        <ContactSection />
       </main>
     </div>
   );

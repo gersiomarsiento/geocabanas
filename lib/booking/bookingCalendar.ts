@@ -1,7 +1,6 @@
 // Fetches your Booking.com iCal export feed and converts it into a simple
 // list of booked date ranges. Server-side only.
-import ical from "node-ical";
-
+import ical, { VEvent } from "node-ical";
 export interface BookedRange {
   start: string; // ISO date, e.g. "2026-08-10"
   end: string; // ISO date (checkout day — treated as exclusive)
@@ -27,12 +26,14 @@ export async function getBookedRanges(icalUrl: string): Promise<BookedRange[]> {
 
   for (const key in parsed) {
     const event = parsed[key];
+    if (!event || event.type !== "VEVENT") continue;
 
-    if (event.type !== "VEVENT" || !event.start || !event.end) continue;
+    const vevent = event as VEvent;
+    if (!vevent.start || !vevent.end) continue;
 
     ranges.push({
-      start: toISODate(event.start as Date),
-      end: toISODate(event.end as Date),
+      start: toISODate(vevent.start as Date),
+      end: toISODate(vevent.end as Date),
     });
   }
 
