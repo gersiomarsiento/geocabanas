@@ -9,6 +9,7 @@ import type {
 } from "@/types/admin-availability";
 import SiteHeroCard from "./SiteHeroCard";
 import SiteContactCard from "./SiteContactCard";
+import PropertyDetailsForm from "./PropertyDetailsForm";
 
 interface PropertyImage {
   id: string;
@@ -85,6 +86,7 @@ function PropertyCard({
     defaultPrice: property.defaultPrice,
     defaultMinStay: property.defaultMinStay,
     minReservationFee: property.minReservationFee,
+    hideNightlyPrice: property.hideNightlyPrice,
   });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{
@@ -183,6 +185,21 @@ function PropertyCard({
 
           <button
             type="button"
+            onClick={() =>
+              setDraft((d) => ({ ...d, hideNightlyPrice: !d.hideNightlyPrice }))
+            }
+            aria-pressed={draft.hideNightlyPrice}
+            className={`mt-4 rounded-md border px-3 py-1.5 text-sm transition-colors ${
+              draft.hideNightlyPrice
+                ? "border-emerald-400 bg-emerald-50 text-emerald-800 dark:border-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
+                : "border-zinc-300 text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-900"
+            }`}
+          >
+            {draft.hideNightlyPrice ? "✓ Mostrar precio por noche" : "X Ocultar precio por noche (mostrar solo el total)"}
+          </button>
+
+          <button
+            type="button"
             disabled={saving}
             onClick={saveSettings}
             className="mt-4 rounded-md bg-foreground px-4 py-2 text-sm font-semibold text-background disabled:opacity-40"
@@ -201,7 +218,9 @@ function PropertyCard({
               {message.text}
             </p>
           )}
-
+          <div className="mt-6 border-t border-zinc-200 pt-6 dark:border-zinc-800">
+            <PropertyDetailsForm property={property} onUpdated={onUpdated} />
+          </div>
           <div className="mt-6 border-t border-zinc-200 pt-6 dark:border-zinc-800">
             <PropertyImages propertyId={property.id} />
           </div>

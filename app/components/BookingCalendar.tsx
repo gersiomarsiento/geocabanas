@@ -11,6 +11,8 @@ import {
   rangeHasDateInSet,
 } from "@/lib/calendar/dates";
 import PropertyCarousel from "./PropertyCarousel";
+import PropertyDetails from "./PropertyDetails";
+import LoadingOverlay from "./LoadingOverlay";
 
 const WEEKDAYS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const MONTHS = [
@@ -49,6 +51,13 @@ interface PublicProperty {
   name: string;
   slug: string;
   currency: string;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  maxGuests: number | null;
+  hideNightlyPrice: boolean;
+  childrenAllowed: boolean | null;
+  petsAllowed: boolean | null;
+  amenities: string[];
 }
 
 interface DayInfo {
@@ -111,6 +120,8 @@ export default function BookingCalendar() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [rangeError, setRangeError] = useState<string | null>(null);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     if (!selectedProperty) return;
     setCarouselImages([]);
@@ -131,6 +142,8 @@ export default function BookingCalendar() {
 
   useEffect(() => {
     if (!selectedSlug) return;
+
+    setIsLoading(true);
     setDays(null);
     setLoadError(null);
 
@@ -146,7 +159,10 @@ export default function BookingCalendar() {
         for (const day of data.days) map.set(day.date, day);
         setDays(map);
       })
-      .catch((e) => setLoadError(e.message));
+      .catch((e) => setLoadError(e.message))
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, [selectedSlug]);
 
   // Derived Set of unavailable dates, so the existing rangeHasDateInSet
@@ -165,6 +181,26 @@ export default function BookingCalendar() {
     month: today.getMonth(),
     day: today.getDate(),
   });
+
+  const stayTotal = useMemo(() => {
+    if (!startDate || !endDate || !days) return null;
+    let total = 0;
+    const cur = toDate(startDate);
+    const endTime = toDate(endDate).getTime();
+    while (cur.getTime() < endTime) {
+      const key = toDateKey({
+        year: cur.getFullYear(),
+        month: cur.getMonth(),
+        day: cur.getDate(),
+      });
+      total += days.get(key)?.price ?? 0;
+      cur.setDate(cur.getDate() + 1);
+    }
+    const nights = Math.round(
+      (toDate(endDate).getTime() - toDate(startDate).getTime()) / 86_400_000,
+    );
+    return { nights, total };
+  }, [startDate, endDate, days]);
 
   function getDayInfo(parts: DateParts): DayInfo {
     const key = toDateKey(parts);
@@ -328,41 +364,85 @@ export default function BookingCalendar() {
 
   return (
     <div className="w-full space-y-4">
-      {/* Property selector — only shown when there's more than one */}
-      {properties && properties.length > 1 && (
-        <div className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-          <label
-            htmlFor="visitor-property-select"
-            className="text-sm font-medium text-zinc-600 dark:text-zinc-400"
-          >
-            Propiedad
-          </label>
-          <select
-            id="visitor-property-select"
-            value={selectedSlug ?? ""}
-            onChange={(e) => {
-              setSelectedSlug(e.target.value);
-              setStartDate(null);
-              setEndDate(null);
-              setRangeError(null);
-            }}
-            className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-          >
-            {properties.map((p) => (
-              <option key={p.id} value={p.slug}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-      {carouselImages.length > 0 && (
-        <div className="overflow-hidden rounded-xl border border-zinc-200 shadow-sm dark:border-zinc-800">
-          <PropertyCarousel images={carouselImages} />
-        </div>
-      )}
+      {/* Property selector */}
+      <div>
+        {properties && properties.length > 1 && (
+          <div className="flex flex-col items-center gap-3 rounded-t-xl border border-b-0 border-zinc-200 bg-white p-3 md:p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+            <label
+              htmlFor="visitor-property-select"
+              className="text-sm font-medium text-zinc-600 dark:text-zinc-400"
+            >
+              Seleccione la propiedad:
+            </label>
 
-      <div className="w-full rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+            <select
+              id="visitor-property-select"
+              value={selectedSlug ?? ""}
+              onChange={(e) => {
+                setSelectedSlug(e.target.value);
+                setStartDate(null);
+                setEndDate(null);
+                setRangeError(null);
+              }}
+              className="rounded-md border border-zinc-300 bg-black text-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            >
+              {properties.map((p) => (
+                <option key={p.id} value={p.slug}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Property content */}
+        <div className="relative">
+          {isLoading && <LoadingOverlay />}
+          <div
+            className={`overflow-hidden border-0 border-zinc-200 shadow-sm dark:border-zinc-800 ${
+              properties && properties.length > 1
+                ? "border-0"
+                : "border rounded-t-xl"
+            }`}
+          >
+            {carouselImages.length > 0 ? (
+              <PropertyCarousel images={carouselImages} />
+            ) : (
+              <div className="aspect-4/3 w-full animate-pulse bg-white dark:bg-zinc-950" />
+            )}
+          </div>
+
+          {selectedProperty && <PropertyDetails property={selectedProperty} />}
+        </div>
+      </div>
+
+      <div id="reservar-section" className="rounded-t-xl bg-black text-white mb-0 h-15 flex flex-col justify-center p-3 md:p-6">
+        {rangeError ? (
+          <p className="text-center text-sm font-medium text-red-400 dark:text-red-400">
+            {rangeError}
+          </p>
+        ) : startDate && endDate ? (
+          <p className="text-center text-sm font-bold text-white dark:text-zinc-50">
+            {formatDisplayDate(startDate)} → {formatDisplayDate(endDate)}
+          </p>
+        ) : (
+          <p className="text-center text-sm text-white">{selectionHint}</p>
+        )}
+
+        {startDate &&
+          endDate &&
+          !rangeError &&
+          selectedProperty?.hideNightlyPrice &&
+          stayTotal && (
+            <p className="mt-1 text-center text-sm text-white dark:text-white">
+              {stayTotal.nights} {stayTotal.nights === 1 ? "noche" : "noches"} ·{" "}
+              <span className="text-[16px] font-bold">
+                {money.format(stayTotal.total)} total
+              </span>
+            </p>
+          )}
+      </div>
+      <div className="w-full rounded-b-xl border border-zinc-200 bg-white p-3 md:p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mb-4 flex items-center justify-between">
           <button
             type="button"
@@ -438,11 +518,14 @@ export default function BookingCalendar() {
                   }`}
                 >
                   <span>{day}</span>
-                  {!isPast && !booked && info.price != null && (
-                    <span className="text-[10px] font-normal leading-none opacity-70">
-                      {money.format(info.price)}
-                    </span>
-                  )}
+                  {!isPast &&
+                    !booked &&
+                    !selectedProperty?.hideNightlyPrice &&
+                    info.price != null && (
+                      <span className="text-[10px] font-normal leading-none opacity-70">
+                        {money.format(info.price)}
+                      </span>
+                    )}
                 </button>
               );
             })}
@@ -450,80 +533,73 @@ export default function BookingCalendar() {
         )}
       </div>
 
-      <p className="mt-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
-        {selectionHint}
-      </p>
+      <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-3 md:p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+        <h3 className="mb-4 text-base font-semibold">
+          Completá tus datos para hacer tu reserva
+        </h3>
 
-      {rangeError && (
-        <p className="mt-2 text-center text-sm font-medium text-red-600 dark:text-red-400">
-          {rangeError}
-        </p>
-      )}
+        <div className="grid gap-3">
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+              Nombre
+            </span>
+            <input
+              type="text"
+              value={guestName}
+              onChange={(e) => setGuestName(e.target.value)}
+              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            />
+          </label>
 
-      {startDate && endDate && !rangeError && (
-        <p className="mt-2 text-center text-sm font-medium text-black dark:text-zinc-50">
-          {formatDisplayDate(startDate)} → {formatDisplayDate(endDate)}
-        </p>
-      )}
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+              Email
+            </span>
+            <input
+              type="email"
+              value={guestEmail}
+              onChange={(e) => setGuestEmail(e.target.value)}
+              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            />
+          </label>
 
-      {startDate && endDate && !rangeError && (
-        <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-          <h3 className="mb-4 text-base font-semibold">Completá tus datos</h3>
-
-          <div className="grid gap-3">
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
-                Nombre
-              </span>
-              <input
-                type="text"
-                value={guestName}
-                onChange={(e) => setGuestName(e.target.value)}
-                className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-              />
-            </label>
-
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
-                Email
-              </span>
-              <input
-                type="email"
-                value={guestEmail}
-                onChange={(e) => setGuestEmail(e.target.value)}
-                className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-              />
-            </label>
-
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
-                Teléfono
-              </span>
-              <input
-                type="tel"
-                value={guestPhone}
-                onChange={(e) => setGuestPhone(e.target.value)}
-                className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-              />
-            </label>
-          </div>
-
-          <button
-            type="button"
-            disabled={submitting}
-            onClick={handleReserve}
-            className="mt-4 w-full rounded-md bg-foreground px-4 py-2 text-sm font-semibold text-background transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {submitting ? "Reservando…" : "Reservar"}
-          </button>
-
-          {submitError && (
-            <p className="mt-3 text-sm font-medium text-red-600 dark:text-red-400">
-              {submitError}
-            </p>
-          )}
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+              Teléfono
+            </span>
+            <input
+              type="tel"
+              value={guestPhone}
+              onChange={(e) => setGuestPhone(e.target.value)}
+              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            />
+          </label>
         </div>
-      )}
+
+        <button
+          type="button"
+          disabled={
+            submitting ||
+            isLoading ||
+            !startDate ||
+            !endDate ||
+            !!rangeError ||
+            !guestName.trim() ||
+            !guestEmail.trim() ||
+            !guestPhone.trim()
+          }
+          onClick={handleReserve}
+          className="mt-4 w-full rounded-md bg-foreground px-4 py-2 text-sm font-semibold text-background transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {submitting ? "Reservando…" : "Reservar"}
+        </button>
+
+        {submitError && (
+          <p className="mt-3 text-sm font-medium text-red-600 dark:text-red-400">
+            {submitError}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

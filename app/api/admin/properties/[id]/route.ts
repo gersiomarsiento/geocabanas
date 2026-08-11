@@ -18,6 +18,14 @@ export async function PATCH(
     update.default_min_stay = body.defaultMinStay;
   if (body.minReservationFee != null)
     update.min_reservation_fee = body.minReservationFee;
+  if (body.bedrooms != null) update.bedrooms = body.bedrooms;
+  if (body.bathrooms != null) update.bathrooms = body.bathrooms;
+  if (body.maxGuests != null) update.max_guests = body.maxGuests;
+  if (body.childrenAllowed != null)
+    update.children_allowed = body.childrenAllowed;
+  if (body.petsAllowed != null) update.pets_allowed = body.petsAllowed;
+  if (body.hideNightlyPrice != null) update.hide_nightly_price = body.hideNightlyPrice;
+  if (body.amenities != null) update.amenities = body.amenities;
 
   if (Object.keys(update).length === 0) {
     return NextResponse.json(
@@ -31,7 +39,21 @@ export async function PATCH(
     .update(update)
     .eq("id", id)
     .select(
-      "id, name, default_price, default_min_stay, min_reservation_fee, currency",
+      `
+      id,
+      name,
+      default_price,
+      default_min_stay,
+      min_reservation_fee,
+      hide_nightly_price,
+      currency,
+      bedrooms,
+      bathrooms,
+      max_guests,
+      children_allowed,
+      pets_allowed,
+      amenities
+    `,
     )
     .single();
 
@@ -49,5 +71,12 @@ export async function PATCH(
     defaultMinStay: property.default_min_stay,
     minReservationFee: Number(property.min_reservation_fee),
     currency: property.currency,
+    bedrooms: property.bedrooms,
+    bathrooms: property.bathrooms,
+    maxGuests: property.max_guests,
+    childrenAllowed: property.children_allowed,
+    hideNightlyPrice: property.hide_nightly_price,
+    petsAllowed: property.pets_allowed,
+    amenities: property.amenities ?? [],
   });
 }

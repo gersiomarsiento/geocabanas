@@ -10,7 +10,21 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 export async function GET() {
   const { data, error } = await supabaseAdmin
     .from("properties")
-    .select("id, name, slug, currency")
+    .select(
+      `
+      id,
+      name,
+      slug,
+      currency,
+      bedrooms,
+      bathrooms,
+      max_guests,
+      children_allowed,
+      hide_nightly_price,
+      pets_allowed,
+      amenities
+    `,
+    )
     .order("name");
 
   if (error) {
@@ -20,5 +34,19 @@ export async function GET() {
     );
   }
 
-  return NextResponse.json(data);
+  const properties = data.map((property) => ({
+    id: property.id,
+    name: property.name,
+    slug: property.slug,
+    currency: property.currency,
+    bedrooms: property.bedrooms,
+    bathrooms: property.bathrooms,
+    maxGuests: property.max_guests,
+    childrenAllowed: property.children_allowed,
+    hideNightlyPrice: property.hide_nightly_price,
+    petsAllowed: property.pets_allowed,
+    amenities: property.amenities ?? [],
+  }));
+
+  return NextResponse.json(properties);
 }

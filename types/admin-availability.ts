@@ -1,5 +1,7 @@
-// Shared types for the admin availability/pricing feature.
-// Import these from both the API routes and the admin component so the
+// types/admin-availability.ts
+//
+// Shared types for the admin availability/pricing/details feature.
+// Import these from both the API routes and the admin components so the
 // shapes never drift apart.
 
 export type Property = {
@@ -12,6 +14,17 @@ export type Property = {
   /** Minimum deposit required to confirm a reservation, in the same currency. */
   minReservationFee: number;
   currency: string; // e.g. "UYU", "USD"
+  /** When true, the visitor calendar hides the per-night price and shows only the stay total. */
+  hideNightlyPrice: boolean;
+
+  // --- Booking/Airbnb-style property details ---
+  bedrooms: number;
+  bathrooms: number;
+  maxGuests: number;
+  childrenAllowed: boolean;
+  petsAllowed: boolean;
+  /** Array of amenity ids — see lib/amenities.ts for the option list. */
+  amenities: string[];
 };
 
 export type DayRate = {
@@ -41,8 +54,18 @@ export type BulkUpdatePayload = {
   minStay?: number | null;
 };
 
+// Partial update accepted by PATCH /api/admin/properties/[id].
+// Covers both pricing settings and the property-detail fields, since both
+// are saved through the same endpoint.
 export type PropertySettingsUpdate = {
   defaultPrice?: number;
   defaultMinStay?: number;
   minReservationFee?: number;
+  hideNightlyPrice?: boolean;
+  bedrooms?: number;
+  bathrooms?: number;
+  maxGuests?: number;
+  childrenAllowed?: boolean;
+  petsAllowed?: boolean;
+  amenities?: string[];
 };

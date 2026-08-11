@@ -4,13 +4,18 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { CaretIcon } from "./icons";
 
 interface CarouselImage {
   id: string;
   url: string;
 }
 
-export default function PropertyCarousel({ images }: { images: CarouselImage[] }) {
+export default function PropertyCarousel({
+  images,
+}: {
+  images: CarouselImage[];
+}) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -24,35 +29,53 @@ export default function PropertyCarousel({ images }: { images: CarouselImage[] }
     const observer = new IntersectionObserver(
       (entries) => {
         const mostVisible = entries.reduce(
-          (best, entry) => (entry.intersectionRatio > (best?.intersectionRatio ?? 0) ? entry : best),
+          (best, entry) =>
+            entry.intersectionRatio > (best?.intersectionRatio ?? 0)
+              ? entry
+              : best,
           entries[0],
         );
         if (mostVisible?.isIntersecting) {
-          setActiveIndex(Number((mostVisible.target as HTMLElement).dataset.index));
+          setActiveIndex(
+            Number((mostVisible.target as HTMLElement).dataset.index),
+          );
         }
       },
       { root: scroller, threshold: 0.6 },
     );
 
-    scroller.querySelectorAll("[data-index]").forEach((el) => observer.observe(el));
+    scroller
+      .querySelectorAll("[data-index]")
+      .forEach((el) => observer.observe(el));
     return () => observer.disconnect();
   }, [images]);
 
   function scrollToIndex(index: number) {
     const scroller = scrollerRef.current;
     const slide = scroller?.children[index] as HTMLElement | undefined;
-    slide?.scrollIntoView({ behavior: "smooth", inline: "start" });
+
+    if (!scroller || !slide) return;
+
+    scroller.scrollTo({
+      left: slide.offsetLeft,
+      behavior: "smooth",
+    });
   }
 
   // Mouse drag-to-scroll for desktop — touch devices already get native
   // momentum scrolling from scroll-snap below, no JS needed for them.
-  const dragState = useRef<{ startX: number; startScrollLeft: number } | null>(null);
+  const dragState = useRef<{ startX: number; startScrollLeft: number } | null>(
+    null,
+  );
 
   function handlePointerDown(e: React.PointerEvent) {
     if (e.pointerType !== "mouse") return;
     const scroller = scrollerRef.current;
     if (!scroller) return;
-    dragState.current = { startX: e.clientX, startScrollLeft: scroller.scrollLeft };
+    dragState.current = {
+      startX: e.clientX,
+      startScrollLeft: scroller.scrollLeft,
+    };
     scroller.setPointerCapture(e.pointerId);
   }
 
@@ -82,13 +105,13 @@ export default function PropertyCarousel({ images }: { images: CarouselImage[] }
           <div
             key={image.id}
             data-index={index}
-            className="relative aspect-[4/3] w-full flex-shrink-0 snap-start"
+            className="relative aspect-4/3 w-full shrink-0 snap-start"
           >
             <Image
               src={image.url}
               alt=""
               fill
-              draggable={false}
+              draggable={true}
               sizes="(max-width: 768px) 100vw, 640px"
               className="object-cover"
             />
@@ -102,17 +125,19 @@ export default function PropertyCarousel({ images }: { images: CarouselImage[] }
             type="button"
             onClick={() => scrollToIndex(Math.max(activeIndex - 1, 0))}
             aria-label="Foto anterior"
-            className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 shadow-sm transition-colors hover:bg-white dark:bg-black/60 dark:hover:bg-black/80"
+            className="absolute left-0 top-1/2 -translate-y-1/2 rounded-full shadow-sm transition-colors text-white dark:text-black hover:bg-black dark:bg-white/60 dark:hover:bg-white/80"
           >
-            ←
+            <CaretIcon className="rotate-180" />
           </button>
           <button
             type="button"
-            onClick={() => scrollToIndex(Math.min(activeIndex + 1, images.length - 1))}
+            onClick={() =>
+              scrollToIndex(Math.min(activeIndex + 1, images.length - 1))
+            }
             aria-label="Foto siguiente"
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 shadow-sm transition-colors hover:bg-white dark:bg-black/60 dark:hover:bg-black/80"
+            className="absolute right-0 top-1/2 -translate-y-1/2 rounded-full shadow-sm transition-colors text-white dark:text-black hover:bg-black dark:bg-white/60 dark:hover:bg-white/80"
           >
-            →
+            <CaretIcon />
           </button>
 
           <div className="absolute right-2 top-2 rounded-full bg-black/60 px-2 py-0.5 text-xs font-medium text-white">
