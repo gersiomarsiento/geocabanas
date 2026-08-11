@@ -350,7 +350,7 @@ export default function BookingCalendar() {
     ? "Seleccioná la fecha de entrada"
     : !endDate
       ? "Seleccioná la fecha de salida"
-      : "Hacé clic en una fecha para elegir una nueva estadía";
+      : "Seleccioná la fecha de entrada";
 
   const money = currencyFormatter(selectedProperty?.currency ?? "UYU");
 
@@ -363,9 +363,9 @@ export default function BookingCalendar() {
   }
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-4 justify-items-center">
       {/* Property selector */}
-      <div>
+      <div className="max-w-lg w-full">
         {properties && properties.length > 1 && (
           <div className="flex flex-col items-center gap-3 rounded-t-xl border border-b-0 border-zinc-200 bg-white p-3 md:p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
             <label
@@ -384,7 +384,7 @@ export default function BookingCalendar() {
                 setEndDate(null);
                 setRangeError(null);
               }}
-              className="rounded-md border border-zinc-300 bg-black text-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+              className="w-full rounded-md border border-zinc-300 bg-black text-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
             >
               {properties.map((p) => (
                 <option key={p.id} value={p.slug}>
@@ -415,125 +415,133 @@ export default function BookingCalendar() {
           {selectedProperty && <PropertyDetails property={selectedProperty} />}
         </div>
       </div>
-
-      <div id="reservar-section" className="rounded-t-xl bg-black text-white mb-0 h-15 flex flex-col justify-center p-3 md:p-6">
-        {rangeError ? (
-          <p className="text-center text-sm font-medium text-red-400 dark:text-red-400">
-            {rangeError}
-          </p>
-        ) : startDate && endDate ? (
-          <p className="text-center text-sm font-bold text-white dark:text-zinc-50">
-            {formatDisplayDate(startDate)} → {formatDisplayDate(endDate)}
-          </p>
-        ) : (
-          <p className="text-center text-sm text-white">{selectionHint}</p>
-        )}
-
-        {startDate &&
-          endDate &&
-          !rangeError &&
-          selectedProperty?.hideNightlyPrice &&
-          stayTotal && (
-            <p className="mt-1 text-center text-sm text-white dark:text-white">
-              {stayTotal.nights} {stayTotal.nights === 1 ? "noche" : "noches"} ·{" "}
-              <span className="text-[16px] font-bold">
-                {money.format(stayTotal.total)} total
-              </span>
+      <div className="max-w-lg w-full rounded-t-xl">
+        <div
+          id="reservar-section"
+          className="max-w-lg w-full rounded-t-xl bg-black text-white mb-0 h-15 flex flex-col justify-center p-3 md:p-6"
+        >
+          {rangeError ? (
+            <p className="text-center text-sm font-medium text-red-400 dark:text-red-400">
+              {rangeError}
             </p>
+          ) : startDate &&
+            endDate &&
+            toDateKey(startDate) !== toDateKey(endDate) ? (
+            <p className="text-center text-sm font-bold text-white dark:text-zinc-50">
+              {formatDisplayDate(startDate)} → {formatDisplayDate(endDate)}
+            </p>
+          ) : (
+            <p className="text-center text-sm text-white">{selectionHint}</p>
           )}
-      </div>
-      <div className="w-full rounded-b-xl border border-zinc-200 bg-white p-3 md:p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mb-4 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={goToPreviousMonth}
-            aria-label="Mes anterior"
-            className="rounded-md px-3 py-1.5 text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900"
-          >
-            ←
-          </button>
-          <p className="text-lg font-semibold">
-            {MONTHS[viewMonth]} {viewYear}
-          </p>
-          <button
-            type="button"
-            onClick={goToNextMonth}
-            aria-label="Mes siguiente"
-            className="rounded-md px-3 py-1.5 text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900"
-          >
-            →
-          </button>
+
+          {startDate &&
+            endDate &&
+            toDateKey(startDate) !== toDateKey(endDate) &&
+            !rangeError &&
+            selectedProperty?.hideNightlyPrice &&
+            stayTotal && (
+              <p className="mt-1 text-center text-sm text-white dark:text-white">
+                {stayTotal.nights} {stayTotal.nights === 1 ? "noche" : "noches"}{" "}
+                ·{" "}
+                <span className="text-[16px] font-bold">
+                  {money.format(stayTotal.total)} total
+                </span>
+              </p>
+            )}
         </div>
-
-        {!days ? (
-          <p className="py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
-            Cargando disponibilidad…
-          </p>
-        ) : (
-          <div className="grid grid-cols-7 gap-1 text-center text-sm">
-            {WEEKDAYS.map((weekday) => (
-              <div
-                key={weekday}
-                className="py-2 font-medium text-zinc-500 dark:text-zinc-400"
-              >
-                {weekday}
-              </div>
-            ))}
-            {calendarDays.map((day, index) => {
-              if (day === null) {
-                return <div key={index} aria-hidden />;
-              }
-
-              const {
-                isPast,
-                isToday,
-                isStart,
-                isEnd,
-                isInRange,
-                booked,
-                info,
-              } = getDayState(day);
-              const isSelected = isStart || isEnd;
-              const isDisabled = isPast || booked;
-
-              return (
-                <button
-                  key={index}
-                  type="button"
-                  disabled={isDisabled}
-                  title={booked ? "Ocupado" : undefined}
-                  onClick={() => handleDayClick(day)}
-                  className={`flex aspect-square flex-col items-center justify-center gap-0.5 rounded-md transition-colors ${
-                    booked
-                      ? "cursor-not-allowed bg-zinc-100 text-zinc-300 line-through dark:bg-zinc-900 dark:text-zinc-700"
-                      : isPast
-                        ? "cursor-not-allowed text-zinc-300 dark:text-zinc-700"
-                        : isSelected
-                          ? "bg-foreground font-semibold text-background"
-                          : isInRange
-                            ? "bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200"
-                            : isToday
-                              ? "font-semibold text-foreground ring-1 ring-foreground/30 hover:bg-zinc-100 dark:hover:bg-zinc-900"
-                              : "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900"
-                  }`}
-                >
-                  <span>{day}</span>
-                  {!isPast &&
-                    !booked &&
-                    !selectedProperty?.hideNightlyPrice &&
-                    info.price != null && (
-                      <span className="text-[10px] font-normal leading-none opacity-70">
-                        {money.format(info.price)}
-                      </span>
-                    )}
-                </button>
-              );
-            })}
+        <div className="max-w-lg w-full rounded-b-xl border border-zinc-200 bg-white p-3 md:p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+          <div className="mb-4 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={goToPreviousMonth}
+              aria-label="Mes anterior"
+              className="rounded-md px-3 py-1.5 text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900"
+            >
+              ←
+            </button>
+            <p className="text-lg font-semibold">
+              {MONTHS[viewMonth]} {viewYear}
+            </p>
+            <button
+              type="button"
+              onClick={goToNextMonth}
+              aria-label="Mes siguiente"
+              className="rounded-md px-3 py-1.5 text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900"
+            >
+              →
+            </button>
           </div>
-        )}
+
+          {!days ? (
+            <p className="py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
+              Cargando disponibilidad…
+            </p>
+          ) : (
+            <div className="grid grid-cols-7 gap-1 text-center text-sm">
+              {WEEKDAYS.map((weekday) => (
+                <div
+                  key={weekday}
+                  className="py-2 font-medium text-zinc-500 dark:text-zinc-400"
+                >
+                  {weekday}
+                </div>
+              ))}
+              {calendarDays.map((day, index) => {
+                if (day === null) {
+                  return <div key={index} aria-hidden />;
+                }
+
+                const {
+                  isPast,
+                  isToday,
+                  isStart,
+                  isEnd,
+                  isInRange,
+                  booked,
+                  info,
+                } = getDayState(day);
+                const isSelected = isStart || isEnd;
+                const isDisabled = isPast || booked;
+
+                return (
+                  <button
+                    key={index}
+                    type="button"
+                    disabled={isDisabled}
+                    title={booked ? "Ocupado" : undefined}
+                    onClick={() => handleDayClick(day)}
+                    className={`flex aspect-square flex-col items-center justify-center gap-0.5 rounded-md transition-colors ${
+                      booked
+                        ? "cursor-not-allowed bg-zinc-100 text-zinc-300 line-through dark:bg-zinc-900 dark:text-zinc-700"
+                        : isPast
+                          ? "cursor-not-allowed text-zinc-300 dark:text-zinc-700"
+                          : isSelected
+                            ? "bg-foreground font-semibold text-background"
+                            : isInRange
+                              ? "bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200"
+                              : isToday
+                                ? "font-semibold text-foreground ring-1 ring-foreground/30 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+                                : "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                    }`}
+                  >
+                    <span>{day}</span>
+                    {!isPast &&
+                      !booked &&
+                      !selectedProperty?.hideNightlyPrice &&
+                      info.price != null && (
+                        <span className="text-[10px] font-normal leading-none opacity-70">
+                          {money.format(info.price)}
+                        </span>
+                      )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-3 md:p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+      <div className="max-w-lg w-full mt-6 rounded-xl border border-zinc-200 bg-white p-3 md:p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
         <h3 className="mb-4 text-base font-semibold">
           Completá tus datos para hacer tu reserva
         </h3>
