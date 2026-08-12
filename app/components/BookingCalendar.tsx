@@ -13,6 +13,7 @@ import {
 import PropertyCarousel from "./PropertyCarousel";
 import PropertyDetails from "./PropertyDetails";
 import LoadingOverlay from "./LoadingOverlay";
+import { CaretIcon } from "./icons";
 
 const WEEKDAYS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const MONTHS = [
@@ -32,6 +33,12 @@ const MONTHS = [
 
 function formatDisplayDate({ year, month, day }: DateParts) {
   return `${day} ${MONTHS[month]} ${year}`;
+}
+
+function nightsBetween(start: DateParts, end: DateParts): number {
+  return Math.round(
+    (toDate(end).getTime() - toDate(start).getTime()) / 86_400_000,
+  );
 }
 
 function currencyFormatter(currency: string) {
@@ -265,6 +272,18 @@ export default function BookingCalendar() {
         setEndDate(null);
         return;
       }
+
+      const nights = nightsBetween(clicked, startDate);
+      const requiredMinStay = getDayInfo(clicked).minStay ?? 1;
+      if (nights < requiredMinStay) {
+        setRangeError(
+          `La estadía mínima es de ${requiredMinStay} ${requiredMinStay === 1 ? "noche" : "noches"}. Elegí una fecha de salida más lejana.`,
+        );
+        setStartDate(clicked);
+        setEndDate(null); // stays null on purpose — next click extends from here, doesn't reset again
+        return;
+      }
+
       setEndDate(startDate);
       setStartDate(clicked);
     } else {
@@ -274,6 +293,20 @@ export default function BookingCalendar() {
         setEndDate(null);
         return;
       }
+
+      const nights = nightsBetween(startDate, clicked);
+      const requiredMinStay = getDayInfo(startDate).minStay ?? 1;
+      if (nights < requiredMinStay) {
+        setRangeError(
+          `La estadía mínima es de ${requiredMinStay} ${requiredMinStay === 1 ? "noche" : "noches"}. Elegí una fecha de salida más lejana.`,
+        );
+        // Deliberately NOT resetting startDate here — the visitor's next
+        // click just needs to be further out, without having to re-pick
+        // their check-in date.
+        setEndDate(null);
+        return;
+      }
+
       setEndDate(clicked);
     }
   }
@@ -350,114 +383,110 @@ export default function BookingCalendar() {
     ? "Seleccioná la fecha de entrada"
     : !endDate
       ? "Seleccioná la fecha de salida"
-      : "Seleccioná la fecha de entrada";
+      : "Seleccioná otra fecha de entrada para modificar";
 
   const money = currencyFormatter(selectedProperty?.currency ?? "UYU");
 
+  const hasValidRange =
+    startDate && endDate && toDateKey(startDate) !== toDateKey(endDate);
+
   if (propertiesError || loadError) {
     return (
-      <div className="w-full rounded-xl border border-zinc-200 bg-white p-6 text-center text-sm text-zinc-500 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+      <div className="w-full rounded-xl border border-zinc-200 bg-white p-6 text-center text-sm text-zinc-500 shadow-sm">
         No se pudo cargar la disponibilidad en este momento.
       </div>
     );
   }
 
   return (
-    <div className="w-full space-y-4 justify-items-center">
+    <div className="booking-wrapper w-full space-y-4 justify-items-center md:grid md:grid-cols-2 md:gap-x-4">
       {/* Property selector */}
-      <div className="max-w-lg w-full">
+      <div className="property-details-wrapper max-w-lg md:max-w-full w-full md:flex md:flex-col">
         {properties && properties.length > 1 && (
-          <div className="flex flex-col items-center gap-3 rounded-t-xl border border-b-0 border-zinc-200 bg-white p-3 md:p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+          <div className="flex flex-col items-center rounded-t-xl border border-b-0 border-zinc-200 bg-white shadow-sm">
             <label
               htmlFor="visitor-property-select"
-              className="text-sm font-medium text-zinc-600 dark:text-zinc-400"
+              className="text-sm font-medium text-white bg-black rounded-t-xl w-full text-center content-center h-15"
             >
-              Seleccione la propiedad:
+              Seleccioná la propiedad
             </label>
 
-            <select
-              id="visitor-property-select"
-              value={selectedSlug ?? ""}
-              onChange={(e) => {
-                setSelectedSlug(e.target.value);
-                setStartDate(null);
-                setEndDate(null);
-                setRangeError(null);
-              }}
-              className="w-full rounded-md border border-zinc-300 bg-black text-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-            >
-              {properties.map((p) => (
-                <option key={p.id} value={p.slug}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+            <div className="bg-white p-3 md:p-6 w-full">
+              <div className="relative w-full flex items-center gap-2">
+                <label htmlFor="visitor-property-select" className="inline text-sm">
+                  Hospedaje:
+                </label>
+                <select
+                  id="visitor-property-select"
+                  name="visitor-property-select"
+                  value={selectedSlug ?? ""}
+                  onChange={(e) => {
+                    setSelectedSlug(e.target.value);
+                    setStartDate(null);
+                    setEndDate(null);
+                    setRangeError(null);
+                  }}
+                  className="inline w-full appearance-none rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 pr-10 text-sm font-medium text-zinc-900 shadow-sm outline-none transition focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
+                >
+                  {properties.map((p) => (
+                    <option key={p.id} value={p.slug}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+
+                <div className="pointer-events-none absolute rotate-90 inset-y-0 right-0 flex items-center text-black">
+                  <CaretIcon />
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
         {/* Property content */}
-        <div className="relative">
+        <div className="property-content-wrapper relative md:grid md:h-full">
           {isLoading && <LoadingOverlay />}
           <div
-            className={`overflow-hidden border-0 border-zinc-200 shadow-sm dark:border-zinc-800 ${
+            className={`overflow-hidden border border-zinc-200 shadow-sm  ${
               properties && properties.length > 1
-                ? "border-0"
+                ? "border"
                 : "border rounded-t-xl"
             }`}
           >
             {carouselImages.length > 0 ? (
               <PropertyCarousel images={carouselImages} />
             ) : (
-              <div className="aspect-4/3 w-full animate-pulse bg-white dark:bg-zinc-950" />
+              <div className="aspect-4/3 w-full animate-pulse bg-white " />
             )}
           </div>
 
           {selectedProperty && <PropertyDetails property={selectedProperty} />}
         </div>
       </div>
-      <div className="max-w-lg w-full rounded-t-xl">
+      <div className="booking-calendar-wrapper max-w-lg md:max-w-full w-full flex flex-col rounded-t-xl">
         <div
           id="reservar-section"
-          className="max-w-lg w-full rounded-t-xl bg-black text-white mb-0 h-15 flex flex-col justify-center p-3 md:p-6"
+          className="w-full rounded-t-xl bg-black text-white mb-0 h-15 flex flex-col justify-center p-3 md:p-6"
         >
           {rangeError ? (
-            <p className="text-center text-sm font-medium text-red-400 dark:text-red-400">
+            <p className="text-center text-sm font-medium text-red-400 ">
               {rangeError}
             </p>
-          ) : startDate &&
-            endDate &&
-            toDateKey(startDate) !== toDateKey(endDate) ? (
-            <p className="text-center text-sm font-bold text-white dark:text-zinc-50">
-              {formatDisplayDate(startDate)} → {formatDisplayDate(endDate)}
-            </p>
           ) : (
-            <p className="text-center text-sm text-white">{selectionHint}</p>
+            <p className="text-center font-bold text-sm text-white">
+              {selectionHint}
+            </p>
           )}
-
-          {startDate &&
-            endDate &&
-            toDateKey(startDate) !== toDateKey(endDate) &&
-            !rangeError &&
-            selectedProperty?.hideNightlyPrice &&
-            stayTotal && (
-              <p className="mt-1 text-center text-sm text-white dark:text-white">
-                {stayTotal.nights} {stayTotal.nights === 1 ? "noche" : "noches"}{" "}
-                ·{" "}
-                <span className="text-[16px] font-bold">
-                  {money.format(stayTotal.total)} total
-                </span>
-              </p>
-            )}
         </div>
-        <div className="max-w-lg w-full rounded-b-xl border border-zinc-200 bg-white p-3 md:p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+        <div className="w-full border border-zinc-200 bg-white p-3 md:p-6 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <button
               type="button"
               onClick={goToPreviousMonth}
               aria-label="Mes anterior"
-              className="rounded-md px-3 py-1.5 text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900"
+              className="rounded-md px-3 max-h-10 flex items-center text-white transition-colors hover:bg-zinc-100 "
             >
-              ←
+              <CaretIcon className="rotate-180" />
             </button>
             <p className="text-lg font-semibold">
               {MONTHS[viewMonth]} {viewYear}
@@ -466,26 +495,28 @@ export default function BookingCalendar() {
               type="button"
               onClick={goToNextMonth}
               aria-label="Mes siguiente"
-              className="rounded-md px-3 py-1.5 text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900"
+              className="rounded-md px-3 max-h-10 flex items-center text-white transition-colors hover:bg-zinc-100 "
             >
-              →
+              <CaretIcon />
             </button>
           </div>
 
-          {!days ? (
-            <p className="py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
-              Cargando disponibilidad…
-            </p>
-          ) : (
+          <div className="relative">
+            {!days && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white">
+                <p className="text-center text-sm text-zinc-500">
+                  Cargando disponibilidad…
+                </p>
+              </div>
+            )}
+
             <div className="grid grid-cols-7 gap-1 text-center text-sm">
               {WEEKDAYS.map((weekday) => (
-                <div
-                  key={weekday}
-                  className="py-2 font-medium text-zinc-500 dark:text-zinc-400"
-                >
+                <div key={weekday} className="py-2 font-medium text-zinc-500">
                   {weekday}
                 </div>
               ))}
+
               {calendarDays.map((day, index) => {
                 if (day === null) {
                   return <div key={index} aria-hidden />;
@@ -500,6 +531,7 @@ export default function BookingCalendar() {
                   booked,
                   info,
                 } = getDayState(day);
+
                 const isSelected = isStart || isEnd;
                 const isDisabled = isPast || booked;
 
@@ -511,20 +543,23 @@ export default function BookingCalendar() {
                     title={booked ? "Ocupado" : undefined}
                     onClick={() => handleDayClick(day)}
                     className={`flex aspect-square flex-col items-center justify-center gap-0.5 rounded-md transition-colors ${
-                      booked
-                        ? "cursor-not-allowed bg-zinc-100 text-zinc-300 line-through dark:bg-zinc-900 dark:text-zinc-700"
-                        : isPast
-                          ? "cursor-not-allowed text-zinc-300 dark:text-zinc-700"
-                          : isSelected
-                            ? "bg-foreground font-semibold text-background"
-                            : isInRange
-                              ? "bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200"
-                              : isToday
-                                ? "font-semibold text-foreground ring-1 ring-foreground/30 hover:bg-zinc-100 dark:hover:bg-zinc-900"
-                                : "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                      booked && isToday
+                        ? "cursor-not-allowed font-extrabold bg-zinc-100 text-zinc-300 line-through"
+                        : booked
+                          ? "cursor-not-allowed bg-zinc-100 text-zinc-300 line-through"
+                          : isPast
+                            ? "cursor-not-allowed text-zinc-300"
+                            : isSelected
+                              ? "bg-green-600 font-semibold text-background"
+                              : isInRange
+                                ? "bg-green-200 text-zinc-800"
+                                : isToday
+                                  ? "font-extrabold text-foreground hover:bg-green-100"
+                                  : "text-zinc-700 hover:bg-green-100"
                     }`}
                   >
                     <span>{day}</span>
+
                     {!isPast &&
                       !booked &&
                       !selectedProperty?.hideNightlyPrice &&
@@ -537,52 +572,85 @@ export default function BookingCalendar() {
                 );
               })}
             </div>
+          </div>
+        </div>
+        <div className="h-full w-full min-h-26 content-center rounded-b-xl border border-zinc-200 bg-black p-3 shadow-sm md:p-6">
+          {hasValidRange && !rangeError && stayTotal ? (
+            <>
+              <p className="text-white font-bold mb-2 text-center">
+                Datos de tu reserva:
+              </p>
+              <p className="text-center text-sm font-bold text-white">
+                {formatDisplayDate(startDate)} → {formatDisplayDate(endDate)}
+              </p>
+
+              {selectedProperty?.hideNightlyPrice && (
+                <p className="mt-1 text-center text-sm text-white">
+                  {stayTotal.nights}{" "}
+                  {stayTotal.nights === 1 ? "noche" : "noches"} ·{" "}
+                  <span className="text-[16px] font-bold">
+                    {money.format(stayTotal.total)} total
+                  </span>
+                </p>
+              )}
+            </>
+          ) : (
+            <p className="text-center text-sm text-white">
+              Seleccioná un rango de fechas válido para ver la información de tu
+              reserva
+            </p>
           )}
         </div>
       </div>
 
-      <div className="max-w-lg w-full mt-6 rounded-xl border border-zinc-200 bg-white p-3 md:p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-        <h3 className="mb-4 text-base font-semibold">
-          Completá tus datos para hacer tu reserva
+      <div className="booking-details-wrapper max-w-lg md:max-w-full md:col-span-2 w-full h-fit rounded-xl border border-zinc-200 bg-white p-3 md:p-6 shadow-sm">
+        <h3 className="mb-4 text-lg font-semibold">
+          Completá tus datos para reservar
         </h3>
 
         <div className="grid gap-3">
           <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            <span className="mb-1.5 block text-sm font-medium text-zinc-600">
               Nombre
             </span>
             <input
               type="text"
               value={guestName}
               onChange={(e) => setGuestName(e.target.value)}
-              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm "
             />
           </label>
 
           <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            <span className="mb-1.5 block text-sm font-medium text-zinc-600">
               Email
             </span>
             <input
               type="email"
               value={guestEmail}
               onChange={(e) => setGuestEmail(e.target.value)}
-              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm "
             />
           </label>
 
           <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            <span className="mb-1.5 block text-sm font-medium text-zinc-600">
               Teléfono
             </span>
             <input
               type="tel"
               value={guestPhone}
               onChange={(e) => setGuestPhone(e.target.value)}
-              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm "
             />
           </label>
         </div>
+        <p className="mt-4 text-sm">
+          Tras enviar el formulario, la reserva quedará pendiente de
+          confirmación durante 24 horas. Para confirmarla, deberás hacer un
+          depósito por el 50% del total, de lo contrario la misma se cancelará.
+          Te enviaremos un correo electrónico con los pasos a seguir.
+        </p>
 
         <button
           type="button"
@@ -594,7 +662,11 @@ export default function BookingCalendar() {
             !!rangeError ||
             !guestName.trim() ||
             !guestEmail.trim() ||
-            !guestPhone.trim()
+            !guestPhone.trim() ||
+            (startDate &&
+              endDate &&
+              nightsBetween(startDate, endDate) <
+                (getDayInfo(startDate).minStay ?? 1))
           }
           onClick={handleReserve}
           className="mt-4 w-full rounded-md bg-foreground px-4 py-2 text-sm font-semibold text-background transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
@@ -603,7 +675,7 @@ export default function BookingCalendar() {
         </button>
 
         {submitError && (
-          <p className="mt-3 text-sm font-medium text-red-600 dark:text-red-400">
+          <p className="mt-3 text-sm font-medium text-red-600 ">
             {submitError}
           </p>
         )}

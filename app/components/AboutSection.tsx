@@ -66,7 +66,7 @@ export default function AboutSection() {
         </p>
         {/* <a
           href="#reservar-button"
-          className="mt-5 inline-block rounded-md border border-black bg-white px-4 py-2 text-sm font-bold transition-colors hover:bg-zinc-100 dark:border-zinc-50 dark:bg-black dark:hover:bg-zinc-900"
+          className="mt-5 inline-block rounded-md border border-black bg-white px-4 py-2 text-sm font-bold transition-colors hover:bg-zinc-100 "
         >
           RESERVAR
         </a> */}
@@ -76,9 +76,7 @@ export default function AboutSection() {
         <h3 className="text-center text-lg font-semibold">Nuestras cabañas</h3>
 
         {!properties ? (
-          <p className="mt-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
-            Cargando…
-          </p>
+          <p className="mt-4 text-center text-sm text-zinc-500  ">Cargando…</p>
         ) : properties.length > 0 ? (
           <div className="mt-5 flex flex-wrap justify-center gap-6">
             {properties.map((property) => (
@@ -86,7 +84,7 @@ export default function AboutSection() {
                 key={property.id}
                 className="flex w-40 flex-col items-center gap-2 text-center"
               >
-                <div className="h-40 w-40 overflow-hidden rounded-full border border-zinc-200 bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900">
+                <div className="h-40 w-40 overflow-hidden rounded-full border border-zinc-200 bg-zinc-100    ">
                   {property.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img

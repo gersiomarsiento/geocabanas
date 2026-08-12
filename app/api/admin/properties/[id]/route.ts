@@ -13,6 +13,7 @@ export async function PATCH(
   const body = (await request.json()) as PropertySettingsUpdate;
 
   const update: Record<string, unknown> = {};
+  if (body.name != null && body.name.trim() !== "") update.name = body.name.trim();
   if (body.defaultPrice != null) update.default_price = body.defaultPrice;
   if (body.defaultMinStay != null)
     update.default_min_stay = body.defaultMinStay;

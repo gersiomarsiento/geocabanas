@@ -39,15 +39,19 @@ export async function sendGuestConfirmationEmail(data: ReservationEmailData) {
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
         <h2>¡Gracias, ${data.guestName}!</h2>
-        <p>Recibimos tu solicitud de reserva para <strong>${data.propertyName}</strong>. Nos vamos a contactar en breve para confirmarla.</p>
+        <p>Recibimos tu solicitud de reserva para <strong>${data.propertyName}</strong>.</p>
+        <p>La misma estará pendiente de confirmación durante las siguientes 24 horas. Para confirmar tu reserva, pedimos un depósito del 50% del total de la misma. En caso de no recibir el depósito, la reserva se cancelará y se liberarán las fechas en el calendario.</p>
+        <p>Puedes hacer tu depósito a la siguiente cuenta:</p>
+        <p>BROU: xxxxxxxx</p>
+        <p>Una vez realizada, contactanos por WhatsApp al +598 1234 1234 para enviarnos el comprobante.</p>
         <table style="width: 100%; margin: 16px 0; font-size: 14px; border-collapse: collapse;">
           <tr><td style="padding: 4px 0;">Check-in</td><td style="text-align: right;"><strong>${formatDate(data.startDate)}</strong></td></tr>
           <tr><td style="padding: 4px 0;">Check-out</td><td style="text-align: right;"><strong>${formatDate(data.endDate)}</strong></td></tr>
           <tr><td style="padding: 4px 0;">Noches</td><td style="text-align: right;"><strong>${data.nights}</strong></td></tr>
-          <tr><td style="padding: 4px 0;">Total estimado</td><td style="text-align: right;"><strong>$${money(data.totalPrice)}</strong></td></tr>
+          <tr><td style="padding: 4px 0;">Total</td><td style="text-align: right;"><strong>$${money(data.totalPrice)}</strong></td></tr>
           ${
             data.depositAmount > 0
-              ? `<tr><td style="padding: 4px 0;">Seña requerida</td><td style="text-align: right;"><strong>$${money(data.depositAmount)}</strong></td></tr>`
+              ? `<tr><td style="padding: 4px 0;">Seña requerida</td><td style="text-align: right;"><strong>$${money(data.totalPrice / 2)}</strong></td></tr>`
               : ""
           }
         </table>

@@ -92,14 +92,14 @@ export default function PropertyCarousel({
   if (images.length === 0) return null;
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full h-full">
       <div
         ref={scrollerRef}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerLeave={handlePointerUp}
-        className="flex w-full snap-x snap-mandatory overflow-x-auto scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] cursor-grab select-none active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
+        className="flex w-full h-full snap-x snap-mandatory overflow-x-auto scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] cursor-grab select-none active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
       >
         {images.map((image, index) => (
           <div
@@ -125,7 +125,7 @@ export default function PropertyCarousel({
             type="button"
             onClick={() => scrollToIndex(Math.max(activeIndex - 1, 0))}
             aria-label="Foto anterior"
-            className="absolute left-0 top-1/2 -translate-y-1/2 rounded-full shadow-sm transition-colors text-white dark:text-black hover:bg-black dark:bg-white/60 dark:hover:bg-white/80"
+            className="absolute left-1 top-1/2 -translate-y-1/2 rounded-full transition-colors text-white hover:bg-black"
           >
             <CaretIcon className="rotate-180" />
           </button>
@@ -135,7 +135,7 @@ export default function PropertyCarousel({
               scrollToIndex(Math.min(activeIndex + 1, images.length - 1))
             }
             aria-label="Foto siguiente"
-            className="absolute right-0 top-1/2 -translate-y-1/2 rounded-full shadow-sm transition-colors text-white dark:text-black hover:bg-black dark:bg-white/60 dark:hover:bg-white/80"
+            className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full transition-colors text-white hover:bg-black"
           >
             <CaretIcon />
           </button>

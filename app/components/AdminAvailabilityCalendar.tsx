@@ -426,7 +426,7 @@ export default function AdminAvailabilityCalendar() {
 
   if (propertiesError) {
     return (
-      <div className="w-full rounded-xl border border-zinc-200 bg-white p-6 text-center text-sm text-zinc-500 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+      <div className="w-full rounded-xl border border-zinc-200 bg-white p-6 text-center text-sm text-zinc-500 shadow-sm    ">
         No se pudieron cargar las propiedades en este momento.
       </div>
     );
@@ -436,10 +436,10 @@ export default function AdminAvailabilityCalendar() {
     <div className="w-full space-y-4">
       {/* Property / room selector — only shown when the admin manages more than one */}
       {properties && properties.length > 1 && (
-        <div className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+        <div className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm    ">
           <label
             htmlFor="property-select"
-            className="text-sm font-medium text-zinc-600 dark:text-zinc-400"
+            className="text-sm font-medium text-zinc-600  "
           >
             Propiedad
           </label>
@@ -450,7 +450,7 @@ export default function AdminAvailabilityCalendar() {
               setSelectedPropertyId(e.target.value);
               clearSelection();
             }}
-            className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm    "
           >
             {properties.map((p) => (
               <option key={p.id} value={p.id}>
@@ -461,13 +461,13 @@ export default function AdminAvailabilityCalendar() {
         </div>
       )}
 
-      <div className="w-full rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+      <div className="w-full rounded-xl border border-zinc-200 bg-white p-6 shadow-sm    ">
         <div className="mb-4 flex items-center justify-between">
           <button
             type="button"
             onClick={goToPreviousMonth}
             aria-label="Mes anterior"
-            className="rounded-md px-3 py-1.5 text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900"
+            className="rounded-md px-3 py-1.5 text-zinc-600 transition-colors hover:bg-zinc-100"
           >
             ←
           </button>
@@ -478,24 +478,24 @@ export default function AdminAvailabilityCalendar() {
             type="button"
             onClick={goToNextMonth}
             aria-label="Mes siguiente"
-            className="rounded-md px-3 py-1.5 text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900"
+            className="rounded-md px-3 py-1.5 text-zinc-600 transition-colors hover:bg-zinc-100"
           >
             →
           </button>
         </div>
 
         {/* Color legend */}
-        <div className="mb-4 flex flex-wrap items-center gap-4 text-xs text-zinc-500 dark:text-zinc-400">
+        <div className="mb-4 flex flex-wrap items-center gap-4 text-xs text-zinc-500  ">
           <span className="flex items-center gap-1.5">
-            <span className="h-3 w-3 rounded-sm bg-emerald-100 ring-1 ring-inset ring-emerald-300 dark:bg-emerald-900/40 dark:ring-emerald-700" />
+            <span className="h-3 w-3 rounded-sm bg-emerald-100 ring-1 ring-inset ring-emerald-300" />
             Disponible
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-3 w-3 rounded-sm bg-red-100 ring-1 ring-inset ring-red-300 dark:bg-red-900/40 dark:ring-red-700" />
+            <span className="h-3 w-3 rounded-sm bg-red-100 ring-1 ring-inset ring-red-300 " />
             No disponible / ocupado
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-3 w-3 rounded-sm bg-zinc-100 dark:bg-zinc-900" />
+            <span className="h-3 w-3 rounded-sm bg-zinc-100  " />
             Fecha pasada
           </span>
           <span className="flex items-center gap-1.5">
@@ -505,20 +505,17 @@ export default function AdminAvailabilityCalendar() {
         </div>
 
         {ratesError ? (
-          <p className="py-8 text-center text-sm text-red-600 dark:text-red-400">
+          <p className="py-8 text-center text-sm text-red-600 ">
             {ratesError}
           </p>
         ) : !rates ? (
-          <p className="py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="py-8 text-center text-sm text-zinc-500  ">
             Cargando disponibilidad…
           </p>
         ) : (
           <div className="grid grid-cols-7 gap-1 text-center text-sm">
             {WEEKDAYS.map((weekday) => (
-              <div
-                key={weekday}
-                className="py-2 font-medium text-zinc-500 dark:text-zinc-400"
-              >
+              <div key={weekday} className="py-2 font-medium text-zinc-500  ">
                 {weekday}
               </div>
             ))}
@@ -545,18 +542,18 @@ export default function AdminAvailabilityCalendar() {
                   onClick={() => handleDayClick(day)}
                   className={`flex aspect-square flex-col items-center justify-center gap-0.5 rounded-md transition-colors ${
                     isPast
-                      ? "cursor-not-allowed text-zinc-300 dark:text-zinc-700"
+                      ? "cursor-not-allowed text-zinc-300 "
                       : isSelected
                         ? "bg-foreground font-semibold text-background"
                         : isInRange
-                          ? "bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200"
+                          ? "bg-zinc-200 text-zinc-800  "
                           : occupied
-                            ? `bg-red-100 text-red-700 ring-1 ring-inset ring-red-300 dark:bg-red-900/30 dark:text-red-300 dark:ring-red-800 ${
+                            ? `bg-red-100 text-red-700 ring-1 ring-inset ring-red-300  ${
                                 rate.reserved
                                   ? "cursor-not-allowed"
-                                  : "hover:bg-red-200 dark:hover:bg-red-900/50"
+                                  : "hover:bg-red-200"
                               }`
-                            : `bg-emerald-50 text-emerald-800 ring-1 ring-inset ring-emerald-200 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-300 dark:ring-emerald-800 dark:hover:bg-emerald-900/40 ${
+                            : `bg-emerald-50 text-emerald-800 ring-1 ring-inset ring-emerald-200 hover:bg-emerald-100  ${
                                 isToday ? "ring-2 ring-foreground/40" : ""
                               }`
                   }`}
@@ -575,26 +572,24 @@ export default function AdminAvailabilityCalendar() {
       </div>
 
       {/* Bulk / single-day edit panel */}
-      <div className="w-full rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+      <div className="w-full rounded-xl border border-zinc-200 bg-white p-6 shadow-sm    ">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-              Editando
-            </p>
+            <p className="text-sm font-medium text-zinc-600  ">Editando</p>
             <p className="text-base font-semibold">{selectionLabel}</p>
           </div>
           {(selectionStart || selectionEnd) && (
             <button
               type="button"
               onClick={clearSelection}
-              className="text-sm text-zinc-500 underline-offset-2 hover:underline dark:text-zinc-400"
+              className="text-sm text-zinc-500 underline-offset-2 hover:underline  "
             >
               Limpiar selección
             </button>
           )}
         </div>
 
-        <p className="mb-4 text-xs text-zinc-500 dark:text-zinc-400">
+        <p className="mb-4 text-xs text-zinc-500  ">
           Hacé clic en un día para editarlo solo, o en un día de inicio y otro
           de fin para aplicar el mismo cambio a todo ese rango — igual que la
           selección de estadía de los visitantes.
@@ -602,7 +597,7 @@ export default function AdminAvailabilityCalendar() {
 
         <div className="grid gap-4 grid-cols-1">
           <div>
-            <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
               Disponibilidad
             </span>
             <div className="flex gap-2">
@@ -611,8 +606,8 @@ export default function AdminAvailabilityCalendar() {
                 onClick={() => setAvailableInput("available")}
                 className={`flex-1 rounded-md border px-3 py-1.5 text-sm transition-colors ${
                   availableInput === "available"
-                    ? "border-emerald-400 bg-emerald-50 text-emerald-800 dark:border-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
-                    : "border-zinc-300 text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-900"
+                    ? "border-emerald-400 bg-emerald-50 text-emerald-800 "
+                    : "border-zinc-300 text-zinc-600 hover:bg-zinc-50"
                 }`}
               >
                 Disponible
@@ -622,8 +617,8 @@ export default function AdminAvailabilityCalendar() {
                 onClick={() => setAvailableInput("blocked")}
                 className={`flex-1 rounded-md border px-3 py-1.5 text-sm transition-colors ${
                   availableInput === "blocked"
-                    ? "border-red-400 bg-red-50 text-red-800 dark:border-red-700 dark:bg-red-900/30 dark:text-red-300"
-                    : "border-zinc-300 text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-900"
+                    ? "border-red-400 bg-red-50 text-red-800 "
+                    : "border-zinc-300 text-zinc-600 hover:bg-zinc-50"
                 }`}
               >
                 Bloquear
@@ -632,7 +627,7 @@ export default function AdminAvailabilityCalendar() {
           </div>
 
           <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
               Precio por noche
             </span>
             <input
@@ -645,12 +640,12 @@ export default function AdminAvailabilityCalendar() {
                   ? String(selectedProperty.defaultPrice)
                   : "Precio por defecto"
               }
-              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
             />
           </label>
 
           <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
               Estadía mínima (noches)
             </span>
             <input
@@ -663,7 +658,7 @@ export default function AdminAvailabilityCalendar() {
                   ? String(selectedProperty.defaultMinStay)
                   : "Mínimo por defecto"
               }
-              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
             />
           </label>
         </div>
@@ -685,8 +680,8 @@ export default function AdminAvailabilityCalendar() {
           <p
             className={`mt-3 text-sm font-medium ${
               formMessage.type === "success"
-                ? "text-emerald-600 dark:text-emerald-400"
-                : "text-red-600 dark:text-red-400"
+                ? "text-emerald-600 "
+                : "text-red-600 "
             }`}
           >
             {formMessage.text}
@@ -696,7 +691,7 @@ export default function AdminAvailabilityCalendar() {
 
       {/* Property-level settings: default price/min-stay and the minimum reservation fee */}
       {selectedProperty && (
-        <div className="w-full rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+        <div className="w-full rounded-xl border border-zinc-200 bg-white p-6 shadow-sm    ">
           <button
             type="button"
             onClick={() => setSettingsOpen((v) => !v)}
@@ -711,7 +706,7 @@ export default function AdminAvailabilityCalendar() {
           {settingsOpen && (
             <div className="mt-4 grid gap-4">
               <label className="block col-span-3">
-                <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
                   Precio por defecto
                 </span>
                 <input
@@ -724,11 +719,11 @@ export default function AdminAvailabilityCalendar() {
                       defaultPrice: Number(e.target.value),
                     }))
                   }
-                  className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+                  className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
                 />
               </label>
               <label className="block col-span-3">
-                <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
                   Estadía mínima por defecto
                 </span>
                 <input
@@ -741,11 +736,11 @@ export default function AdminAvailabilityCalendar() {
                       defaultMinStay: Number(e.target.value),
                     }))
                   }
-                  className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+                  className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
                 />
               </label>
-              <label className="block col-span-3">
-                <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+              {/* <label className="block col-span-3">
+                <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
                   Seña mínima requerida
                 </span>
                 <input
@@ -758,9 +753,9 @@ export default function AdminAvailabilityCalendar() {
                       minReservationFee: Number(e.target.value),
                     }))
                   }
-                  className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+                  className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
                 />
-              </label>
+              </label> */}
 
               <div className="sm:col-span-3">
                 <button
@@ -775,8 +770,8 @@ export default function AdminAvailabilityCalendar() {
                   <p
                     className={`mt-3 text-sm font-medium ${
                       settingsMessage.type === "success"
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : "text-red-600 dark:text-red-400"
+                        ? "text-emerald-600 "
+                        : "text-red-600 "
                     }`}
                   >
                     {settingsMessage.text}

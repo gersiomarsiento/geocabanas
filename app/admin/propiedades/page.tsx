@@ -10,6 +10,7 @@ import type {
 import SiteHeroCard from "./SiteHeroCard";
 import SiteContactCard from "./SiteContactCard";
 import PropertyDetailsForm from "./PropertyDetailsForm";
+import { resizeImageForUpload } from "@/lib/resizeImageForUpload";
 
 interface PropertyImage {
   id: string;
@@ -21,6 +22,8 @@ export default function PropiedadesPage() {
   const [properties, setProperties] = useState<Property[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/admin/properties")
@@ -39,17 +42,62 @@ export default function PropiedadesPage() {
     );
   }
 
+  async function handleAddProperty() {
+    const name = window.prompt("Nombre de la nueva propiedad:");
+    if (!name || !name.trim()) return;
+
+    setCreating(true);
+    setCreateError(null);
+
+    try {
+      const res = await fetch("/api/admin/properties", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim() }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error ?? "No se pudo crear la propiedad");
+      }
+
+      setProperties((prev) => [...(prev ?? []), data]);
+      setExpandedId(data.id); // open it immediately so the admin can fill in the rest
+    } catch (e) {
+      setCreateError(e instanceof Error ? e.message : "Error desconocido");
+    } finally {
+      setCreating(false);
+    }
+  }
+
   if (error) {
-    return <p className="text-sm text-red-600 dark:text-red-400">{error}</p>;
+    return <p className="text-sm text-red-600 ">{error}</p>;
   }
 
   return (
     <div>
-      <h1 className="mb-6 text-xl font-semibold">Propiedades</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Propiedades</h1>
+        <button
+          type="button"
+          disabled={creating}
+          onClick={handleAddProperty}
+          className="rounded-md bg-foreground px-3 py-1.5 text-sm font-semibold text-background disabled:opacity-40"
+        >
+          {creating ? "Creando…" : "+ Agregar propiedad"}
+        </button>
+      </div>
+
+      {createError && (
+        <p className="mb-4 text-sm font-medium text-red-600 ">
+          {createError}
+        </p>
+      )}
       <SiteHeroCard />
       <SiteContactCard />
       {!properties ? (
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">Cargando…</p>
+        <p className="text-sm text-zinc-500  ">Cargando…</p>
       ) : (
         <div className="space-y-4">
           {properties.map((property) => (
@@ -83,6 +131,7 @@ function PropertyCard({
   onUpdated: (patch: Partial<Property>) => void;
 }) {
   const [draft, setDraft] = useState<PropertySettingsUpdate>({
+    name: property.name,
     defaultPrice: property.defaultPrice,
     defaultMinStay: property.defaultMinStay,
     minReservationFee: property.minReservationFee,
@@ -117,7 +166,7 @@ function PropertyCard({
   }
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+    <div className="rounded-xl border border-zinc-200 bg-white shadow-sm    ">
       <button
         type="button"
         onClick={onToggle}
@@ -128,10 +177,23 @@ function PropertyCard({
       </button>
 
       {expanded && (
-        <div className="border-t border-zinc-200 px-6 py-4 dark:border-zinc-800">
+        <div className="border-t border-zinc-200 px-6 py-4  ">
           <div className="grid gap-4 sm:grid-cols-3">
             <label className="block">
-              <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+              <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
+                Nombre
+              </span>
+              <input
+                type="text"
+                value={draft.name ?? ""}
+                onChange={(e) =>
+                  setDraft((d) => ({ ...d, name: e.target.value }))
+                }
+                className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
                 Precio por defecto
               </span>
               <input
@@ -144,11 +206,11 @@ function PropertyCard({
                     defaultPrice: Number(e.target.value),
                   }))
                 }
-                className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
               />
             </label>
             <label className="block">
-              <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+              <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
                 Estadía mínima por defecto
               </span>
               <input
@@ -161,11 +223,11 @@ function PropertyCard({
                     defaultMinStay: Number(e.target.value),
                   }))
                 }
-                className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
               />
             </label>
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            {/* <label className="block">
+              <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
                 Seña mínima requerida
               </span>
               <input
@@ -178,9 +240,9 @@ function PropertyCard({
                     minReservationFee: Number(e.target.value),
                   }))
                 }
-                className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
               />
-            </label>
+            </label> */}
           </div>
 
           <button
@@ -191,11 +253,13 @@ function PropertyCard({
             aria-pressed={draft.hideNightlyPrice}
             className={`mt-4 rounded-md border px-3 py-1.5 text-sm transition-colors ${
               draft.hideNightlyPrice
-                ? "border-emerald-400 bg-emerald-50 text-emerald-800 dark:border-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
-                : "border-zinc-300 text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-900"
+                ? "border-emerald-400 bg-emerald-50 text-emerald-800  "
+                : "border-zinc-300 text-zinc-600 hover:bg-zinc-50     "
             }`}
           >
-            {draft.hideNightlyPrice ? "✓ Mostrar precio por noche" : "X Ocultar precio por noche (mostrar solo el total)"}
+            {draft.hideNightlyPrice
+              ? "✓ Mostrar precio por noche"
+              : "X Ocultar precio por noche (mostrar solo el total)"}
           </button>
 
           <button
@@ -211,17 +275,17 @@ function PropertyCard({
             <p
               className={`mt-3 text-sm font-medium ${
                 message.type === "success"
-                  ? "text-emerald-600 dark:text-emerald-400"
-                  : "text-red-600 dark:text-red-400"
+                  ? "text-emerald-600 "
+                  : "text-red-600 "
               }`}
             >
               {message.text}
             </p>
           )}
-          <div className="mt-6 border-t border-zinc-200 pt-6 dark:border-zinc-800">
+          <div className="mt-6 border-t border-zinc-200 pt-6  ">
             <PropertyDetailsForm property={property} onUpdated={onUpdated} />
           </div>
-          <div className="mt-6 border-t border-zinc-200 pt-6 dark:border-zinc-800">
+          <div className="mt-6 border-t border-zinc-200 pt-6  ">
             <PropertyImages propertyId={property.id} />
           </div>
         </div>
@@ -254,8 +318,9 @@ function PropertyImages({ propertyId }: { propertyId: string }) {
     setError(null);
 
     try {
+      const resized = await resizeImageForUpload(file); // ← new line, uses 1600px/q0.82 defaults
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", resized); // ← was `file`
       const res = await fetch(`/api/admin/properties/${propertyId}/images`, {
         method: "POST",
         body: formData,
@@ -291,10 +356,8 @@ function PropertyImages({ propertyId }: { propertyId: string }) {
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
-        <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-          Fotos
-        </span>
-        <label className="cursor-pointer rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700">
+        <span className="text-sm font-medium text-zinc-600  ">Fotos</span>
+        <label className="cursor-pointer rounded-md border border-zinc-300 px-3 py-1.5 text-sm  ">
           {uploading ? "Subiendo…" : "+ Agregar foto"}
           <input
             type="file"
@@ -307,15 +370,13 @@ function PropertyImages({ propertyId }: { propertyId: string }) {
       </div>
 
       {error && (
-        <p className="mb-3 text-sm text-red-600 dark:text-red-400">{error}</p>
+        <p className="mb-3 text-sm text-red-600 ">{error}</p>
       )}
 
       {!images ? (
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">Cargando…</p>
+        <p className="text-sm text-zinc-500  ">Cargando…</p>
       ) : images.length === 0 ? (
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          Todavía no hay fotos.
-        </p>
+        <p className="text-sm text-zinc-500  ">Todavía no hay fotos.</p>
       ) : (
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
           {images.map((image) => (

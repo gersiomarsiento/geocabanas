@@ -16,10 +16,17 @@ export default function CaretIcon({ className }: CaretIconProps) {
     >
       <g id="Arrow / Caret_Right_SM">
         <path
-          id="Vector"
+          d="M11 9L14 12L11 15"
+          stroke="black"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+
+        <path
           d="M11 9L14 12L11 15"
           stroke="currentColor"
-          strokeWidth="2"
+          strokeWidth="1"
           strokeLinecap="round"
           strokeLinejoin="round"
         />

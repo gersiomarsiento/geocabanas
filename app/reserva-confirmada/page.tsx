@@ -15,11 +15,11 @@ export default async function ReservaConfirmadaPage({
   const { id } = await searchParams;
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 px-6 py-12 dark:bg-black">
-      <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-8 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 px-6 py-12  ">
+      <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-8 text-center shadow-sm    ">
         <h1 className="mb-3 text-xl font-semibold">¡Solicitud recibida!</h1>
 
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="text-sm text-zinc-600  ">
           En breve vas a recibir un email con la información para confirmar tu
           reserva. Revisá tu bandeja de entrada (y la carpeta de spam, por las
           dudas).

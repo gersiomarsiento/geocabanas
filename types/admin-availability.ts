@@ -58,6 +58,7 @@ export type BulkUpdatePayload = {
 // Covers both pricing settings and the property-detail fields, since both
 // are saved through the same endpoint.
 export type PropertySettingsUpdate = {
+  name?: string;
   defaultPrice?: number;
   defaultMinStay?: number;
   minReservationFee?: number;

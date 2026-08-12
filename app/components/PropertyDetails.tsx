@@ -99,10 +99,10 @@ export default function PropertyDetails({
   if (!hasAnything) return null;
 
   return (
-    <div className="w-full rounded-b-xl border border-zinc-200 bg-white p-3 md:p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+    <div className="w-full rounded-b-xl border border-zinc-200 bg-white p-3 md:p-6 shadow-sm    ">
       <div className="font-bold mb-4">{propertyName}</div>
       {stats.length > 0 && (
-        <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-zinc-700 dark:text-zinc-300">
+        <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-zinc-700 ">
           {stats.map((stat, i) => (
             <span key={i} className="flex items-center gap-1.5">
               {stat.icon}
@@ -118,8 +118,8 @@ export default function PropertyDetails({
             <span
               className={`rounded-md px-3 py-1 text-xs font-medium ${
                 property.childrenAllowed
-                  ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
-                  : "bg-zinc-100 text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400"
+                  ? "bg-emerald-50 text-emerald-800 "
+                  : "bg-zinc-100 text-zinc-500    "
               }`}
             >
               {property.childrenAllowed
@@ -131,8 +131,8 @@ export default function PropertyDetails({
             <span
               className={`rounded-md px-3 py-1 text-xs font-medium ${
                 property.petsAllowed
-                  ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
-                  : "bg-zinc-100 text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400"
+                  ? "bg-emerald-50 text-emerald-800 "
+                  : "bg-zinc-100 text-zinc-500    "
               }`}
             >
               {property.petsAllowed
@@ -145,10 +145,10 @@ export default function PropertyDetails({
 
       {amenityLabels.length > 0 && (
         <div>
-          <h3 className="mb-2 text-sm font-medium text-zinc-600 dark:text-zinc-400">
+          <h3 className="mb-2 text-sm font-medium text-zinc-600  ">
             Servicios y comodidades
           </h3>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm text-zinc-700 dark:text-zinc-300 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm text-zinc-700  sm:grid-cols-3">
             {amenityLabels.map((a) => (
               <span key={a.id} className="flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />

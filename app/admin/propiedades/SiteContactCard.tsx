@@ -73,15 +73,15 @@ export default function SiteContactCard() {
   }
 
   return (
-    <div className="mb-4 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+    <div className="mb-4 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm    ">
       <h2 className="mb-4 text-base font-semibold">Contacto y ubicación</h2>
 
       {!draft ? (
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">Cargando…</p>
+        <p className="text-sm text-zinc-500  ">Cargando…</p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
               WhatsApp (sin + ni espacios, ej: 59899123456)
             </span>
             <input
@@ -92,12 +92,12 @@ export default function SiteContactCard() {
                   d ? { ...d, contactWhatsapp: e.target.value } : d,
                 )
               }
-              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
             />
           </label>
 
           <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
               Email de contacto
             </span>
             <input
@@ -108,12 +108,12 @@ export default function SiteContactCard() {
                   d ? { ...d, contactEmail: e.target.value } : d,
                 )
               }
-              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
             />
           </label>
 
           <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
               Instagram
             </span>
             <input
@@ -124,12 +124,12 @@ export default function SiteContactCard() {
                   d ? { ...d, contactInstagram: e.target.value } : d,
                 )
               }
-              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
             />
           </label>
 
           <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
               Latitud
             </span>
             <input
@@ -147,12 +147,12 @@ export default function SiteContactCard() {
                     : d,
                 )
               }
-              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
             />
           </label>
 
           <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
               Longitud
             </span>
             <input
@@ -170,12 +170,12 @@ export default function SiteContactCard() {
                     : d,
                 )
               }
-              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
             />
           </label>
 
           <label className="block sm:col-span-2">
-            <span className="mb-1.5 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
               Dirección (texto visible junto al mapa)
             </span>
             <input
@@ -184,7 +184,7 @@ export default function SiteContactCard() {
               onChange={(e) =>
                 setDraft((d) => (d ? { ...d, mapAddress: e.target.value } : d))
               }
-              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
             />
           </label>
         </div>
@@ -208,8 +208,8 @@ export default function SiteContactCard() {
         <p
           className={`mt-3 text-sm font-medium ${
             message.type === "success"
-              ? "text-emerald-600 dark:text-emerald-400"
-              : "text-red-600 dark:text-red-400"
+              ? "text-emerald-600 "
+              : "text-red-600 "
           }`}
         >
           {message.text}
