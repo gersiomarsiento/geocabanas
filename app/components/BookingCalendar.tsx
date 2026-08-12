@@ -406,7 +406,7 @@ export default function BookingCalendar() {
           <div className="flex flex-col items-center rounded-t-xl border border-b-0 border-zinc-200 bg-white shadow-sm">
             <label
               htmlFor="visitor-property-select"
-              className="text-sm font-medium text-white bg-black rounded-t-xl w-full text-center content-center h-15"
+              className="text-sm font-bold text-white bg-black rounded-t-xl w-full text-center content-center h-15"
             >
               Seleccioná la propiedad
             </label>
