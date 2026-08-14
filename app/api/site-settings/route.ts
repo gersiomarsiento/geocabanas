@@ -5,17 +5,14 @@
 // the hero image split.
 
 import { NextResponse } from "next/server";
-import { getHeroUrl } from "@/lib/site/hero";
+import { getHeroUrl, getLogoUrl } from "@/lib/site/hero";
 import { getContactSettings } from "@/lib/site/settings";
 
 export async function GET() {
-  const [heroUrl, contact] = await Promise.all([
+  const [heroUrl, logoUrl, contact] = await Promise.all([
     getHeroUrl(),
+    getLogoUrl(),
     getContactSettings(),
   ]);
-
-  return NextResponse.json({
-    heroUrl,
-    ...contact,
-  });
+  return NextResponse.json({ heroUrl, logoUrl, ...contact });
 }

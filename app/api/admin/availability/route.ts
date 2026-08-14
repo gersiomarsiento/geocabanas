@@ -1,4 +1,4 @@
-// app/api/admin/availability/route.ts — GET handler only.
+// app/api/admin/availability/route.ts
 
 import { nextDate, expandRangesToDateSet } from "@/lib/calendar/dates";
 import { NextResponse } from "next/server";
@@ -113,7 +113,7 @@ export async function GET(request: Request) {
       // reservation (like the one that caused the earlier confusion)
       // now correctly shows as reserved too.
       reserved: Boolean(activeReservation),
-      price: override?.price ?? property.default_price ?? null,
+      price: Number(override?.price ?? property.default_price ?? 0) ,
       minStay: override?.min_stay ?? property.default_min_stay ?? null,
     });
   }

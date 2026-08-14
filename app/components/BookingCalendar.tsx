@@ -386,7 +386,7 @@ export default function BookingCalendar() {
       : "Seleccioná otra fecha de entrada para modificar";
 
   const money = currencyFormatter(selectedProperty?.currency ?? "UYU");
-
+  {console.log("stayTotal:", stayTotal, "hideNightlyPrice:", selectedProperty?.hideNightlyPrice)}
   const hasValidRange =
     startDate && endDate && toDateKey(startDate) !== toDateKey(endDate);
 
@@ -574,7 +574,7 @@ export default function BookingCalendar() {
             </div>
           </div>
         </div>
-        <div className="h-full w-full min-h-26 content-center rounded-b-xl border border-zinc-200 bg-black p-3 shadow-sm md:p-6">
+        <div className="h-full w-full min-h-34 content-center rounded-b-xl border border-zinc-200 bg-black p-3 shadow-sm md:p-6">
           {hasValidRange && !rangeError && stayTotal ? (
             <>
               <p className="text-white font-bold mb-2 text-center">
@@ -584,7 +584,7 @@ export default function BookingCalendar() {
                 {formatDisplayDate(startDate)} → {formatDisplayDate(endDate)}
               </p>
 
-              {selectedProperty?.hideNightlyPrice && (
+              
                 <p className="mt-1 text-center text-sm text-white">
                   {stayTotal.nights}{" "}
                   {stayTotal.nights === 1 ? "noche" : "noches"} ·{" "}
@@ -592,7 +592,7 @@ export default function BookingCalendar() {
                     {money.format(stayTotal.total)} total
                   </span>
                 </p>
-              )}
+              
             </>
           ) : (
             <p className="text-center text-sm text-white">

@@ -7,8 +7,8 @@ import type {
   Property,
   PropertySettingsUpdate,
 } from "@/types/admin-availability";
-import SiteHeroCard from "./SiteHeroCard";
-import SiteContactCard from "./SiteContactCard";
+// import SiteHeroCard from "./SiteHeroCard";
+// import SiteContactCard from "./SiteContactCard";
 import PropertyDetailsForm from "./PropertyDetailsForm";
 import { resizeImageForUpload } from "@/lib/resizeImageForUpload";
 
@@ -94,8 +94,8 @@ export default function PropiedadesPage() {
           {createError}
         </p>
       )}
-      <SiteHeroCard />
-      <SiteContactCard />
+      {/* <SiteHeroCard /> */}
+      {/* <SiteContactCard /> */}
       {!properties ? (
         <p className="text-sm text-zinc-500  ">Cargando…</p>
       ) : (

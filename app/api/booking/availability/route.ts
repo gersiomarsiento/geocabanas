@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
       days.push({
         date,
         available,
-        price: override?.price ?? property.default_price ?? null,
+        price: Number(override?.price ?? property.default_price ?? 0),
         minStay: override?.min_stay ?? property.default_min_stay ?? null,
       });
 

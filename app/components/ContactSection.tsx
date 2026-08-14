@@ -8,9 +8,9 @@
 // empty in the admin form is simply omitted here instead of showing "null".
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import {
   WhatsAppIcon,
-  MailIcon,
   InstagramIcon,
   FacebookIcon,
   PinIcon,
@@ -19,6 +19,7 @@ import {
 } from "@/app/components/icons";
 
 interface SiteSettingsResponse {
+  logoUrl: string | null;
   contactWhatsapp: string | null;
   contactEmail: string | null;
   contactInstagram: string | null;
@@ -57,6 +58,7 @@ export default function ContactSection() {
   }
 
   const {
+    logoUrl,
     contactWhatsapp,
     contactEmail,
     contactInstagram,
@@ -82,9 +84,18 @@ export default function ContactSection() {
       id="contact-section"
       className="w-full border border-zinc-200 bg-white p-6 shadow-sm    "
     >
-      <div className="max-w-360 md:flex md:max-w-full md:justify-between w-full justify-self-center md:px-6 2xl:px-12">
+      <div className="max-w-360 md:flex md:justify-between w-full justify-self-center md:px-6 2xl:px-12">
         <div className="md:w-1/2 relative">
           <h2 className="mb-4 text-lg font-semibold">Contacto</h2>
+          {logoUrl && (
+            <Image
+              src={logoUrl}
+              alt="Geocabañas"
+              width={120}
+              height={30}
+              className="mb-3 h-14 w-auto brightness-0"
+            />
+          )}
           <h4 className="font-bold">Geocabañas</h4>
           <p>Danubio y San Francisco</p>
           <p>Punta del Diablo, Rocha</p>
@@ -102,7 +113,7 @@ export default function ContactSection() {
             reservas@geocabañas.com.uy
           </p>
           {hasAnyContact && (
-            <div className="my-6 md:m-0 md:absolute md:bottom-0 md:left-0 flex flex-wrap gap-3">
+            <div className="mt-6 flex flex-wrap gap-3">
               {contactWhatsapp && (
                 <a
                   href={`https://wa.me/${contactWhatsapp.replace(/\D/g, "")}`}
@@ -135,15 +146,16 @@ export default function ContactSection() {
           )}
         </div>
         {hasMap && (
-          <div className="md:w-1/2">
-            <div className="overflow-hidden rounded-lg border border-zinc-200  ">
+          <div className="md:w-1/2 flex flex-col">
+            <div className="overflow-hidden rounded-lg border border-zinc-200 flex-1 min-h-70">
               <iframe
                 title="Ubicación"
                 width="100%"
-                height="280"
+                height="100%"
                 loading="lazy"
                 style={{ border: 0 }}
                 src={`https://www.google.com/maps?q=${mapLatitude},${mapLongitude}&hl=es&z=14&output=embed`}
+                className="min-h-70"
               />
             </div>
             {(mapAddress || mapsLink) && (

@@ -14,25 +14,29 @@ interface HeroCopy {
 
 export default function SiteHeroCard() {
   const [heroUrl, setHeroUrl] = useState<string | null | undefined>(undefined); // undefined = loading
+  const [logoUrl, setLogoUrl] = useState<string | null | undefined>(undefined);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [copyDraft, setCopyDraft] = useState<HeroCopy | null>(null);
   const [savingCopy, setSavingCopy] = useState(false);
-  const [copyMessage, setCopyMessage] = useState<{ type: "success" | "error"; text: string } | null>(
-    null,
-  );
+  const [copyMessage, setCopyMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   useEffect(() => {
     fetch("/api/site-settings")
       .then((res) => {
         if (!res.ok) throw new Error("No se pudo cargar la imagen principal");
         return res.json() as Promise<
-          { heroUrl: string | null } & HeroCopy
+          { heroUrl: string | null; logoUrl: string | null } & HeroCopy
         >;
       })
       .then((data) => {
         setHeroUrl(data.heroUrl);
+        setLogoUrl(data.logoUrl);
         setCopyDraft({
           heroTitle: data.heroTitle,
           heroSubtitle: data.heroSubtitle,
@@ -86,9 +90,36 @@ export default function SiteHeroCard() {
       if (!res.ok) throw new Error("No se pudo guardar");
       setCopyMessage({ type: "success", text: "Guardado." });
     } catch (e) {
-      setCopyMessage({ type: "error", text: e instanceof Error ? e.message : "Error" });
+      setCopyMessage({
+        type: "error",
+        text: e instanceof Error ? e.message : "Error",
+      });
     } finally {
       setSavingCopy(false);
+    }
+  }
+
+  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = "";
+    setUploadingLogo(true);
+    try {
+      const resized = await resizeImageForUpload(file, {
+        maxDimension: 800,
+        quality: 0.9,
+      });
+      const formData = new FormData();
+      formData.append("file", resized);
+      const res = await fetch("/api/admin/site-logo", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error("No se pudo subir el logo");
+      const data = (await res.json()) as { logoUrl: string };
+      setLogoUrl(data.logoUrl);
+    } finally {
+      setUploadingLogo(false);
     }
   }
 
@@ -133,11 +164,34 @@ export default function SiteHeroCard() {
           </label>
         </div>
       )}
-
+      <div className="mt-6 flex items-center gap-4 border-t border-zinc-200 pt-6">
+        <div className="h-16 w-16 overflow-hidden rounded-md bg-zinc-100">
+          {logoUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={logoUrl}
+              alt=""
+              className="h-full w-full object-contain"
+            />
+          )}
+        </div>
+        <label className="cursor-pointer rounded-md border border-zinc-300 px-3 py-1.5 text-sm">
+          {uploadingLogo
+            ? "Subiendo…"
+            : logoUrl
+              ? "Cambiar logo"
+              : "Subir logo"}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleLogoUpload}
+            disabled={uploadingLogo}
+            className="hidden"
+          />
+        </label>
+      </div>
       {error && (
-        <p className="mt-3 text-sm font-medium text-red-600 ">
-          {error}
-        </p>
+        <p className="mt-3 text-sm font-medium text-red-600 ">{error}</p>
       )}
 
       {/* NEW: hero copy section */}
@@ -145,24 +199,32 @@ export default function SiteHeroCard() {
         <>
           <div className="mt-6 grid gap-4 border-t border-zinc-200 pt-6 sm:grid-cols-2">
             <label className="block sm:col-span-2">
-              <span className="mb-1.5 block text-sm font-medium text-zinc-600">Título</span>
+              <span className="mb-1.5 block text-sm font-medium text-zinc-600">
+                Título
+              </span>
               <input
                 type="text"
                 value={copyDraft.heroTitle ?? ""}
                 onChange={(e) =>
-                  setCopyDraft((d) => (d ? { ...d, heroTitle: e.target.value } : d))
+                  setCopyDraft((d) =>
+                    d ? { ...d, heroTitle: e.target.value } : d,
+                  )
                 }
                 className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
               />
             </label>
 
             <label className="block sm:col-span-2">
-              <span className="mb-1.5 block text-sm font-medium text-zinc-600">Subtítulo</span>
+              <span className="mb-1.5 block text-sm font-medium text-zinc-600">
+                Subtítulo
+              </span>
               <input
                 type="text"
                 value={copyDraft.heroSubtitle ?? ""}
                 onChange={(e) =>
-                  setCopyDraft((d) => (d ? { ...d, heroSubtitle: e.target.value } : d))
+                  setCopyDraft((d) =>
+                    d ? { ...d, heroSubtitle: e.target.value } : d,
+                  )
                 }
                 className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
               />
@@ -176,7 +238,9 @@ export default function SiteHeroCard() {
                 type="text"
                 value={copyDraft.heroButtonText ?? ""}
                 onChange={(e) =>
-                  setCopyDraft((d) => (d ? { ...d, heroButtonText: e.target.value } : d))
+                  setCopyDraft((d) =>
+                    d ? { ...d, heroButtonText: e.target.value } : d,
+                  )
                 }
                 className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
               />
@@ -190,7 +254,9 @@ export default function SiteHeroCard() {
                 type="text"
                 value={copyDraft.heroButtonHref ?? ""}
                 onChange={(e) =>
-                  setCopyDraft((d) => (d ? { ...d, heroButtonHref: e.target.value } : d))
+                  setCopyDraft((d) =>
+                    d ? { ...d, heroButtonHref: e.target.value } : d,
+                  )
                 }
                 placeholder="#reservar-button"
                 className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
@@ -199,8 +265,9 @@ export default function SiteHeroCard() {
           </div>
 
           <p className="mt-3 text-xs text-zinc-400">
-            El link debe empezar con # y coincidir con el id de una sección real del sitio. Si no
-            coincide con ningún id, el botón no va a hacer nada al hacer clic.
+            El link debe empezar con # y coincidir con el id de una sección real
+            del sitio. Si no coincide con ningún id, el botón no va a hacer nada
+            al hacer clic.
           </p>
 
           <button
@@ -215,7 +282,9 @@ export default function SiteHeroCard() {
           {copyMessage && (
             <p
               className={`mt-3 text-sm font-medium ${
-                copyMessage.type === "success" ? "text-emerald-600" : "text-red-600"
+                copyMessage.type === "success"
+                  ? "text-emerald-600"
+                  : "text-red-600"
               }`}
             >
               {copyMessage.text}
