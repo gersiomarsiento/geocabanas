@@ -12,7 +12,10 @@ import {
   WhatsAppIcon,
   MailIcon,
   InstagramIcon,
+  FacebookIcon,
   PinIcon,
+  LetterIcon,
+  PhoneIcon,
 } from "@/app/components/icons";
 
 interface SiteSettingsResponse {
@@ -75,50 +78,64 @@ export default function ContactSection() {
       : null;
 
   return (
-    <div className="w-full border border-zinc-200 bg-white p-6 shadow-sm    ">
-      <div className="max-w-360 w-full justify-self-center md:px-6 2xl:px-12">
-        <h2 className="mb-4 text-lg font-semibold">Contacto</h2>
-        <h4 className="font-bold">Geocabañas</h4>
-        <p>Danubio y San Francisco, Punta del Diablo</p>
-        <p>Rocha, Uruguay</p>
-        <br />
-        {hasAnyContact && (
-          <div className="mb-6 flex flex-wrap gap-3">
-            {contactWhatsapp && (
+    <div
+      id="contact-section"
+      className="w-full border border-zinc-200 bg-white p-6 shadow-sm    "
+    >
+      <div className="max-w-360 md:flex md:max-w-full md:justify-between w-full justify-self-center md:px-6 2xl:px-12">
+        <div className="md:w-1/2 relative">
+          <h2 className="mb-4 text-lg font-semibold">Contacto</h2>
+          <h4 className="font-bold">Geocabañas</h4>
+          <p>Danubio y San Francisco</p>
+          <p>Punta del Diablo, Rocha</p>
+          <p>Uruguay</p>
+          <p className="flex gap-2 items-center mt-2">
+            <span>
+              <PhoneIcon />
+            </span>
+            +598 98 583 384
+          </p>
+          <p className="flex gap-2 items-center mt-2">
+            <span>
+              <LetterIcon />
+            </span>
+            reservas@geocabañas.com.uy
+          </p>
+          {hasAnyContact && (
+            <div className="my-6 md:m-0 md:absolute md:bottom-0 md:left-0 flex flex-wrap gap-3">
+              {contactWhatsapp && (
+                <a
+                  href={`https://wa.me/${contactWhatsapp.replace(/\D/g, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 rounded-md hover:bg-[#25D366] px-4 py-2 text-sm font-semibold text-black transition-colors hover:text-white"
+                >
+                  <WhatsAppIcon className="h-8 w-8" />
+                </a>
+              )}
+              {contactInstagram && (
+                <a
+                  href={normalizeInstagramHandle(contactInstagram)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[#8134af] hover:text-white"
+                >
+                  <InstagramIcon className="h-8 w-8" />
+                </a>
+              )}
               <a
-                href={`https://wa.me/${contactWhatsapp.replace(/\D/g, "")}`}
+                href="https://www.facebook.com/GeoPuntadelDiablo/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 rounded-md bg-foreground px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90"
+                className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[#1877f2] hover:text-white"
               >
-                <WhatsAppIcon />
-                WhatsApp
+                <FacebookIcon className="h-8 w-8" />
               </a>
-            )}
-            {contactEmail && (
-              <a
-                href={`mailto:${contactEmail}`}
-                className="flex items-center gap-2 rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100"
-              >
-                <MailIcon />
-                {contactEmail}
-              </a>
-            )}
-            {contactInstagram && (
-              <a
-                href={normalizeInstagramHandle(contactInstagram)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100"
-              >
-                <InstagramIcon />
-                Instagram
-              </a>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
         {hasMap && (
-          <div>
+          <div className="md:w-1/2">
             <div className="overflow-hidden rounded-lg border border-zinc-200  ">
               <iframe
                 title="Ubicación"

@@ -1,6 +1,7 @@
 // lib/email/reservationEmails.ts
 
 import { resend, FROM_ADDRESS, ADMIN_EMAIL } from "./resend";
+import { getContactSettings } from "@/lib/site/settings";
 
 export interface ReservationEmailData {
   reservationId: string;
@@ -13,6 +14,8 @@ export interface ReservationEmailData {
   nights: number;
   totalPrice: number;
   depositAmount: number;
+  emailSubject: string | null;
+  emailIntro: string | null;
 }
 
 function formatDate(dateISO: string): string {
@@ -35,15 +38,20 @@ export async function sendGuestConfirmationEmail(data: ReservationEmailData) {
   return resend.emails.send({
     from: FROM_ADDRESS,
     to: data.guestEmail,
-    subject: `Recibimos tu solicitud de reserva — ${data.propertyName}`,
+    subject:
+      data.emailSubject ??
+      `Recibimos tu solicitud de reserva — ${data.propertyName}`,
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
         <h2>¡Gracias, ${data.guestName}!</h2>
-        <p>Recibimos tu solicitud de reserva para <strong>${data.propertyName}</strong>.</p>
+        <div>${
+          data.emailIntro ??
+          `<p>Recibimos tu solicitud de reserva para <strong>${data.propertyName}</strong>.</p>
         <p>La misma estará pendiente de confirmación durante las siguientes 24 horas. Para confirmar tu reserva, pedimos un depósito del 50% del total de la misma. En caso de no recibir el depósito, la reserva se cancelará y se liberarán las fechas en el calendario.</p>
         <p>Puedes hacer tu depósito a la siguiente cuenta:</p>
         <p>BROU: xxxxxxxx</p>
-        <p>Una vez realizada, contactanos por WhatsApp al +598 1234 1234 para enviarnos el comprobante.</p>
+        <p>Una vez realizada, contactanos por WhatsApp al +598 1234 1234 para enviarnos el comprobante.</p>`
+        }</div>
         <table style="width: 100%; margin: 16px 0; font-size: 14px; border-collapse: collapse;">
           <tr><td style="padding: 4px 0;">Check-in</td><td style="text-align: right;"><strong>${formatDate(data.startDate)}</strong></td></tr>
           <tr><td style="padding: 4px 0;">Check-out</td><td style="text-align: right;"><strong>${formatDate(data.endDate)}</strong></td></tr>
@@ -94,17 +102,21 @@ export async function sendAdminNotificationEmail(data: ReservationEmailData) {
 // Sends both independently. A failure in one shouldn't block the other,
 // and neither failure should ever undo the reservation itself — by the
 // time this runs, it's already committed to the DB.
-export async function sendReservationEmails(data: ReservationEmailData) {
+export async function sendReservationEmails(
+  data: Omit<ReservationEmailData, "emailSubject" | "emailIntro">,
+) {
+  const { emailSubject, emailIntro } = await getContactSettings();
+  const fullData: ReservationEmailData = { ...data, emailSubject, emailIntro };
+
   const results = await Promise.allSettled([
-    sendGuestConfirmationEmail(data),
-    sendAdminNotificationEmail(data),
+    sendGuestConfirmationEmail(fullData),
+    sendAdminNotificationEmail(fullData),
   ]);
 
   results.forEach((result, i) => {
     if (result.status === "rejected") {
-      const label = i === 0 ? "guest" : "admin";
       console.error(
-        `Failed to send ${label} reservation email:`,
+        `Failed to send ${i === 0 ? "guest" : "admin"} email:`,
         result.reason,
       );
     }

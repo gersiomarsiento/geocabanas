@@ -82,13 +82,22 @@ export async function POST(request: Request) {
     slug = `${baseSlug}-${Math.random().toString(36).slice(2, 6)}`;
   }
 
+  const { data: siteDefaults } = await supabaseAdmin
+    .from("site_settings")
+    .select("default_property_price, default_property_min_stay")
+    .eq("id", "singleton")
+    .single();
+
+  const defaultPrice = siteDefaults?.default_property_price ?? 0;
+  const defaultMinStay = siteDefaults?.default_property_min_stay ?? 1;
+
   const { data: property, error } = await supabaseAdmin
     .from("properties")
     .insert({
       name,
       slug,
-      default_price: 0,
-      default_min_stay: 1,
+      default_price: defaultPrice,
+      default_min_stay: defaultMinStay,
       min_reservation_fee: 0,
       hide_nightly_price: false,
       children_allowed: true,

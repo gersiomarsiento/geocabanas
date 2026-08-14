@@ -505,9 +505,7 @@ export default function AdminAvailabilityCalendar() {
         </div>
 
         {ratesError ? (
-          <p className="py-8 text-center text-sm text-red-600 ">
-            {ratesError}
-          </p>
+          <p className="py-8 text-center text-sm text-red-600 ">{ratesError}</p>
         ) : !rates ? (
           <p className="py-8 text-center text-sm text-zinc-500  ">
             Cargando disponibilidad…
@@ -688,100 +686,6 @@ export default function AdminAvailabilityCalendar() {
           </p>
         )}
       </div>
-
-      {/* Property-level settings: default price/min-stay and the minimum reservation fee */}
-      {selectedProperty && (
-        <div className="w-full rounded-xl border border-zinc-200 bg-white p-6 shadow-sm    ">
-          <button
-            type="button"
-            onClick={() => setSettingsOpen((v) => !v)}
-            className="flex w-full items-center justify-between text-left"
-          >
-            <span className="text-base font-semibold">
-              Configuración de {selectedProperty.name}
-            </span>
-            <span className="text-zinc-500">{settingsOpen ? "−" : "+"}</span>
-          </button>
-
-          {settingsOpen && (
-            <div className="mt-4 grid gap-4">
-              <label className="block col-span-3">
-                <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
-                  Precio por defecto
-                </span>
-                <input
-                  type="number"
-                  min={0}
-                  value={settingsDraft.defaultPrice ?? ""}
-                  onChange={(e) =>
-                    setSettingsDraft((d) => ({
-                      ...d,
-                      defaultPrice: Number(e.target.value),
-                    }))
-                  }
-                  className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
-                />
-              </label>
-              <label className="block col-span-3">
-                <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
-                  Estadía mínima por defecto
-                </span>
-                <input
-                  type="number"
-                  min={1}
-                  value={settingsDraft.defaultMinStay ?? ""}
-                  onChange={(e) =>
-                    setSettingsDraft((d) => ({
-                      ...d,
-                      defaultMinStay: Number(e.target.value),
-                    }))
-                  }
-                  className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
-                />
-              </label>
-              {/* <label className="block col-span-3">
-                <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
-                  Seña mínima requerida
-                </span>
-                <input
-                  type="number"
-                  min={0}
-                  value={settingsDraft.minReservationFee ?? ""}
-                  onChange={(e) =>
-                    setSettingsDraft((d) => ({
-                      ...d,
-                      minReservationFee: Number(e.target.value),
-                    }))
-                  }
-                  className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
-                />
-              </label> */}
-
-              <div className="sm:col-span-3">
-                <button
-                  type="button"
-                  disabled={settingsSaving}
-                  onClick={saveSettings}
-                  className="rounded-md bg-foreground px-4 py-2 text-sm font-semibold text-background transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  {settingsSaving ? "Guardando…" : "Guardar configuración"}
-                </button>
-                {settingsMessage && (
-                  <p
-                    className={`mt-3 text-sm font-medium ${
-                      settingsMessage.type === "success"
-                        ? "text-emerald-600 "
-                        : "text-red-600 "
-                    }`}
-                  >
-                    {settingsMessage.text}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }

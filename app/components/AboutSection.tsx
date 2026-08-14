@@ -55,11 +55,12 @@ export default function AboutSection() {
   return (
     <section
       aria-label="Quiénes somos y nuestras cabañas"
+      id="quienes-somos"
       className="mx-auto bg-black text-white w-full px-3 py-10 md:px-6"
     >
       <div className="text-center">
-        <h2 className="text-xl font-semibold">Quiénes somos</h2>
-        <p className="mx-auto mt-3 max-w-md text-sm ">
+        <h2 className="text-xl md:text-3xl font-semibold">Quiénes somos</h2>
+        <p className="mx-auto mt-3 md:mt-5 max-w-md md:max-w-2xl text-sm md:text-xl">
           Somos una familia de Punta del Diablo dedicada a ofrecer estadías
           cómodas y a pasos de la playa. Cada cabaña está pensada para que te
           sientas como en casa.
@@ -72,19 +73,19 @@ export default function AboutSection() {
         </a> */}
       </div>
 
-      <div className="mt-10">
-        <h3 className="text-center text-lg font-semibold">Nuestras cabañas</h3>
+      <div className="mt-10 md:mt-16">
+        <h3 className="text-center text-md md:text-2xl font-semibold">Nuestras cabañas</h3>
 
         {!properties ? (
           <p className="mt-4 text-center text-sm text-zinc-500  ">Cargando…</p>
         ) : properties.length > 0 ? (
-          <div className="mt-5 flex flex-wrap justify-center gap-6">
+          <div className="mt-5 md:mt-10 flex flex-wrap justify-center gap-6">
             {properties.map((property) => (
               <div
                 key={property.id}
-                className="flex w-40 flex-col items-center gap-2 text-center"
+                className="flex w-40 md:w-60 flex-col items-center gap-2 text-center"
               >
-                <div className="h-40 w-40 overflow-hidden rounded-full border border-zinc-200 bg-zinc-100    ">
+                <div className="h-40 w-40 md:h-60 md:w-60 overflow-hidden rounded-full border border-zinc-200 bg-zinc-100    ">
                   {property.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img

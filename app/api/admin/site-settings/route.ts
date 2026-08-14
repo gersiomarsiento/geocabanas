@@ -14,6 +14,12 @@ interface SiteSettingsUpdate {
   mapLatitude?: number;
   mapLongitude?: number;
   mapAddress?: string;
+  heroTitle?: string;
+  heroSubtitle?: string;
+  heroButtonText?: string;
+  heroButtonHref?: string;
+  emailSubject?: string;
+  emailIntro?: string;
 }
 
 export async function PATCH(request: Request) {
@@ -23,10 +29,19 @@ export async function PATCH(request: Request) {
   if (body.contactWhatsapp != null)
     update.contact_whatsapp = body.contactWhatsapp;
   if (body.contactEmail != null) update.contact_email = body.contactEmail;
-  if (body.contactInstagram != null) update.contact_instagram = body.contactInstagram;
+  if (body.contactInstagram != null)
+    update.contact_instagram = body.contactInstagram;
   if (body.mapLatitude != null) update.map_latitude = body.mapLatitude;
   if (body.mapLongitude != null) update.map_longitude = body.mapLongitude;
   if (body.mapAddress != null) update.map_address = body.mapAddress;
+  if (body.heroTitle != null) update.hero_title = body.heroTitle;
+  if (body.heroSubtitle != null) update.hero_subtitle = body.heroSubtitle;
+  if (body.heroButtonText != null)
+    update.hero_button_text = body.heroButtonText;
+  if (body.heroButtonHref != null)
+    update.hero_button_href = body.heroButtonHref;
+  if (body.emailSubject != null) update.email_subject = body.emailSubject;
+  if (body.emailIntro != null) update.email_intro = body.emailIntro;
 
   if (Object.keys(update).length === 0) {
     return NextResponse.json(

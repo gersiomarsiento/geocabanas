@@ -1,18 +1,14 @@
-import Image from "next/image";
 import BookingCalendar from "./components/BookingCalendar";
 import ContactSection from "./components/ContactSection";
 import Footer from "./components/Footer";
 import HeroImage from "./components/HeroImage";
 import AboutSection from "./components/AboutSection";
+import Header from "./components/Header";
 
-export default function Home() {
+export default async function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 font-sans">
-      <header className="p-3 text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-black md:text-4xl">
-          GEOCABAÑAS
-        </h1>
-      </header>
+      <Header />
 
       <section
         aria-label="Imagen principal"
@@ -21,12 +17,6 @@ export default function Home() {
         <div className="flex h-full w-full flex-col items-center gap-2 text-white">
           <HeroImage />
         </div>
-        <a
-          href="#reservar-button"
-          className="scroll-smooth z-0 bg-white font-bold text-black py-2 px-4 border border-black rounded-md absolute bottom-10"
-        >
-          RESERVAR
-        </a>
       </section>
 
       <AboutSection />

@@ -55,7 +55,7 @@ export async function POST(request: Request) {
   const { data: property, error: propertyError } = await supabaseAdmin
     .from("properties")
     .select(
-      "id, name, default_price, default_min_stay, min_reservation_fee, booking_ical_url",
+      "id, name, default_price, default_min_stay, deposit_percentage, booking_ical_url",
     )
     .eq("id", propertyId)
     .single();
@@ -145,7 +145,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const depositAmount = property.min_reservation_fee ?? 0;
+  const depositAmount = totalPrice * ((property.deposit_percentage ?? 0) / 100);
 
   const { data: reservation, error: insertError } = await supabaseAdmin
     .from("reservations")
