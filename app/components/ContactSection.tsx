@@ -113,7 +113,7 @@ export default function ContactSection() {
             reservas@geocabañas.com.uy
           </p>
           {hasAnyContact && (
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="my-6 md:mb-0 flex flex-wrap gap-3">
               {contactWhatsapp && (
                 <a
                   href={`https://wa.me/${contactWhatsapp.replace(/\D/g, "")}`}

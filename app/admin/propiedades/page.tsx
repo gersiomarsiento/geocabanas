@@ -176,6 +176,10 @@ function PropertyCard({
   onToggle: () => void;
   onUpdated: (patch: Partial<Property>) => void;
 }) {
+  const [openSubsection, setOpenSubsection] = useState<
+    "pricing" | "details" | "photos" | null
+  >("pricing");
+
   const [draft, setDraft] = useState<PropertySettingsUpdate>({
     name: property.name,
     defaultPrice: property.defaultPrice,
@@ -216,7 +220,7 @@ function PropertyCard({
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center gap-3 px-6 py-4 text-left transition-colors bg-primary text-primary-foreground hover:bg-zinc-50"
+        className="flex w-full items-center gap-3 px-6 py-4 text-left transition bg-primary text-primary-foreground hover:bg-zinc-50 hover:text-foreground"
       >
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-xs font-semibold text-zinc-600">
           {property.name.slice(0, 2).toUpperCase()}
@@ -225,99 +229,131 @@ function PropertyCard({
         <ChevronIcon open={expanded} />
       </button>
 
-      {expanded && (
-        <div className="space-y-4 border-t border-zinc-200 px-6 py-5">
-          <CollapsibleSection title="Precio y disponibilidad" defaultOpen>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <label className="block">
-                <span className="mb-1.5 block text-sm font-medium text-zinc-600">
-                  Nombre
-                </span>
-                <input
-                  type="text"
-                  value={draft.name ?? ""}
-                  onChange={(e) =>
-                    setDraft((d) => ({ ...d, name: e.target.value }))
-                  }
-                  className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
-                />
-              </label>
-              <label className="block">
-                <span className="mb-1.5 block text-sm font-medium text-zinc-600">
-                  Precio por defecto
-                </span>
-                <input
-                  type="number"
-                  min={0}
-                  value={draft.defaultPrice ?? ""}
-                  onChange={(e) =>
-                    setDraft((d) => ({
-                      ...d,
-                      defaultPrice: Number(e.target.value),
-                    }))
-                  }
-                  className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
-                />
-              </label>
-              <label className="block">
-                <span className="mb-1.5 block text-sm font-medium text-zinc-600">
-                  Estadía mínima por defecto
-                </span>
-                <input
-                  type="number"
-                  min={1}
-                  value={draft.defaultMinStay ?? ""}
-                  onChange={(e) =>
-                    setDraft((d) => ({
-                      ...d,
-                      defaultMinStay: Number(e.target.value),
-                    }))
-                  }
-                  className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
-                />
-              </label>
-            </div>
-
-            <div className="mt-4">
-              <Switch
-                checked={Boolean(draft.hideNightlyPrice)}
-                onChange={() =>
-                  setDraft((d) => ({ ...d, hideNightlyPrice: !d.hideNightlyPrice }))
-                }
-                label="Ocultar precio por noche"
-                description="Los visitantes solo verán el total de la estadía, no el precio de cada noche."
-              />
-            </div>
-
-            <button
-              type="button"
-              disabled={saving}
-              onClick={saveSettings}
-              className="mt-4 rounded-md bg-foreground px-4 py-2 text-sm font-semibold text-background disabled:opacity-40"
+      <div
+        className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${
+          expanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        }`}
+      >
+        <div className="overflow-hidden">
+          <div className="space-y-4 border-t border-zinc-200 px-6 py-5">
+            <CollapsibleSection
+              title="Precio y disponibilidad"
+              className="bg-zinc-50! text-foreground! hover:bg-primary! hover:text-background!"
+              open={openSubsection === "pricing"}
+              onToggle={() =>
+                setOpenSubsection((s) => (s === "pricing" ? null : "pricing"))
+              }
             >
-              {saving ? "Guardando…" : "Guardar configuración"}
-            </button>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <label className="block">
+                  <span className="mb-1.5 block text-sm font-medium text-zinc-600">
+                    Nombre
+                  </span>
+                  <input
+                    type="text"
+                    value={draft.name ?? ""}
+                    onChange={(e) =>
+                      setDraft((d) => ({ ...d, name: e.target.value }))
+                    }
+                    className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1.5 block text-sm font-medium text-zinc-600">
+                    Precio por defecto
+                  </span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={draft.defaultPrice ?? ""}
+                    onChange={(e) =>
+                      setDraft((d) => ({
+                        ...d,
+                        defaultPrice: Number(e.target.value),
+                      }))
+                    }
+                    className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1.5 block text-sm font-medium text-zinc-600">
+                    Estadía mínima por defecto
+                  </span>
+                  <input
+                    type="number"
+                    min={1}
+                    value={draft.defaultMinStay ?? ""}
+                    onChange={(e) =>
+                      setDraft((d) => ({
+                        ...d,
+                        defaultMinStay: Number(e.target.value),
+                      }))
+                    }
+                    className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
+                  />
+                </label>
+              </div>
 
-            {message && (
-              <p
-                className={`mt-3 text-sm font-medium ${
-                  message.type === "success" ? "text-emerald-600" : "text-red-600"
-                }`}
+              <div className="mt-4">
+                <Switch
+                  checked={Boolean(draft.hideNightlyPrice)}
+                  onChange={() =>
+                    setDraft((d) => ({
+                      ...d,
+                      hideNightlyPrice: !d.hideNightlyPrice,
+                    }))
+                  }
+                  label="Ocultar precio por noche"
+                  description="Los visitantes solo verán el total de la estadía, no el precio de cada noche."
+                />
+              </div>
+
+              <button
+                type="button"
+                disabled={saving}
+                onClick={saveSettings}
+                className="mt-4 rounded-md bg-foreground px-4 py-2 text-sm font-semibold text-background disabled:opacity-40"
               >
-                {message.text}
-              </p>
-            )}
-          </CollapsibleSection>
+                {saving ? "Guardando…" : "Guardar configuración"}
+              </button>
 
-          <CollapsibleSection title="Detalles de la propiedad">
-            <PropertyDetailsForm property={property} onUpdated={onUpdated} />
-          </CollapsibleSection>
+              {message && (
+                <p
+                  className={`mt-3 text-sm font-medium ${
+                    message.type === "success"
+                      ? "text-emerald-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {message.text}
+                </p>
+              )}
+            </CollapsibleSection>
 
-          <CollapsibleSection title="Fotos">
-            <PropertyImages propertyId={property.id} />
-          </CollapsibleSection>
+            <CollapsibleSection
+              title="Detalles de la propiedad"
+              className="bg-zinc-50! text-foreground! hover:bg-primary! hover:text-background!"
+              open={openSubsection === "details"}
+              onToggle={() =>
+                setOpenSubsection((s) => (s === "details" ? null : "details"))
+              }
+            >
+              <PropertyDetailsForm property={property} onUpdated={onUpdated} />
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Fotos"
+              className="bg-zinc-50! text-foreground! hover:bg-primary! hover:text-background!"
+              open={openSubsection === "photos"}
+              onToggle={() =>
+                setOpenSubsection((s) => (s === "photos" ? null : "photos"))
+              }
+            >
+              <PropertyImages propertyId={property.id} />
+            </CollapsibleSection>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

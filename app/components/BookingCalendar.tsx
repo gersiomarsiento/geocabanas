@@ -157,6 +157,8 @@ export default function BookingCalendar() {
   useEffect(() => {
     if (!selectedProperty) return;
 
+    let ignore = false;
+
     setCarouselImages([]);
 
     fetch(`/api/properties/${selectedProperty.id}/images`)
@@ -167,15 +169,23 @@ export default function BookingCalendar() {
 
         return res.json() as Promise<CarouselImage[]>;
       })
-      .then(setCarouselImages)
+      .then((images) => {
+        if (!ignore) setCarouselImages(images);
+      })
       .catch(() => {
         // El carrusel simplemente no se muestra si fallan las imágenes.
       });
+
+    return () => {
+      ignore = true;
+    };
   }, [selectedProperty]);
 
   // --- Availability ---
   useEffect(() => {
     if (!selectedSlug) return;
+
+    let ignore = false;
 
     setIsLoading(true);
     setDays(null);
@@ -192,6 +202,8 @@ export default function BookingCalendar() {
         return res.json() as Promise<AvailabilityResponse>;
       })
       .then((data) => {
+        if (ignore) return;
+
         const map = new Map<string, DayInfo>();
 
         for (const day of data.days) {
@@ -201,11 +213,15 @@ export default function BookingCalendar() {
         setDays(map);
       })
       .catch((e) => {
-        setLoadError(e.message);
+        if (!ignore) setLoadError(e.message);
       })
       .finally(() => {
-        setIsLoading(false);
+        if (!ignore) setIsLoading(false);
       });
+
+    return () => {
+      ignore = true;
+    };
   }, [selectedSlug]);
 
   // --- Moneda ---
@@ -632,8 +648,7 @@ export default function BookingCalendar() {
           </div>
 
           <div className="">
-          {isLoading && <LoadingOverlay />}
-
+            {isLoading && <LoadingOverlay />}
 
             <div
               className="grid grid-cols-7 gap-1 text-center text-sm"
@@ -753,9 +768,7 @@ export default function BookingCalendar() {
 
       {/* Guest details */}
       <div className="booking-details-wrapper max-w-lg md:max-w-full md:col-span-2 w-full h-fit rounded-xl border border-zinc-200 bg-white p-3 md:p-6 shadow-sm">
-        <h3 className="mb-4">
-          Completá tus datos para reservar
-        </h3>
+        <h3 className="mb-4">Completá tus datos para reservar</h3>
 
         <div className="grid gap-3">
           <label className="block">

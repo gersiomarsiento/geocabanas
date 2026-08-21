@@ -40,9 +40,6 @@ export function CheckIcon() {
   );
 }
 
-// Standard inline-flex + translate switch pattern — the knob is centered
-// by flexbox itself rather than a hand-calculated top offset, which is
-// what caused the previous version to look slightly off.
 export function Switch({
   checked,
   onChange,
@@ -79,36 +76,57 @@ export function Switch({
   );
 }
 
-// Consistent collapsible wrapper for each of a property's three
-// subsections — same header font/weight/spacing regardless of which
-// subsection it wraps, so "PRECIO Y DISPONIBILIDAD" / "DETALLES DE LA
-// PROPIEDAD" / "FOTOS" all read as one family rather than three different
-// styles.
 export function CollapsibleSection({
   title,
+  className,
   defaultOpen = false,
+  open: openProp,
+  onToggle,
   children,
 }: {
   title: string;
+  className?: string;
   defaultOpen?: boolean;
+  open?: boolean;
+  onToggle?: () => void;
   children: React.ReactNode;
 }) {
-  const [open, setOpen] = useState(defaultOpen);
+  const [internalOpen, setInternalOpen] = useState(defaultOpen);
+
+  const isControlled = openProp !== undefined;
+  const open = isControlled ? openProp : internalOpen;
+
+  function handleClick() {
+    if (isControlled) {
+      onToggle?.();
+    } else {
+      setInternalOpen((o) => !o);
+    }
+  }
+
   return (
     <div className="overflow-hidden rounded-lg border border-zinc-200">
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors bg-primary/10 text-primary/80 hover:bg-zinc-50"
+        onClick={handleClick}
+        aria-expanded={open}
+        className={`flex w-full items-center justify-between px-4 py-3 text-left transition-colors bg-primary text-background hover:text-foreground hover:bg-zinc-50 ${className}`}
       >
         <span className="text-sm font-semibold uppercase tracking-wide">
           {title}
         </span>
         <ChevronIcon open={open} />
       </button>
-      {open && (
-        <div className="border-t border-zinc-200 px-4 py-4">{children}</div>
-      )}
+
+      <div
+        className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        }`}
+      >
+        <div className="overflow-hidden">
+          <div className="border-t border-zinc-200 px-4 py-4">{children}</div>
+        </div>
+      </div>
     </div>
   );
 }

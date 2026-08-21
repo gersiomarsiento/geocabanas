@@ -104,7 +104,6 @@ export default function SiteFaqCard() {
 
   return (
     <div className=" ">
-      <h2 className="mb-4 text-base font-semibold">Preguntas frecuentes</h2>
 
       {error && (
         <p className="mb-3 text-sm text-red-600 ">{error}</p>
