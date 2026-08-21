@@ -61,8 +61,8 @@ export default function SiteEmailCard() {
   }
 
   return (
-    <div className="mb-4 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-      <h2 className="mb-1 text-base font-semibold">Email de confirmación</h2>
+    <div className=" ">
+      {/* <h2 className="mb-1 text-base font-semibold">Email de confirmación</h2> */}
       <p className="mb-4 text-xs text-zinc-400">
         Los detalles de la reserva (fechas, precio, seña) se arman
         automáticamente — acá solo se edita el asunto y el texto de

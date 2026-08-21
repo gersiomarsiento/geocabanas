@@ -6,6 +6,7 @@
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { BASE_CURRENCY } from "@/lib/currency";
 
 export async function GET() {
   const { data, error } = await supabaseAdmin
@@ -38,7 +39,7 @@ export async function GET() {
     id: property.id,
     name: property.name,
     slug: property.slug,
-    currency: property.currency,
+    currency: BASE_CURRENCY,
     bedrooms: property.bedrooms,
     bathrooms: property.bathrooms,
     maxGuests: property.max_guests,

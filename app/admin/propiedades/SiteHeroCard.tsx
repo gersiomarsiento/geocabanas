@@ -124,10 +124,10 @@ export default function SiteHeroCard() {
   }
 
   return (
-    <div className="mb-4 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm    ">
-      <h2 className="mb-4 text-base font-semibold">
+    <div className="     ">
+      {/* <h2 className="mb-4 text-base font-semibold">
         Imagen principal del sitio
-      </h2>
+      </h2> */}
 
       {heroUrl === undefined ? (
         <p className="text-sm text-zinc-500  ">Cargando…</p>

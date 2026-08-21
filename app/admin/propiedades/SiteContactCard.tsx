@@ -73,8 +73,8 @@ export default function SiteContactCard() {
   }
 
   return (
-    <div className="mb-4 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm    ">
-      <h2 className="mb-4 text-base font-semibold">Contacto y ubicación</h2>
+    <div className="">
+      {/* <h2 className="mb-4 text-base font-semibold">Contacto y ubicación</h2> */}
 
       {!draft ? (
         <p className="text-sm text-zinc-500  ">Cargando…</p>

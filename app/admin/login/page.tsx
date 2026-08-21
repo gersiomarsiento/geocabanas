@@ -36,7 +36,7 @@ export default function AdminLoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-zinc-50  ">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm rounded-xl border border-zinc-200 bg-white p-6 shadow-sm    "
+        className="w-full max-w-sm rounded-xl border border-zinc-200 bg-background p-6 shadow-sm    "
       >
         <h1 className="mb-4 text-lg font-semibold">Acceso administrador</h1>
 
@@ -50,15 +50,13 @@ export default function AdminLoginPage() {
         />
 
         {error && (
-          <p className="mb-3 text-sm font-medium text-red-600">
-            {error}
-          </p>
+          <p className="mb-3 text-sm font-medium text-red-600">{error}</p>
         )}
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-md bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-50 "
+          className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50 "
         >
           {loading ? "Ingresando..." : "Ingresar"}
         </button>

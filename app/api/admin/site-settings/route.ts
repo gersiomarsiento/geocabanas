@@ -20,6 +20,8 @@ interface SiteSettingsUpdate {
   heroButtonHref?: string;
   emailSubject?: string;
   emailIntro?: string;
+  exchangeRateUyu?: number;
+  exchangeRateBrl?: number;
 }
 
 export async function PATCH(request: Request) {
@@ -42,10 +44,36 @@ export async function PATCH(request: Request) {
     update.hero_button_href = body.heroButtonHref;
   if (body.emailSubject != null) update.email_subject = body.emailSubject;
   if (body.emailIntro != null) update.email_intro = body.emailIntro;
+  if (body.exchangeRateUyu != null) {
+    update.exchange_rate_uyu = body.exchangeRateUyu;
+  }
+
+  if (body.exchangeRateBrl != null) {
+    update.exchange_rate_brl = body.exchangeRateBrl;
+  }
 
   if (Object.keys(update).length === 0) {
     return NextResponse.json(
       { error: "No hay cambios para guardar" },
+      { status: 400 },
+    );
+  }
+  if (
+    body.exchangeRateUyu != null &&
+    (!Number.isFinite(body.exchangeRateUyu) || body.exchangeRateUyu < 0)
+  ) {
+    return NextResponse.json(
+      { error: "La tasa UYU debe ser un número mayor que 0" },
+      { status: 400 },
+    );
+  }
+
+  if (
+    body.exchangeRateBrl != null &&
+    (!Number.isFinite(body.exchangeRateBrl) || body.exchangeRateBrl < 0)
+  ) {
+    return NextResponse.json(
+      { error: "La tasa BRL debe ser un número mayor que 0" },
       { status: 400 },
     );
   }

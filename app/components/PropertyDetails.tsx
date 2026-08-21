@@ -78,7 +78,7 @@ export default function PropertyDetails({
     },
     property.maxGuests != null && {
       icon: <UsersIcon />,
-      label: `Hasta ${property.maxGuests} ${
+      label: `${property.maxGuests} ${
         property.maxGuests === 1 ? "huésped" : "huéspedes"
       }`,
     },
@@ -99,8 +99,8 @@ export default function PropertyDetails({
   if (!hasAnything) return null;
 
   return (
-    <div className="w-full rounded-b-xl border border-zinc-200 bg-white p-3 md:p-6 shadow-sm    ">
-      <div className="font-bold mb-4">{propertyName}</div>
+    <div className="w-full rounded-b-xl border border-zinc-200 bg-white p-3 md:p-6 shadow-sm">
+      <h3 className="mb-4">{propertyName}</h3>
       {stats.length > 0 && (
         <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-zinc-700 ">
           {stats.map((stat, i) => (
@@ -145,9 +145,9 @@ export default function PropertyDetails({
 
       {amenityLabels.length > 0 && (
         <div>
-          <h3 className="mb-2 text-sm font-medium text-zinc-600  ">
+          <h4 className="mb-2">
             Servicios y comodidades
-          </h3>
+          </h4>
           <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm text-zinc-700  sm:grid-cols-3">
             {amenityLabels.map((a) => (
               <span key={a.id} className="flex items-center gap-1.5">

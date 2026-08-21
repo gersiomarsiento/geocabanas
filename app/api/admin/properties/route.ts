@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { BASE_CURRENCY } from "@/lib/currency";
 
 function slugify(value: string): string {
   return value
@@ -44,7 +45,7 @@ export async function GET() {
     defaultMinStay: property.default_min_stay,
     minReservationFee: Number(property.min_reservation_fee),
     hideNightlyPrice: property.hide_nightly_price,
-    currency: property.currency,
+    currency: BASE_CURRENCY,
     bedrooms: property.bedrooms,
     bathrooms: property.bathrooms,
     maxGuests: property.max_guests,
@@ -103,7 +104,7 @@ export async function POST(request: Request) {
       children_allowed: true,
       pets_allowed: false,
       amenities: [],
-      currency: "UYU",
+      currency: "USD",
     })
     .select("*") // grab everything — see note below on shaping the response
     .single();
@@ -121,7 +122,7 @@ export async function POST(request: Request) {
     defaultMinStay: property.default_min_stay,
     minReservationFee: Number(property.min_reservation_fee),
     hideNightlyPrice: property.hide_nightly_price,
-    currency: property.currency,
+    currency: BASE_CURRENCY,
     bedrooms: property.bedrooms,
     bathrooms: property.bathrooms,
     maxGuests: property.max_guests,

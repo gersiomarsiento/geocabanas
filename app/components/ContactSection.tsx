@@ -51,7 +51,7 @@ export default function ContactSection() {
   if (error) return null; // fail quietly on the public site rather than showing a broken card
   if (!settings) {
     return (
-      <div className="w-full rounded-xl border border-zinc-200 bg-white p-6 shadow-sm    ">
+      <div className="w-full rounded-xl border border-zinc-200 bg-background p-6 shadow-sm    ">
         <p className="text-sm text-zinc-500  ">Cargando contacto…</p>
       </div>
     );
@@ -82,11 +82,11 @@ export default function ContactSection() {
   return (
     <div
       id="contact-section"
-      className="w-full border border-zinc-200 bg-white p-6 shadow-sm    "
+      className="w-full border border-zinc-200 bg-secondary-100 p-6 py-10 shadow-sm    "
     >
-      <div className="max-w-360 md:flex md:justify-between w-full justify-self-center md:px-6 2xl:px-12">
+      <div className="max-w-360 md:flex md:justify-between w-full justify-self-center md:px-6 ">
         <div className="md:w-1/2 relative">
-          <h2 className="mb-4 text-lg font-semibold">Contacto</h2>
+          <h2 className="mb-4">Contacto</h2>
           {logoUrl && (
             <Image
               src={logoUrl}
@@ -119,7 +119,7 @@ export default function ContactSection() {
                   href={`https://wa.me/${contactWhatsapp.replace(/\D/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 rounded-md hover:bg-[#25D366] px-4 py-2 text-sm font-semibold text-black transition-colors hover:text-white"
+                  className="flex items-center gap-2 rounded-md hover:bg-[#25D366] px-4 py-2 text-sm font-semibold text-primary transition-colors hover:text-primary-foreground"
                 >
                   <WhatsAppIcon className="h-8 w-8" />
                 </a>
@@ -129,7 +129,7 @@ export default function ContactSection() {
                   href={normalizeInstagramHandle(contactInstagram)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[#8134af] hover:text-white"
+                  className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-[#8134af] hover:text-primary-foreground"
                 >
                   <InstagramIcon className="h-8 w-8" />
                 </a>
@@ -138,7 +138,7 @@ export default function ContactSection() {
                 href="https://www.facebook.com/GeoPuntadelDiablo/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[#1877f2] hover:text-white"
+                className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-[#1877f2] hover:text-primary-foreground"
               >
                 <FacebookIcon className="h-8 w-8" />
               </a>

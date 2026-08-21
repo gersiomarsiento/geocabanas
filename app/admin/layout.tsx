@@ -49,7 +49,7 @@ export default function AdminLayout({
                   href={item.href}
                   className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-foreground text-background"
+                      ? "bg-black text-white"
                       : "text-zinc-600 hover:bg-zinc-100"
                   }`}
                 >
@@ -69,7 +69,7 @@ export default function AdminLayout({
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-6 py-8">{children}</main>
+      <main className="mx-auto max-w-5xl px-3 md:px-6 py-8">{children}</main>
     </div>
   );
 }

@@ -8,3 +8,8 @@ export { default as MailIcon } from "./MailIcon";
 export { default as InstagramIcon } from "./InstagramIcon";
 export { default as FacebookIcon } from "./FacebookIcon";
 export { default as PinIcon } from "./PinIcon";
+export { default as BedIcon } from "./BedIcon";
+export { default as UsersIcon } from "./UsersIcon";
+export { default as BathIcon } from "./BathIcon";
+export { default as ChildIcon } from "./ChildIcon";
+export { default as PawIcon } from "./PawIcon";

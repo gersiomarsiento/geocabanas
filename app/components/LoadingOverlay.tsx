@@ -12,7 +12,7 @@ export default function LoadingOverlay({
 }) {
   return (
     <div
-      className={`absolute inset-0 z-50 flex items-center justify-center bg-white/60 backdrop-blur-[1px]  /60 ${className}`}
+      className={`absolute inset-0 z-50 flex items-center justify-center bg-secondary-50 ${className}`}
     >
       <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-800" />
     </div>

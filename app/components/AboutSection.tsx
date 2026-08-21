@@ -3,11 +3,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BedIcon, UsersIcon, BathIcon, ChildIcon, PawIcon } from "./icons";
 
 interface PublicProperty {
   id: string;
   name: string;
   slug: string;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  maxGuests: number | null;
+  childrenAllowed: boolean | null;
+  petsAllowed: boolean | null;
 }
 
 interface PropertyImage {
@@ -56,7 +62,7 @@ export default function AboutSection() {
     <section
       aria-label="Quiénes somos y nuestras cabañas"
       id="quienes-somos"
-      className="mx-auto bg-black text-white w-full px-3 py-10 md:px-6"
+      className="mx-auto bg-primary text-primary-foreground w-full px-3 py-10 md:px-6"
     >
       <div className="text-center">
         <h2 className="text-xl md:text-3xl font-semibold">Quiénes somos</h2>
@@ -65,27 +71,27 @@ export default function AboutSection() {
           cómodas y a pasos de la playa. Cada cabaña está pensada para que te
           sientas como en casa.
         </p>
-        {/* <a
-          href="#reservar-button"
-          className="mt-5 inline-block rounded-md border border-black bg-white px-4 py-2 text-sm font-bold transition-colors hover:bg-zinc-100 "
-        >
-          RESERVAR
-        </a> */}
       </div>
 
       <div className="mt-10 md:mt-16">
-        <h3 className="text-center text-md md:text-2xl font-semibold">Nuestras cabañas</h3>
+        <h3 className="text-center text-md md:text-2xl font-semibold">
+          Nuestras cabañas
+        </h3>
 
         {!properties ? (
-          <p className="mt-4 text-center text-sm text-zinc-500  ">Cargando…</p>
+          <p className="mt-4 text-center text-sm text-primary-foreground/70">
+            Cargando…
+          </p>
         ) : properties.length > 0 ? (
-          <div className="mt-5 md:mt-10 flex flex-wrap justify-center gap-6">
-            {properties.map((property) => (
+          <div className="mt-5 grid grid-cols-1 gap-5 md:mt-10 md:grid-cols-2 md:gap-6">
+            {properties.map((property, index) => (
               <div
                 key={property.id}
-                className="flex w-40 md:w-60 flex-col items-center gap-2 text-center"
+                className={`flex h-80 overflow-hidden rounded-xl border border-zinc-200 bg-primary-50 text-foreground shadow-sm ${
+                  index % 2 === 0 ? "flex-row-reverse" : "flex-row"
+                }`}
               >
-                <div className="h-40 w-40 md:h-60 md:w-60 overflow-hidden rounded-full border border-zinc-200 bg-zinc-100    ">
+                <div className="w-1/2 lg:w-3/5 shrink-0 self-stretch overflow-hidden bg-background">
                   {property.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -94,12 +100,71 @@ export default function AboutSection() {
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-xs font-medium text-zinc-400">
+                    <div className="flex h-full min-h-40 w-full items-center justify-center text-sm font-medium text-zinc-400">
                       {property.name.slice(0, 2).toUpperCase()}
                     </div>
                   )}
                 </div>
-                <span className="text-xs font-medium">{property.name}</span>
+
+                <div className={`flex flex-1 flex-col justify-center gap-3 p-4 md:p-6 ${
+                  index % 2 === 0 ? "items-end" : ""
+                }`}>
+                  <h4 className="text-base font-semibold md:text-lg">
+                    {property.name}
+                  </h4>
+
+                  <ul className="flex flex-col flex-wrap gap-x-4 gap-y-2 text-sm text-zinc-600">
+                    {property.bedrooms != null && (
+                      <li className={`flex items-center gap-1.5 ${
+                        index % 2 === 0 ? "flex-row-reverse" : ""
+                      }`}>
+                        <BedIcon className="h-4 w-4 text-primary" />
+                        {property.bedrooms}{" "}
+                        {property.bedrooms === 1
+                          ? "habitación"
+                          : "habitaciones"}
+                      </li>
+                    )}
+
+                    {property.maxGuests != null && (
+                      <li className={`flex items-center gap-1.5 ${
+                        index % 2 === 0 ? "flex-row-reverse" : ""
+                      }`}>
+                        <UsersIcon className="h-4 w-4 text-primary" />
+                        {property.maxGuests}{" "}
+                        {property.maxGuests === 1 ? "huésped" : "huéspedes"}
+                      </li>
+                    )}
+
+                    {!!property.bathrooms && (
+                      <li className={`flex items-center gap-1.5 ${
+                        index % 2 === 0 ? "flex-row-reverse" : ""
+                      }`}>
+                        <BathIcon className="h-4 w-4 text-primary" />
+                        {property.bathrooms}{" "}
+                        {property.bathrooms === 1 ? "baño" : "baños"}
+                      </li>
+                    )}
+
+                    {property.childrenAllowed && (
+                      <li className={`flex items-center gap-1.5 ${
+                        index % 2 === 0 ? "flex-row-reverse" : ""
+                      }`}>
+                        <ChildIcon className="h-4 w-4 text-primary" />
+                        Apto para niños
+                      </li>
+                    )}
+
+                    {property.petsAllowed && (
+                      <li className={`flex items-center gap-1.5 ${
+                        index % 2 === 0 ? "flex-row-reverse" : ""
+                      }`}>
+                        <PawIcon className="h-4 w-4 text-primary" />
+                        Admite mascotas
+                      </li>
+                    )}
+                  </ul>
+                </div>
               </div>
             ))}
           </div>

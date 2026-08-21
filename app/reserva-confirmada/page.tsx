@@ -16,7 +16,7 @@ export default async function ReservaConfirmadaPage({
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 px-6 py-12  ">
-      <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-8 text-center shadow-sm    ">
+      <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-background p-8 text-center shadow-sm    ">
         <h1 className="mb-3 text-xl font-semibold">¡Solicitud recibida!</h1>
 
         <p className="text-sm text-zinc-600  ">

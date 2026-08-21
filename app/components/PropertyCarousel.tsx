@@ -125,7 +125,7 @@ export default function PropertyCarousel({
             type="button"
             onClick={() => scrollToIndex(Math.max(activeIndex - 1, 0))}
             aria-label="Foto anterior"
-            className="absolute left-1 top-1/2 -translate-y-1/2 rounded-full transition-colors text-white hover:bg-black"
+            className="absolute left-1 top-1/2 -translate-y-1/2 rounded-full transition-colors text-primary-foreground hover:bg-primary"
           >
             <CaretIcon className="rotate-180" />
           </button>
@@ -135,12 +135,12 @@ export default function PropertyCarousel({
               scrollToIndex(Math.min(activeIndex + 1, images.length - 1))
             }
             aria-label="Foto siguiente"
-            className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full transition-colors text-white hover:bg-black"
+            className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full transition-colors text-primary-foreground hover:bg-primary"
           >
             <CaretIcon />
           </button>
 
-          <div className="absolute right-2 top-2 rounded-full bg-black/60 px-2 py-0.5 text-xs font-medium text-white">
+          <div className="absolute right-2 top-2 rounded-full bg-primary/60 px-2 py-0.5 text-xs font-medium text-primary-foreground">
             {activeIndex + 1} / {images.length}
           </div>
         </>

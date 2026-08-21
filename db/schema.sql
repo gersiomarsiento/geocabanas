@@ -128,6 +128,19 @@ create table reservations (
   created_at timestamptz not null default now()
 );
 
+-- ==========================
+-- FAQS
+-- ==========================
+
+create table public.faqs (
+  id uuid not null default gen_random_uuid (),
+  question text not null,
+  answer text not null,
+  sort_order integer not null default 0,
+  created_at timestamp with time zone not null default now(),
+  constraint faqs_pkey primary key (id)
+) TABLESPACE pg_default;
+
 
 
 -- ==========================

@@ -8,6 +8,7 @@ import type {
   PropertySettingsUpdate,
 } from "@/types/admin-availability";
 import { AMENITY_OPTIONS } from "@/lib/amenities";
+import { CheckIcon, Switch } from "./AdminUI";
 
 export default function PropertyDetailsForm({
   property,
@@ -64,13 +65,9 @@ export default function PropertyDetailsForm({
 
   return (
     <div>
-      <h3 className="mb-3 text-sm font-medium text-zinc-600  ">
-        Detalles de la propiedad
-      </h3>
-
       <div className="grid gap-4 sm:grid-cols-3">
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
+          <span className="mb-1.5 block text-sm font-medium text-zinc-600">
             Habitaciones
           </span>
           <input
@@ -80,12 +77,12 @@ export default function PropertyDetailsForm({
             onChange={(e) =>
               setDraft((d) => ({ ...d, bedrooms: Number(e.target.value) }))
             }
-            className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
+            className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
           />
         </label>
 
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
+          <span className="mb-1.5 block text-sm font-medium text-zinc-600">
             Baños
           </span>
           <input
@@ -95,12 +92,12 @@ export default function PropertyDetailsForm({
             onChange={(e) =>
               setDraft((d) => ({ ...d, bathrooms: Number(e.target.value) }))
             }
-            className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
+            className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
           />
         </label>
 
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
+          <span className="mb-1.5 block text-sm font-medium text-zinc-600">
             Huéspedes máximos
           </span>
           <input
@@ -110,67 +107,59 @@ export default function PropertyDetailsForm({
             onChange={(e) =>
               setDraft((d) => ({ ...d, maxGuests: Number(e.target.value) }))
             }
-            className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
+            className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
           />
         </label>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-3">
-        <button
-          type="button"
-          onClick={() =>
+      <div className="mt-4 space-y-3">
+        <Switch
+          checked={Boolean(draft.childrenAllowed)}
+          onChange={() =>
             setDraft((d) => ({ ...d, childrenAllowed: !d.childrenAllowed }))
           }
-          aria-pressed={draft.childrenAllowed}
-          className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${
-            draft.childrenAllowed
-              ? "border-emerald-400 bg-emerald-50 text-emerald-800"
-              : "border-red-300 text-red-600 hover:bg-red-50"
-          }`}
-        >
-          {draft.childrenAllowed ? "✓ S" : "X No s"}e permiten niños
-        </button>
-
-        <button
-          type="button"
-          onClick={() =>
+          label="Se permiten niños"
+        />
+        <Switch
+          checked={Boolean(draft.petsAllowed)}
+          onChange={() =>
             setDraft((d) => ({ ...d, petsAllowed: !d.petsAllowed }))
           }
-          aria-pressed={draft.petsAllowed}
-          className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${
-            draft.petsAllowed
-              ? "border-emerald-400 bg-emerald-50 text-emerald-800"
-              : "border-red-300 text-red-600 hover:bg-red-50"
-          }`}
-        >
-          {draft.petsAllowed ? "✓ S" : "X No s"}e permiten mascotas
-        </button>
+          label="Se permiten mascotas"
+        />
       </div>
 
       <div className="mt-5">
-        <span className="mb-2 block text-sm font-medium text-zinc-600  ">
+        <span className="mb-2 block text-sm font-medium text-zinc-600">
           Servicios y comodidades
         </span>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
           {AMENITY_OPTIONS.map((amenity) => {
             const checked = (draft.amenities ?? []).includes(amenity.id);
             return (
-              <label
+              <button
                 key={amenity.id}
-                className={`flex cursor-pointer items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition-colors ${
+                type="button"
+                role="checkbox"
+                aria-checked={checked}
+                onClick={() => toggleAmenity(amenity.id)}
+                className={`flex items-center gap-2 rounded-md border px-3 py-1.5 text-left text-sm transition-colors ${
                   checked
                     ? "border-emerald-400 bg-emerald-50 text-emerald-800"
                     : "border-zinc-300 text-zinc-600 hover:bg-zinc-50"
                 }`}
               >
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  onChange={() => toggleAmenity(amenity.id)}
-                  className="h-3.5 w-3.5"
-                />
+                <span
+                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
+                    checked
+                      ? "border-emerald-500 bg-emerald-500 text-white"
+                      : "border-zinc-300 bg-background text-transparent"
+                  }`}
+                >
+                  <CheckIcon />
+                </span>
                 {amenity.label}
-              </label>
+              </button>
             );
           })}
         </div>
@@ -188,9 +177,7 @@ export default function PropertyDetailsForm({
       {message && (
         <p
           className={`mt-3 text-sm font-medium ${
-            message.type === "success"
-              ? "text-emerald-600 "
-              : "text-red-600 "
+            message.type === "success" ? "text-emerald-600" : "text-red-600"
           }`}
         >
           {message.text}

@@ -3,6 +3,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import type { PropertySettingsUpdate } from "@/types/admin-availability";
+import { BASE_CURRENCY } from "@/lib/currency";
 
 // TODO: gate this route behind your admin auth/session check before ship.
 export async function PATCH(
@@ -71,7 +72,7 @@ export async function PATCH(
     defaultPrice: Number(property.default_price),
     defaultMinStay: property.default_min_stay,
     minReservationFee: Number(property.min_reservation_fee),
-    currency: property.currency,
+    currency: BASE_CURRENCY,
     bedrooms: property.bedrooms,
     bathrooms: property.bathrooms,
     maxGuests: property.max_guests,

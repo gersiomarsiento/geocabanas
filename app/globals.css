@@ -1,10 +1,56 @@
 @import "tailwindcss";
 
-:root {
-  --background: #fafafa;
-  --foreground: #171717;
-  --color-white: #fafafa;
-  --color-black: #171717;
+/* =========================================================
+   THEME SYSTEM
+   =========================================================
+   To add a new theme: copy a [data-theme="..."] block below,
+   change the seed values, done. Every --color-*-50 through
+   --color-*-950 step is computed automatically in the
+   @theme inline block at the bottom from just a hue + chroma
+   seed per color — no build step, no external generator.
+
+   Each seed pair is: --seed-<name>-h (hue, 0-360) and
+   --seed-<name>-c (chroma/saturation, roughly 0-0.3 — higher
+   is more vivid). Background/foreground and the *-foreground
+   text-on-color pairs are flat colors, not ramped, since they
+   just need to read as one clear light or dark value.
+   ========================================================= */
+
+:root,
+[data-theme="default"] {
+  /* Flat, non-ramped tokens */
+  --seed-background: #f5f7ff;
+  --seed-foreground: #0a0b0f;
+  --seed-primary-foreground: #f5f7ff;
+  --seed-secondary-foreground: #f5f7ff;
+  --seed-accent-foreground: #f5f7ff;
+
+  /* Ramp seeds — hue in degrees, chroma roughly 0-0.3 */
+  --seed-primary-h: 230;
+  --seed-primary-c: 0.09; /* aprox #192638 */
+
+  --seed-secondary-h: 200;
+  --seed-secondary-c: 0.08; /* aprox #4F8890 */
+
+  --seed-accent-h: 55;
+  --seed-accent-c: 0.19; /* vivid orange */
+}
+
+[data-theme="playa"] {
+  --seed-background: #faf6ef;
+  --seed-foreground: #241f19;
+  --seed-primary-foreground: #faf6ef;
+  --seed-secondary-foreground: #241f19; /* dark text — secondary here is a light sand tone */
+  --seed-accent-foreground: #faf6ef;
+
+  --seed-primary-h: 100;
+  --seed-primary-c: 0.045; /* muted sage green */
+
+  --seed-secondary-h: 75;
+  --seed-secondary-c: 0.06; /* warm sand */
+
+  --seed-accent-h: 35;
+  --seed-accent-c: 0.15; /* terracotta */
 }
 
 html {
@@ -12,14 +58,144 @@ html {
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* Flat semantic tokens — each points at the differently-named
+     seed variable above, so runtime [data-theme] switching
+     actually flows through instead of self-referencing. */
+  --color-background: var(--seed-background);
+  --color-foreground: var(--seed-foreground);
+
+  --color-primary: var(--color-primary-900);
+  --color-primary-foreground: var(--seed-primary-foreground);
+
+  --color-secondary: var(--color-secondary-500);
+  --color-secondary-foreground: var(--seed-secondary-foreground);
+
+  --color-accent: var(--color-accent-500);
+  --color-accent-foreground: var(--seed-accent-foreground);
+
+  /* ---- Ramps, computed from the seeds above ----
+     Same lightness/chroma-multiplier curve reused for all three
+     colors in all themes, so every ramp is equally smooth —
+     only hue and base chroma differ per color per theme. */
+
+  --color-primary-50: oklch(
+    0.98 calc(var(--seed-primary-c) * 0.15) var(--seed-primary-h)
+  );
+  --color-primary-100: oklch(
+    0.95 calc(var(--seed-primary-c) * 0.3) var(--seed-primary-h)
+  );
+  --color-primary-200: oklch(
+    0.9 calc(var(--seed-primary-c) * 0.5) var(--seed-primary-h)
+  );
+  --color-primary-300: oklch(
+    0.82 calc(var(--seed-primary-c) * 0.7) var(--seed-primary-h)
+  );
+  --color-primary-400: oklch(
+    0.7 calc(var(--seed-primary-c) * 0.85) var(--seed-primary-h)
+  );
+  --color-primary-500: oklch(
+    0.58 calc(var(--seed-primary-c) * 1) var(--seed-primary-h)
+  );
+  --color-primary-600: oklch(
+    0.48 calc(var(--seed-primary-c) * 0.95) var(--seed-primary-h)
+  );
+  --color-primary-700: oklch(
+    0.4 calc(var(--seed-primary-c) * 0.85) var(--seed-primary-h)
+  );
+  --color-primary-800: oklch(
+    0.32 calc(var(--seed-primary-c) * 0.7) var(--seed-primary-h)
+  );
+  --color-primary-900: oklch(
+    0.24 calc(var(--seed-primary-c) * 0.55) var(--seed-primary-h)
+  );
+  --color-primary-950: oklch(
+    0.16 calc(var(--seed-primary-c) * 0.4) var(--seed-primary-h)
+  );
+
+  --color-secondary-50: oklch(
+    0.98 calc(var(--seed-secondary-c) * 0.15) var(--seed-secondary-h)
+  );
+  --color-secondary-100: oklch(
+    0.95 calc(var(--seed-secondary-c) * 0.3) var(--seed-secondary-h)
+  );
+  --color-secondary-200: oklch(
+    0.9 calc(var(--seed-secondary-c) * 0.5) var(--seed-secondary-h)
+  );
+  --color-secondary-300: oklch(
+    0.82 calc(var(--seed-secondary-c) * 0.7) var(--seed-secondary-h)
+  );
+  --color-secondary-400: oklch(
+    0.7 calc(var(--seed-secondary-c) * 0.85) var(--seed-secondary-h)
+  );
+  --color-secondary-500: oklch(
+    0.58 calc(var(--seed-secondary-c) * 1) var(--seed-secondary-h)
+  );
+  --color-secondary-600: oklch(
+    0.48 calc(var(--seed-secondary-c) * 0.95) var(--seed-secondary-h)
+  );
+  --color-secondary-700: oklch(
+    0.4 calc(var(--seed-secondary-c) * 0.85) var(--seed-secondary-h)
+  );
+  --color-secondary-800: oklch(
+    0.32 calc(var(--seed-secondary-c) * 0.7) var(--seed-secondary-h)
+  );
+  --color-secondary-900: oklch(
+    0.24 calc(var(--seed-secondary-c) * 0.55) var(--seed-secondary-h)
+  );
+  --color-secondary-950: oklch(
+    0.16 calc(var(--seed-secondary-c) * 0.4) var(--seed-secondary-h)
+  );
+
+  --color-accent-50: oklch(
+    0.98 calc(var(--seed-accent-c) * 0.15) var(--seed-accent-h)
+  );
+  --color-accent-100: oklch(
+    0.95 calc(var(--seed-accent-c) * 0.3) var(--seed-accent-h)
+  );
+  --color-accent-200: oklch(
+    0.9 calc(var(--seed-accent-c) * 0.5) var(--seed-accent-h)
+  );
+  --color-accent-300: oklch(
+    0.82 calc(var(--seed-accent-c) * 0.7) var(--seed-accent-h)
+  );
+  --color-accent-400: oklch(
+    0.7 calc(var(--seed-accent-c) * 0.85) var(--seed-accent-h)
+  );
+  --color-accent-500: oklch(
+    0.58 calc(var(--seed-accent-c) * 1) var(--seed-accent-h)
+  );
+  --color-accent-600: oklch(
+    0.48 calc(var(--seed-accent-c) * 0.95) var(--seed-accent-h)
+  );
+  --color-accent-700: oklch(
+    0.4 calc(var(--seed-accent-c) * 0.85) var(--seed-accent-h)
+  );
+  --color-accent-800: oklch(
+    0.32 calc(var(--seed-accent-c) * 0.7) var(--seed-accent-h)
+  );
+  --color-accent-900: oklch(
+    0.24 calc(var(--seed-accent-c) * 0.55) var(--seed-accent-h)
+  );
+  --color-accent-950: oklch(
+    0.16 calc(var(--seed-accent-c) * 0.4) var(--seed-accent-h)
+  );
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
+  color: var(--seed-foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+h2 {
+  @apply text-xl md:text-3xl font-semibold;
+}
+h3 {
+  @apply text-lg md:text-2xl font-semibold;
+}
+h4 {
+  @apply font-semibold
 }

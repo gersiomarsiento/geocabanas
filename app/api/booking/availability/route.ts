@@ -10,11 +10,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { getBookedRanges } from "@/lib/booking/bookingCalendar";
 import { expandRangesToDateSet, isoDate } from "@/lib/calendar/dates";
+import { BASE_CURRENCY } from "@/lib/currency";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const slug = searchParams.get("property");
-  const daysAhead = Number(searchParams.get("days") ?? 60);
+  const daysAhead = Number(searchParams.get("days") ?? 365);
 
   try {
     let query = supabaseAdmin
@@ -110,7 +111,7 @@ export async function GET(request: NextRequest) {
         id: property.id,
         name: property.name,
         slug: property.slug,
-        currency: property.currency,
+        currency: BASE_CURRENCY,
       },
       days,
     });

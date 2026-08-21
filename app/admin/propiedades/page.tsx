@@ -11,6 +11,7 @@ import type {
 // import SiteContactCard from "./SiteContactCard";
 import PropertyDetailsForm from "./PropertyDetailsForm";
 import { resizeImageForUpload } from "@/lib/resizeImageForUpload";
+import { ChevronIcon, CollapsibleSection, Switch } from "./AdminUI";
 
 interface PropertyImage {
   id: string;
@@ -22,6 +23,9 @@ export default function PropiedadesPage() {
   const [properties, setProperties] = useState<Property[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const [addingOpen, setAddingOpen] = useState(false);
+  const [newName, setNewName] = useState("");
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
@@ -43,9 +47,7 @@ export default function PropiedadesPage() {
   }
 
   async function handleAddProperty() {
-    const name = window.prompt("Nombre de la nueva propiedad:");
-    if (!name || !name.trim()) return;
-
+    if (!newName.trim()) return;
     setCreating(true);
     setCreateError(null);
 
@@ -53,7 +55,7 @@ export default function PropiedadesPage() {
       const res = await fetch("/api/admin/properties", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim() }),
+        body: JSON.stringify({ name: newName.trim() }),
       });
 
       const data = await res.json();
@@ -64,6 +66,8 @@ export default function PropiedadesPage() {
 
       setProperties((prev) => [...(prev ?? []), data]);
       setExpandedId(data.id); // open it immediately so the admin can fill in the rest
+      setNewName("");
+      setAddingOpen(false);
     } catch (e) {
       setCreateError(e instanceof Error ? e.message : "Error desconocido");
     } finally {
@@ -72,32 +76,74 @@ export default function PropiedadesPage() {
   }
 
   if (error) {
-    return <p className="text-sm text-red-600 ">{error}</p>;
+    return <p className="text-sm text-red-600">{error}</p>;
   }
 
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-xl font-semibold">Propiedades</h1>
-        <button
-          type="button"
-          disabled={creating}
-          onClick={handleAddProperty}
-          className="rounded-md bg-foreground px-3 py-1.5 text-sm font-semibold text-background disabled:opacity-40"
-        >
-          {creating ? "Creando…" : "+ Agregar propiedad"}
-        </button>
+        {!addingOpen && (
+          <button
+            type="button"
+            onClick={() => setAddingOpen(true)}
+            className="rounded-md bg-foreground px-3 py-1.5 text-sm font-semibold text-background"
+          >
+            + Agregar propiedad
+          </button>
+        )}
       </div>
 
+      {addingOpen && (
+        <div className="mb-4 flex items-center gap-2 rounded-xl border border-zinc-200 bg-white p-3">
+          <input
+            type="text"
+            autoFocus
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleAddProperty();
+              if (e.key === "Escape") {
+                setAddingOpen(false);
+                setNewName("");
+              }
+            }}
+            placeholder="Nombre de la propiedad"
+            className="flex-1 rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
+          />
+          <button
+            type="button"
+            disabled={creating || !newName.trim()}
+            onClick={handleAddProperty}
+            className="rounded-md bg-foreground px-3 py-1.5 text-sm font-semibold text-background disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {creating ? "Creando…" : "Crear"}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setAddingOpen(false);
+              setNewName("");
+              setCreateError(null);
+            }}
+            className="rounded-md px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-100"
+          >
+            Cancelar
+          </button>
+        </div>
+      )}
+
       {createError && (
-        <p className="mb-4 text-sm font-medium text-red-600 ">
-          {createError}
-        </p>
+        <p className="mb-4 text-sm font-medium text-red-600">{createError}</p>
       )}
       {/* <SiteHeroCard /> */}
       {/* <SiteContactCard /> */}
       {!properties ? (
-        <p className="text-sm text-zinc-500  ">Cargando…</p>
+        <p className="text-sm text-zinc-500">Cargando…</p>
+      ) : properties.length === 0 ? (
+        <p className="rounded-xl border border-dashed border-zinc-300 p-8 text-center text-sm text-zinc-500">
+          Todavía no hay propiedades. Agregá la primera con el botón de arriba.
+        </p>
       ) : (
         <div className="space-y-4">
           {properties.map((property) => (
@@ -166,128 +212,110 @@ function PropertyCard({
   }
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white shadow-sm    ">
+    <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm">
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center justify-between px-6 py-4 text-left"
+        className="flex w-full items-center gap-3 px-6 py-4 text-left transition-colors bg-primary text-primary-foreground hover:bg-zinc-50"
       >
-        <span className="text-base font-semibold">{property.name}</span>
-        <span className="text-zinc-500">{expanded ? "−" : "+"}</span>
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-xs font-semibold text-zinc-600">
+          {property.name.slice(0, 2).toUpperCase()}
+        </span>
+        <span className="flex-1 text-base font-semibold">{property.name}</span>
+        <ChevronIcon open={expanded} />
       </button>
 
       {expanded && (
-        <div className="border-t border-zinc-200 px-6 py-4  ">
-          <div className="grid gap-4 sm:grid-cols-3">
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
-                Nombre
-              </span>
-              <input
-                type="text"
-                value={draft.name ?? ""}
-                onChange={(e) =>
-                  setDraft((d) => ({ ...d, name: e.target.value }))
-                }
-                className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
-              />
-            </label>
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
-                Precio por defecto
-              </span>
-              <input
-                type="number"
-                min={0}
-                value={draft.defaultPrice ?? ""}
-                onChange={(e) =>
-                  setDraft((d) => ({
-                    ...d,
-                    defaultPrice: Number(e.target.value),
-                  }))
-                }
-                className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
-              />
-            </label>
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
-                Estadía mínima por defecto
-              </span>
-              <input
-                type="number"
-                min={1}
-                value={draft.defaultMinStay ?? ""}
-                onChange={(e) =>
-                  setDraft((d) => ({
-                    ...d,
-                    defaultMinStay: Number(e.target.value),
-                  }))
-                }
-                className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
-              />
-            </label>
-            {/* <label className="block">
-              <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
-                Seña mínima requerida
-              </span>
-              <input
-                type="number"
-                min={0}
-                value={draft.minReservationFee ?? ""}
-                onChange={(e) =>
-                  setDraft((d) => ({
-                    ...d,
-                    minReservationFee: Number(e.target.value),
-                  }))
-                }
-                className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
-              />
-            </label> */}
-          </div>
+        <div className="space-y-4 border-t border-zinc-200 px-6 py-5">
+          <CollapsibleSection title="Precio y disponibilidad" defaultOpen>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <label className="block">
+                <span className="mb-1.5 block text-sm font-medium text-zinc-600">
+                  Nombre
+                </span>
+                <input
+                  type="text"
+                  value={draft.name ?? ""}
+                  onChange={(e) =>
+                    setDraft((d) => ({ ...d, name: e.target.value }))
+                  }
+                  className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1.5 block text-sm font-medium text-zinc-600">
+                  Precio por defecto
+                </span>
+                <input
+                  type="number"
+                  min={0}
+                  value={draft.defaultPrice ?? ""}
+                  onChange={(e) =>
+                    setDraft((d) => ({
+                      ...d,
+                      defaultPrice: Number(e.target.value),
+                    }))
+                  }
+                  className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1.5 block text-sm font-medium text-zinc-600">
+                  Estadía mínima por defecto
+                </span>
+                <input
+                  type="number"
+                  min={1}
+                  value={draft.defaultMinStay ?? ""}
+                  onChange={(e) =>
+                    setDraft((d) => ({
+                      ...d,
+                      defaultMinStay: Number(e.target.value),
+                    }))
+                  }
+                  className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
+                />
+              </label>
+            </div>
 
-          <button
-            type="button"
-            onClick={() =>
-              setDraft((d) => ({ ...d, hideNightlyPrice: !d.hideNightlyPrice }))
-            }
-            aria-pressed={draft.hideNightlyPrice}
-            className={`mt-4 rounded-md border px-3 py-1.5 text-sm transition-colors ${
-              draft.hideNightlyPrice
-                ? "border-emerald-400 bg-emerald-50 text-emerald-800  "
-                : "border-zinc-300 text-zinc-600 hover:bg-zinc-50     "
-            }`}
-          >
-            {draft.hideNightlyPrice
-              ? "✓ Mostrar precio por noche"
-              : "X Ocultar precio por noche (mostrar solo el total)"}
-          </button>
+            <div className="mt-4">
+              <Switch
+                checked={Boolean(draft.hideNightlyPrice)}
+                onChange={() =>
+                  setDraft((d) => ({ ...d, hideNightlyPrice: !d.hideNightlyPrice }))
+                }
+                label="Ocultar precio por noche"
+                description="Los visitantes solo verán el total de la estadía, no el precio de cada noche."
+              />
+            </div>
 
-          <button
-            type="button"
-            disabled={saving}
-            onClick={saveSettings}
-            className="mt-4 rounded-md bg-foreground px-4 py-2 text-sm font-semibold text-background disabled:opacity-40"
-          >
-            {saving ? "Guardando…" : "Guardar configuración"}
-          </button>
-
-          {message && (
-            <p
-              className={`mt-3 text-sm font-medium ${
-                message.type === "success"
-                  ? "text-emerald-600 "
-                  : "text-red-600 "
-              }`}
+            <button
+              type="button"
+              disabled={saving}
+              onClick={saveSettings}
+              className="mt-4 rounded-md bg-foreground px-4 py-2 text-sm font-semibold text-background disabled:opacity-40"
             >
-              {message.text}
-            </p>
-          )}
-          <div className="mt-6 border-t border-zinc-200 pt-6  ">
+              {saving ? "Guardando…" : "Guardar configuración"}
+            </button>
+
+            {message && (
+              <p
+                className={`mt-3 text-sm font-medium ${
+                  message.type === "success" ? "text-emerald-600" : "text-red-600"
+                }`}
+              >
+                {message.text}
+              </p>
+            )}
+          </CollapsibleSection>
+
+          <CollapsibleSection title="Detalles de la propiedad">
             <PropertyDetailsForm property={property} onUpdated={onUpdated} />
-          </div>
-          <div className="mt-6 border-t border-zinc-200 pt-6  ">
+          </CollapsibleSection>
+
+          <CollapsibleSection title="Fotos">
             <PropertyImages propertyId={property.id} />
-          </div>
+          </CollapsibleSection>
         </div>
       )}
     </div>
@@ -318,9 +346,9 @@ function PropertyImages({ propertyId }: { propertyId: string }) {
     setError(null);
 
     try {
-      const resized = await resizeImageForUpload(file); // ← new line, uses 1600px/q0.82 defaults
+      const resized = await resizeImageForUpload(file);
       const formData = new FormData();
-      formData.append("file", resized); // ← was `file`
+      formData.append("file", resized);
       const res = await fetch(`/api/admin/properties/${propertyId}/images`, {
         method: "POST",
         body: formData,
@@ -342,9 +370,7 @@ function PropertyImages({ propertyId }: { propertyId: string }) {
     try {
       const res = await fetch(
         `/api/admin/properties/${propertyId}/images/${imageId}`,
-        {
-          method: "DELETE",
-        },
+        { method: "DELETE" },
       );
       if (!res.ok) throw new Error("No se pudo eliminar la imagen");
       setImages((prev) => prev?.filter((img) => img.id !== imageId) ?? null);
@@ -356,8 +382,8 @@ function PropertyImages({ propertyId }: { propertyId: string }) {
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
-        <span className="text-sm font-medium text-zinc-600  ">Fotos</span>
-        <label className="cursor-pointer rounded-md border border-zinc-300 px-3 py-1.5 text-sm  ">
+        <span className="text-sm font-medium text-zinc-600">Fotos</span>
+        <label className="cursor-pointer rounded-md border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50">
           {uploading ? "Subiendo…" : "+ Agregar foto"}
           <input
             type="file"
@@ -369,14 +395,14 @@ function PropertyImages({ propertyId }: { propertyId: string }) {
         </label>
       </div>
 
-      {error && (
-        <p className="mb-3 text-sm text-red-600 ">{error}</p>
-      )}
+      {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
 
       {!images ? (
-        <p className="text-sm text-zinc-500  ">Cargando…</p>
+        <p className="text-sm text-zinc-500">Cargando…</p>
       ) : images.length === 0 ? (
-        <p className="text-sm text-zinc-500  ">Todavía no hay fotos.</p>
+        <p className="rounded-md border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500">
+          Todavía no hay fotos.
+        </p>
       ) : (
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
           {images.map((image) => (
@@ -393,7 +419,7 @@ function PropertyImages({ propertyId }: { propertyId: string }) {
               <button
                 type="button"
                 onClick={() => handleDelete(image.id)}
-                className="absolute right-1 top-1 rounded-md bg-black/60 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100"
+                className="absolute right-1 top-1 rounded-md bg-primary/60 px-2 py-1 text-xs text-primary-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
               >
                 Eliminar
               </button>
