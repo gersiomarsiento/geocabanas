@@ -1,13 +1,9 @@
 "use client";
 
 // app/components/ContactSection.tsx
-//
-// Visitor-facing counterpart to app/admin/propiedades/SiteContactCard.tsx.
-// Reads the same public GET /api/site-settings endpoint (no admin auth
-// needed) and renders whatever the admin has filled in. Any field left
-// empty in the admin form is simply omitted here instead of showing "null".
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import {
   WhatsAppIcon,
@@ -35,6 +31,7 @@ function normalizeInstagramHandle(value: string) {
 }
 
 export default function ContactSection() {
+  const t = useTranslations("Contact");
   const [settings, setSettings] = useState<SiteSettingsResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,11 +45,11 @@ export default function ContactSection() {
       .catch((e) => setError(e.message));
   }, []);
 
-  if (error) return null; // fail quietly on the public site rather than showing a broken card
+  if (error) return null;
   if (!settings) {
     return (
       <div className="w-full rounded-xl border border-zinc-200 bg-background p-6 shadow-sm    ">
-        <p className="text-sm text-zinc-500  ">Cargando contacto…</p>
+        <p className="text-sm text-zinc-500  ">{t("cargando")}</p>
       </div>
     );
   }
@@ -71,7 +68,7 @@ export default function ContactSection() {
     contactWhatsapp || contactEmail || contactInstagram,
   );
 
-  if (!hasAnyContact && !hasMap) return null; // nothing configured yet — nothing to show visitors
+  if (!hasAnyContact && !hasMap) return null;
 
   const mapsLink = hasMap
     ? `https://www.google.com/maps?q=${mapLatitude},${mapLongitude}`
@@ -86,7 +83,7 @@ export default function ContactSection() {
     >
       <div className="max-w-360 md:flex md:justify-between w-full justify-self-center md:px-6 ">
         <div className="md:w-1/2 relative">
-          <h2 className="mb-4">Contacto</h2>
+          <h2 className="mb-4">{t("titulo")}</h2>
           {logoUrl && (
             <Image
               src={logoUrl}
@@ -149,7 +146,7 @@ export default function ContactSection() {
           <div className="md:w-1/2 flex flex-col">
             <div className="overflow-hidden rounded-lg border border-zinc-200 flex-1 min-h-70">
               <iframe
-                title="Ubicación"
+                title={t("ubicacion")}
                 width="100%"
                 height="100%"
                 loading="lazy"
@@ -172,7 +169,7 @@ export default function ContactSection() {
                         rel="noopener noreferrer"
                         className="font-medium underline underline-offset-2 hover:no-underline"
                       >
-                        Cómo llegar
+                        {t("comoLlegar")}
                       </a>
                     </>
                   )}

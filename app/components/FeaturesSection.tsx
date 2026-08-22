@@ -1,9 +1,5 @@
 // app/components/FeaturesSection.tsx
-//
-// Hardcoded on purpose — no admin setting, no database table. Styled to
-// match AboutSection's black theme so the two sit as one continuous block
-// when placed back to back on the homepage, rather than a jarring cut
-// from black straight into a light card grid.
+import { getTranslations } from "next-intl/server";
 
 function PoolIcon() {
   return (
@@ -73,17 +69,19 @@ function BeachIcon() {
   );
 }
 
-const FEATURES = [
-  { icon: <PoolIcon />, label: "Piscina" },
-  { icon: <GrillIcon />, label: "Parrillero" },
-  { icon: <WifiIcon />, label: "WiFi" },
-  { icon: <BeachIcon />, label: "A pasos de la playa (600 mts)" },
-];
+export default async function FeaturesSection() {
+  const t = await getTranslations("Features");
 
-export default function FeaturesSection() {
+  const FEATURES = [
+    { icon: <PoolIcon />, label: t("piscina") },
+    { icon: <GrillIcon />, label: t("parrillero") },
+    { icon: <WifiIcon />, label: t("wifi") },
+    { icon: <BeachIcon />, label: t("playa") },
+  ];
+
   return (
     <section
-      aria-label="Características del lugar"
+      aria-label={t("ariaLabel")}
       className="w-full bg-primary px-3 pb-10 pt-2 md:px-6 md:pb-16"
     >
       <div className="mx-auto grid max-w-lg grid-cols-2 gap-4 sm:grid-cols-4">

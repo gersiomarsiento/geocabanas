@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import type { LocalizedText } from "@/lib/i18n/getLocalized";
 
 export interface ContactSettings {
   contactWhatsapp: string | null;
@@ -19,6 +20,9 @@ export interface ContactSettings {
 
   exchangeRateUyu: number;
   exchangeRateBrl: number;
+
+  aboutTitle: LocalizedText | null;
+  aboutText: LocalizedText | null;
 }
 
 export async function getContactSettings(): Promise<ContactSettings> {
@@ -39,7 +43,9 @@ export async function getContactSettings(): Promise<ContactSettings> {
       email_subject,
       email_intro,
       exchange_rate_uyu,
-      exchange_rate_brl
+      exchange_rate_brl,
+      about_title,
+      about_text
       `,
     )
     .eq("id", "singleton")
@@ -65,9 +71,10 @@ export async function getContactSettings(): Promise<ContactSettings> {
       emailSubject: null,
       emailIntro: null,
 
-      // Fallbacks seguros si Supabase falla.
       exchangeRateUyu: 42.5,
       exchangeRateBrl: 5.4,
+      aboutTitle: null,
+      aboutText: null,
     };
   }
 
@@ -90,5 +97,8 @@ export async function getContactSettings(): Promise<ContactSettings> {
 
     exchangeRateUyu: Number(data.exchange_rate_uyu),
     exchangeRateBrl: Number(data.exchange_rate_brl),
+    
+    aboutTitle: data.about_title,
+    aboutText: data.about_text,
   };
 }

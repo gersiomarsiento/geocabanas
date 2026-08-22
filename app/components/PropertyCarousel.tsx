@@ -3,6 +3,7 @@
 // app/components/PropertyCarousel.tsx
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { CaretIcon } from "./icons";
 
@@ -16,6 +17,7 @@ export default function PropertyCarousel({
 }: {
   images: CarouselImage[];
 }) {
+  const t = useTranslations("Carousel");
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -124,7 +126,7 @@ export default function PropertyCarousel({
           <button
             type="button"
             onClick={() => scrollToIndex(Math.max(activeIndex - 1, 0))}
-            aria-label="Foto anterior"
+            aria-label={t("fotoAnterior")}
             className="absolute left-1 top-1/2 -translate-y-1/2 rounded-full transition-colors text-primary-foreground hover:bg-primary"
           >
             <CaretIcon className="rotate-180" />
@@ -134,7 +136,7 @@ export default function PropertyCarousel({
             onClick={() =>
               scrollToIndex(Math.min(activeIndex + 1, images.length - 1))
             }
-            aria-label="Foto siguiente"
+            aria-label={t("fotoSiguiente")}
             className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full transition-colors text-primary-foreground hover:bg-primary"
           >
             <CaretIcon />

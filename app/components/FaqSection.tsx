@@ -1,8 +1,7 @@
 "use client";
 
-// app/components/FaqSection.tsx
-
 import { useEffect, useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 
 interface PublicFaq {
   id: string;
@@ -11,21 +10,22 @@ interface PublicFaq {
 }
 
 export default function FaqSection() {
+  const t = useTranslations("Faq");
+  const locale = useLocale();
   const [faqs, setFaqs] = useState<PublicFaq[] | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/faqs")
+    fetch(`/api/faqs?locale=${locale}`)
       .then((res) => {
         if (!res.ok) {
           throw new Error("No se pudieron cargar las preguntas");
         }
-
         return res.json() as Promise<PublicFaq[]>;
       })
       .then(setFaqs)
       .catch(() => setFaqs([]));
-  }, []);
+  }, [locale]);
 
   if (faqs && faqs.length === 0) return null;
 
@@ -36,12 +36,10 @@ export default function FaqSection() {
       className="mx-auto w-full justify-items-center px-3 py-10 md:px-6"
     >
       <div className="w-full max-w-lg md:max-w-354">
-        <h2 className="mb-6 text-center text-primary">
-          Preguntas frecuentes
-        </h2>
+        <h2 className="mb-6 text-center text-primary">{t("titulo")}</h2>
 
         {!faqs ? (
-          <p className="text-center text-sm text-zinc-500 ">Cargando…</p>
+          <p className="text-center text-sm text-zinc-500 ">{t("cargando")}</p>
         ) : (
           <div className="space-y-2">
             {faqs.map((faq) => {
@@ -78,10 +76,7 @@ export default function FaqSection() {
                     }`}
                   >
                     <div className="overflow-hidden">
-                      <div
-                        className={`border-t border-zinc-200 px-5 py-4 text-sm text-zinc-600 transition-opacity duration-200   -100" : "opacity-0"
-                      }`}
-                      >
+                      <div className="border-t border-zinc-200 px-5 py-4 text-sm text-zinc-600">
                         {faq.answer}
                       </div>
                     </div>

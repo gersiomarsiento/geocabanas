@@ -1,0 +1,122 @@
+{
+  "Header": {
+    "reservar": "Book",
+    "nuestrasCabanas": "Our cabins",
+    "contacto": "Contact",
+    "abrirMenu": "Open menu",
+    "cerrarMenu": "Close menu",
+    "seleccionarMoneda": "Select currency",
+    "cargandoMoneda": "Loading currency",
+    "idioma": "Language",
+    "moneda": "Currency"
+  },
+  "Hero": {
+    "imagenPrincipal": "Main image",
+    "botonReservarDefault": "BOOK NOW"
+  },
+  "About": {
+    "ariaLabel": "About us and our cabins",
+    "nuestrasCabanas": "Our cabins",
+    "cargando": "Loading…",
+    "aptoParaNinos": "Child-friendly",
+    "admiteMascotas": "Pets allowed"
+  },
+  "Units": {
+    "habitaciones": "{count, plural, =1 {# bedroom} other {# bedrooms}}",
+    "huespedes": "{count, plural, =1 {# guest} other {# guests}}",
+    "banos": "{count, plural, =1 {# bathroom} other {# bathrooms}}",
+    "noches": "{count, plural, =1 {# night} other {# nights}}"
+  },
+  "Booking": {
+    "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    "months": [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ],
+    "seleccionaPropiedad": "Select a property",
+    "hospedaje": "Accommodation:",
+    "mesAnterior": "Previous month",
+    "mesSiguiente": "Next month",
+    "ocupado": "Booked",
+    "datosDeTuReserva": "Your reservation details:",
+    "total": "total",
+    "seleccionaRangoValido": "Select a valid date range to see your reservation details",
+    "completaTusDatos": "Complete your details to book",
+    "nombreYApellido": "Full name *",
+    "email": "Email *",
+    "emailInvalido": "Enter an email with a valid format.",
+    "telefono": "Phone *",
+    "condicionesReserva": "After submitting the form, the reservation will remain pending confirmation for 24 hours. To confirm it, you must make a 50% deposit of the total amount; otherwise, it will be cancelled. We will send you an email with the next steps.",
+    "reservando": "Booking…",
+    "reservar": "Book",
+    "seleccionaEntrada": "Select your check-in date",
+    "seleccionaSalida": "Select your check-out date",
+    "seleccionaOtraEntrada": "Select another check-in date to modify your stay",
+    "rangoConFechasOcupadas": "That range includes booked dates. Please choose another stay.",
+    "estadiaMinima": "The minimum stay is {count, plural, =1 {# night} other {# nights}}. Choose a later check-out date.",
+    "completaDatosParaContinuar": "Complete your name, email, and phone number to continue.",
+    "emailValido": "Enter a valid email address.",
+    "noSePudoCompletarReserva": "The reservation could not be completed.",
+    "errorGenerico": "Something went wrong. Please try again.",
+    "noSePudoCargarDisponibilidad": "Availability could not be loaded at this time.",
+    "hacerTuReserva": "Make your reservation"
+  },
+  "Faq": {
+    "titulo": "Frequently asked questions",
+    "cargando": "Loading…"
+  },
+  "Contact": {
+    "titulo": "Contact",
+    "cargando": "Loading contact information…",
+    "comoLlegar": "How to get there",
+    "ubicacion": "Location"
+  },
+  "Footer": {
+    "derechos": "Geocabañas @2026. All rights reserved."
+  },
+  "Features": {
+    "ariaLabel": "Property features",
+    "piscina": "Swimming pool",
+    "parrillero": "BBQ grill",
+    "wifi": "WiFi",
+    "playa": "Steps from the beach (600 m)"
+  },
+  "PropertyDetails": {
+    "serviciosYComodidades": "Services and amenities",
+    "noAptoParaNinos": "Not suitable for children",
+    "seAceptanMascotas": "Pets allowed",
+    "noSeAceptanMascotas": "Pets not allowed"
+  },
+  "Amenities": {
+    "wifi": "WiFi",
+    "parking": "Parking",
+    "pool": "Swimming pool",
+    "air_conditioning": "Air conditioning",
+    "heating": "Heating",
+    "kitchen": "Fully equipped kitchen",
+    "tv": "TV",
+    "washer": "Washing machine",
+    "dryer": "Dryer",
+    "bbq": "BBQ grill",
+    "breakfast": "Breakfast included",
+    "fireplace": "Fireplace",
+    "hot_tub": "Hot tub",
+    "gym": "Gym",
+    "wheelchair_accessible": "Wheelchair accessible",
+    "smoking_allowed": "Smoking allowed"
+  },
+  "Carousel": {
+    "fotoAnterior": "Previous photo",
+    "fotoSiguiente": "Next photo"
+  }
+}

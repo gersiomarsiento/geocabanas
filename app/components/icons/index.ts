@@ -1,6 +1,7 @@
 // app/components/icons/index.ts
 
 export { default as CaretIcon } from "./CaretIcon";
+export { default as CaretSmallIcon } from "./CaretSmallIcon";
 export { default as PhoneIcon } from "./PhoneIcon";
 export { default as LetterIcon } from "./LetterIcon";
 export { default as WhatsAppIcon } from "./WhatsAppIcon";
@@ -13,3 +14,6 @@ export { default as UsersIcon } from "./UsersIcon";
 export { default as BathIcon } from "./BathIcon";
 export { default as ChildIcon } from "./ChildIcon";
 export { default as PawIcon } from "./PawIcon";
+export { default as FlagEsIcon } from "./FlagEsIcon";
+export { default as FlagEnIcon } from "./FlagEnIcon";
+export { default as FlagPtIcon } from "./FlagPtIcon";

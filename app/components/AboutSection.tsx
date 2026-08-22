@@ -1,8 +1,7 @@
-// app/components/AboutSection.tsx
-
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { BedIcon, UsersIcon, BathIcon, ChildIcon, PawIcon } from "./icons";
 
 interface PublicProperty {
@@ -27,9 +26,28 @@ interface PropertyWithImage extends PublicProperty {
 }
 
 export default function AboutSection() {
+  const locale = useLocale();
+  const t = useTranslations("About");
+  const tUnits = useTranslations("Units");
+
   const [properties, setProperties] = useState<PropertyWithImage[] | null>(
     null,
   );
+  const [about, setAbout] = useState<{ title: string; text: string } | null>(
+    null,
+  );
+
+  useEffect(() => {
+    fetch(`/api/site-settings?locale=${locale}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("No se pudo cargar la configuración");
+        return res.json() as Promise<{ aboutTitle: string; aboutText: string }>;
+      })
+      .then((data) =>
+        setAbout({ title: data.aboutTitle, text: data.aboutText }),
+      )
+      .catch(() => setAbout({ title: "", text: "" }));
+  }, [locale]);
 
   useEffect(() => {
     fetch("/api/properties")
@@ -60,27 +78,25 @@ export default function AboutSection() {
 
   return (
     <section
-      aria-label="Quiénes somos y nuestras cabañas"
+      aria-label={t("ariaLabel")}
       id="quienes-somos"
-      className="mx-auto bg-primary text-primary-foreground w-full px-3 py-10 md:px-6"
+      className="mx-auto bg-linear-180 from-primary via-secondary-700 to-primary text-primary-foreground w-full px-3 py-10 md:px-6"
     >
       <div className="text-center">
-        <h2 className="text-xl md:text-3xl font-semibold">Quiénes somos</h2>
+        <h2 className="text-xl md:text-3xl font-semibold">{about?.title}</h2>
         <p className="mx-auto mt-3 md:mt-5 max-w-md md:max-w-2xl text-sm md:text-xl">
-          Somos una familia de Punta del Diablo dedicada a ofrecer estadías
-          cómodas y a pasos de la playa. Cada cabaña está pensada para que te
-          sientas como en casa.
+          {about?.text}
         </p>
       </div>
 
       <div className="mt-10 md:mt-16">
         <h3 className="text-center text-md md:text-2xl font-semibold">
-          Nuestras cabañas
+          {t("nuestrasCabanas")}
         </h3>
 
         {!properties ? (
           <p className="mt-4 text-center text-sm text-primary-foreground/70">
-            Cargando…
+            {t("cargando")}
           </p>
         ) : properties.length > 0 ? (
           <div className="mt-5 grid grid-cols-1 gap-5 md:mt-10 md:grid-cols-2 md:gap-6">
@@ -106,61 +122,68 @@ export default function AboutSection() {
                   )}
                 </div>
 
-                <div className={`flex flex-1 flex-col justify-center gap-3 p-4 md:p-6 ${
-                  index % 2 === 0 ? "items-end" : ""
-                }`}>
+                <div
+                  className={`flex flex-1 flex-col justify-center gap-3 p-4 md:p-6 ${
+                    index % 2 === 0 ? "items-end" : ""
+                  }`}
+                >
                   <h4 className="text-base font-semibold md:text-lg">
                     {property.name}
                   </h4>
 
                   <ul className="flex flex-col flex-wrap gap-x-4 gap-y-2 text-sm text-zinc-600">
                     {property.bedrooms != null && (
-                      <li className={`flex items-center gap-1.5 ${
-                        index % 2 === 0 ? "flex-row-reverse" : ""
-                      }`}>
+                      <li
+                        className={`flex items-center gap-1.5 ${
+                          index % 2 === 0 ? "flex-row-reverse" : ""
+                        }`}
+                      >
                         <BedIcon className="h-4 w-4 text-primary" />
-                        {property.bedrooms}{" "}
-                        {property.bedrooms === 1
-                          ? "habitación"
-                          : "habitaciones"}
+                        {tUnits("habitaciones", { count: property.bedrooms })}
                       </li>
                     )}
 
                     {property.maxGuests != null && (
-                      <li className={`flex items-center gap-1.5 ${
-                        index % 2 === 0 ? "flex-row-reverse" : ""
-                      }`}>
+                      <li
+                        className={`flex items-center gap-1.5 ${
+                          index % 2 === 0 ? "flex-row-reverse" : ""
+                        }`}
+                      >
                         <UsersIcon className="h-4 w-4 text-primary" />
-                        {property.maxGuests}{" "}
-                        {property.maxGuests === 1 ? "huésped" : "huéspedes"}
+                        {tUnits("huespedes", { count: property.maxGuests })}
                       </li>
                     )}
 
                     {!!property.bathrooms && (
-                      <li className={`flex items-center gap-1.5 ${
-                        index % 2 === 0 ? "flex-row-reverse" : ""
-                      }`}>
+                      <li
+                        className={`flex items-center gap-1.5 ${
+                          index % 2 === 0 ? "flex-row-reverse" : ""
+                        }`}
+                      >
                         <BathIcon className="h-4 w-4 text-primary" />
-                        {property.bathrooms}{" "}
-                        {property.bathrooms === 1 ? "baño" : "baños"}
+                        {tUnits("banos", { count: property.bathrooms })}
                       </li>
                     )}
 
                     {property.childrenAllowed && (
-                      <li className={`flex items-center gap-1.5 ${
-                        index % 2 === 0 ? "flex-row-reverse" : ""
-                      }`}>
+                      <li
+                        className={`flex items-center gap-1.5 ${
+                          index % 2 === 0 ? "flex-row-reverse" : ""
+                        }`}
+                      >
                         <ChildIcon className="h-4 w-4 text-primary" />
-                        Apto para niños
+                        {t("aptoParaNinos")}
                       </li>
                     )}
 
                     {property.petsAllowed && (
-                      <li className={`flex items-center gap-1.5 ${
-                        index % 2 === 0 ? "flex-row-reverse" : ""
-                      }`}>
+                      <li
+                        className={`flex items-center gap-1.5 ${
+                          index % 2 === 0 ? "flex-row-reverse" : ""
+                        }`}
+                      >
                         <PawIcon className="h-4 w-4 text-primary" />
-                        Admite mascotas
+                        {t("admiteMascotas")}
                       </li>
                     )}
                   </ul>

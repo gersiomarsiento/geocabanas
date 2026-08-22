@@ -1,18 +1,22 @@
-// app/api/site-settings/route.ts
-//
-// REPLACES the previous version. Now delegates the contact/map query to
-// the shared helper instead of an inline query — same DRY reasoning as
-// the hero image split.
-
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getHeroUrl, getLogoUrl } from "@/lib/site/hero";
 import { getContactSettings } from "@/lib/site/settings";
+import { getLocalized } from "@/lib/i18n/getLocalized";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const locale = req.nextUrl.searchParams.get("locale") ?? "es";
+
   const [heroUrl, logoUrl, contact] = await Promise.all([
     getHeroUrl(),
     getLogoUrl(),
     getContactSettings(),
   ]);
-  return NextResponse.json({ heroUrl, logoUrl, ...contact });
+
+  return NextResponse.json({
+    heroUrl,
+    logoUrl,
+    ...contact,
+    aboutTitle: getLocalized(contact.aboutTitle, locale),
+    aboutText: getLocalized(contact.aboutText, locale),
+  });
 }

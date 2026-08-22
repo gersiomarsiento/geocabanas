@@ -1,0 +1,122 @@
+{
+  "Header": {
+    "reservar": "Reservar",
+    "nuestrasCabanas": "Nuestras cabañas",
+    "contacto": "Contacto",
+    "abrirMenu": "Abrir menú",
+    "cerrarMenu": "Cerrar menú",
+    "seleccionarMoneda": "Seleccionar moneda",
+    "cargandoMoneda": "Cargando moneda",
+    "idioma": "Idioma",
+    "moneda": "Moneda"
+  },
+  "Hero": {
+    "imagenPrincipal": "Imagen principal",
+    "botonReservarDefault": "RESERVAR"
+  },
+  "About": {
+    "ariaLabel": "Quiénes somos y nuestras cabañas",
+    "nuestrasCabanas": "Nuestras cabañas",
+    "cargando": "Cargando…",
+    "aptoParaNinos": "Apto para niños",
+    "admiteMascotas": "Admite mascotas"
+  },
+  "Units": {
+    "habitaciones": "{count, plural, =1 {# habitación} other {# habitaciones}}",
+    "huespedes": "{count, plural, =1 {# huésped} other {# huéspedes}}",
+    "banos": "{count, plural, =1 {# baño} other {# baños}}",
+    "noches": "{count, plural, =1 {# noche} other {# noches}}"
+  },
+  "Booking": {
+    "weekdays": ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"],
+    "months": [
+      "Enero",
+      "Febrero",
+      "Marzo",
+      "Abril",
+      "Mayo",
+      "Junio",
+      "Julio",
+      "Agosto",
+      "Septiembre",
+      "Octubre",
+      "Noviembre",
+      "Diciembre"
+    ],
+    "seleccionaPropiedad": "Seleccioná la propiedad",
+    "hospedaje": "Hospedaje:",
+    "mesAnterior": "Mes anterior",
+    "mesSiguiente": "Mes siguiente",
+    "ocupado": "Ocupado",
+    "datosDeTuReserva": "Datos de tu reserva:",
+    "total": "total",
+    "seleccionaRangoValido": "Seleccioná un rango de fechas válido para ver la información de tu reserva",
+    "completaTusDatos": "Completá tus datos para reservar",
+    "nombreYApellido": "Nombre y apellido *",
+    "email": "Email *",
+    "emailInvalido": "Ingresá un email con formato válido.",
+    "telefono": "Teléfono *",
+    "condicionesReserva": "Tras enviar el formulario, la reserva quedará pendiente de confirmación durante 24 horas. Para confirmarla, deberás hacer un depósito por el 50% del total, de lo contrario la misma se cancelará. Te enviaremos un correo electrónico con los pasos a seguir.",
+    "reservando": "Reservando…",
+    "reservar": "Reservar",
+    "seleccionaEntrada": "Seleccioná la fecha de entrada",
+    "seleccionaSalida": "Seleccioná la fecha de salida",
+    "seleccionaOtraEntrada": "Seleccioná otra fecha de entrada para modificar",
+    "rangoConFechasOcupadas": "Ese rango incluye fechas ocupadas. Elegí otra estadía.",
+    "estadiaMinima": "La estadía mínima es de {count, plural, =1 {# noche} other {# noches}}. Elegí una fecha de salida más lejana.",
+    "completaDatosParaContinuar": "Completá tu nombre, email y teléfono para continuar.",
+    "emailValido": "Ingresá un email válido.",
+    "noSePudoCompletarReserva": "No se pudo completar la reserva.",
+    "errorGenerico": "Ocurrió un error. Intentá de nuevo.",
+    "noSePudoCargarDisponibilidad": "No se pudo cargar la disponibilidad en este momento.",
+    "hacerTuReserva": "Hacé tu reserva"
+  },
+  "Faq": {
+    "titulo": "Preguntas frecuentes",
+    "cargando": "Cargando…"
+  },
+  "Contact": {
+    "titulo": "Contacto",
+    "cargando": "Cargando contacto…",
+    "comoLlegar": "Cómo llegar",
+    "ubicacion": "Ubicación"
+  },
+  "Footer": {
+    "derechos": "Geocabañas @2026. Todos los derechos reservados."
+  },
+  "Features": {
+    "ariaLabel": "Características del lugar",
+    "piscina": "Piscina",
+    "parrillero": "Parrillero",
+    "wifi": "WiFi",
+    "playa": "A pasos de la playa (600 mts)"
+  },
+  "PropertyDetails": {
+    "serviciosYComodidades": "Servicios y comodidades",
+    "noAptoParaNinos": "No apto para niños",
+    "seAceptanMascotas": "Se aceptan mascotas",
+    "noSeAceptanMascotas": "No se aceptan mascotas"
+  },
+  "Amenities": {
+    "wifi": "WiFi",
+    "parking": "Estacionamiento",
+    "pool": "Piscina",
+    "air_conditioning": "Aire acondicionado",
+    "heating": "Calefacción",
+    "kitchen": "Cocina equipada",
+    "tv": "TV",
+    "washer": "Lavarropas",
+    "dryer": "Secarropas",
+    "bbq": "Parrilla",
+    "breakfast": "Desayuno incluido",
+    "fireplace": "Chimenea",
+    "hot_tub": "Jacuzzi",
+    "gym": "Gimnasio",
+    "wheelchair_accessible": "Accesible en silla de ruedas",
+    "smoking_allowed": "Se permite fumar"
+  },
+  "Carousel": {
+    "fotoAnterior": "Foto anterior",
+    "fotoSiguiente": "Foto siguiente"
+  }
+}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { AMENITY_OPTIONS } from "@/lib/amenities";
 
 interface PropertyDetailsInfo {
@@ -63,24 +64,23 @@ export default function PropertyDetails({
 }: {
   property: PropertyDetailsInfo;
 }) {
+  const t = useTranslations("PropertyDetails");
+  const tAbout = useTranslations("About");
+  const tUnits = useTranslations("Units");
+  const tAmenities = useTranslations("Amenities");
+
   const stats = [
     property.bedrooms != null && {
       icon: <BedIcon />,
-      label: `${property.bedrooms} ${
-        property.bedrooms === 1 ? "habitación" : "habitaciones"
-      }`,
+      label: tUnits("habitaciones", { count: property.bedrooms }),
     },
     property.bathrooms != null && {
       icon: <BathIcon />,
-      label: `${property.bathrooms} ${
-        property.bathrooms === 1 ? "baño" : "baños"
-      }`,
+      label: tUnits("banos", { count: property.bathrooms }),
     },
     property.maxGuests != null && {
       icon: <UsersIcon />,
-      label: `${property.maxGuests} ${
-        property.maxGuests === 1 ? "huésped" : "huéspedes"
-      }`,
+      label: tUnits("huespedes", { count: property.maxGuests }),
     },
   ].filter(Boolean) as { icon: React.ReactNode; label: string }[];
 
@@ -123,8 +123,8 @@ export default function PropertyDetails({
               }`}
             >
               {property.childrenAllowed
-                ? "Apto para niños"
-                : "No apto para niños"}
+                ? tAbout("aptoParaNinos")
+                : t("noAptoParaNinos")}
             </span>
           )}
           {property.petsAllowed != null && (
@@ -136,8 +136,8 @@ export default function PropertyDetails({
               }`}
             >
               {property.petsAllowed
-                ? "Se aceptan mascotas"
-                : "No se aceptan mascotas"}
+                ? t("seAceptanMascotas")
+                : t("noSeAceptanMascotas")}
             </span>
           )}
         </div>
@@ -145,14 +145,12 @@ export default function PropertyDetails({
 
       {amenityLabels.length > 0 && (
         <div>
-          <h4 className="mb-2">
-            Servicios y comodidades
-          </h4>
+          <h4 className="mb-2">{t("serviciosYComodidades")}</h4>
           <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm text-zinc-700  sm:grid-cols-3">
             {amenityLabels.map((a) => (
               <span key={a.id} className="flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                {a.label}
+                {tAmenities(a.id)}
               </span>
             ))}
           </div>

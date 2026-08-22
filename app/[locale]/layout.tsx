@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { CurrencyProvider } from "./components/CurrencyProvider";
-import { ACTIVE_THEME } from "../lib/site/theme";
+import { NextIntlClientProvider } from "next-intl";
+import "@/app/globals.css";
+import { CurrencyProvider } from "../components/CurrencyProvider";
+import { ACTIVE_THEME } from "../../lib/site/theme";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,16 +20,22 @@ export const metadata: Metadata = {
   description: "GEOCABAÑAS - Punta del Diablo",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({
+  children,
+  params,
+}: LayoutProps<"/[locale]">) {
+  const { locale } = await params;
   return (
     <html
-      lang="en"
+      lang={locale}
       data-theme={ACTIVE_THEME}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         {" "}
-        <CurrencyProvider>{children}</CurrencyProvider>
+        <NextIntlClientProvider>
+          <CurrencyProvider>{children}</CurrencyProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 
 interface HeroImageClientProps {
@@ -18,6 +19,7 @@ export default function HeroImageClient({
   heroButtonHref,
   heroButtonText,
 }: HeroImageClientProps) {
+  const t = useTranslations("Hero");
   const [status, setStatus] = useState<"loading" | "loaded" | "error">(
     "loading",
   );
@@ -27,7 +29,7 @@ export default function HeroImageClient({
       {status !== "error" && (
         <Image
           src={heroUrl}
-          alt="Imagen principal"
+          alt={t("imagenPrincipal")}
           fill
           priority
           sizes="100vw"
@@ -37,9 +39,6 @@ export default function HeroImageClient({
         />
       )}
 
-      {/* Curtain: covers the hero while the image loads/fails, then rises
-          out of view once it's ready. Stays down permanently on error so
-          we never show a broken image. */}
       <div
         aria-hidden={status === "loaded"}
         className={`absolute inset-0 z-20 flex items-center justify-center bg-primary transition-transform duration-700 ease-in-out ${
@@ -64,7 +63,7 @@ export default function HeroImageClient({
               href={heroButtonHref ?? "#reservar-button"}
               className="w-fit scroll-smooth z-10 bg-background text-sm md:text-lg font-bold text-primary py-2 px-4 border border-primary rounded-md mt-8 hover:bg-accent hover:text-white hover:border-transparent transition"
             >
-              {heroButtonText ?? "RESERVAR"}
+              {heroButtonText ?? t("botonReservarDefault")}
             </a>
           </div>
         </div>

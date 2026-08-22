@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import {
   type DateParts,
@@ -20,27 +21,10 @@ import PropertyDetails from "./PropertyDetails";
 import LoadingOverlay from "./LoadingOverlay";
 import { CaretIcon } from "./icons";
 
-const WEEKDAYS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-
-const MONTHS = [
-  "Enero",
-  "Febrero",
-  "Marzo",
-  "Abril",
-  "Mayo",
-  "Junio",
-  "Julio",
-  "Agosto",
-  "Septiembre",
-  "Octubre",
-  "Noviembre",
-  "Diciembre",
-];
-
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function formatDisplayDate({ year, month, day }: DateParts) {
-  return `${day} ${MONTHS[month]} ${year}`;
+function formatDisplayDate({ year, month, day }: DateParts, months: string[]) {
+  return `${day} ${months[month]} ${year}`;
 }
 
 function nightsBetween(start: DateParts, end: DateParts): number {
@@ -86,6 +70,11 @@ interface CarouselImage {
 }
 
 export default function BookingCalendar() {
+  const t = useTranslations("Booking");
+  const tUnits = useTranslations("Units");
+  const weekdays = t.raw("weekdays") as string[];
+  const months = t.raw("months") as string[];
+
   const { currency, rates } = useCurrency();
   const today = startOfToday();
 
@@ -109,13 +98,9 @@ export default function BookingCalendar() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // --- Property selector ---
   const [properties, setProperties] = useState<PublicProperty[] | null>(null);
-
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
-
   const [propertiesError, setPropertiesError] = useState<string | null>(null);
-
   const [carouselImages, setCarouselImages] = useState<CarouselImage[]>([]);
 
   const selectedProperty = useMemo(
@@ -129,12 +114,10 @@ export default function BookingCalendar() {
         if (!res.ok) {
           throw new Error("No se pudieron cargar las propiedades");
         }
-
         return res.json() as Promise<PublicProperty[]>;
       })
       .then((data) => {
         setProperties(data);
-
         if (data.length > 0) {
           setSelectedSlug(data[0].slug);
         }
@@ -144,21 +127,15 @@ export default function BookingCalendar() {
       });
   }, []);
 
-  // --- Availability + price ---
   const [days, setDays] = useState<Map<string, DayInfo> | null>(null);
-
   const [loadError, setLoadError] = useState<string | null>(null);
-
   const [rangeError, setRangeError] = useState<string | null>(null);
-
   const [isLoading, setIsLoading] = useState(false);
 
-  // --- Property images ---
   useEffect(() => {
     if (!selectedProperty) return;
 
     let ignore = false;
-
     setCarouselImages([]);
 
     fetch(`/api/properties/${selectedProperty.id}/images`)
@@ -166,7 +143,6 @@ export default function BookingCalendar() {
         if (!res.ok) {
           throw new Error("No se pudieron cargar las fotos");
         }
-
         return res.json() as Promise<CarouselImage[]>;
       })
       .then((images) => {
@@ -181,12 +157,10 @@ export default function BookingCalendar() {
     };
   }, [selectedProperty]);
 
-  // --- Availability ---
   useEffect(() => {
     if (!selectedSlug) return;
 
     let ignore = false;
-
     setIsLoading(true);
     setDays(null);
     setLoadError(null);
@@ -198,18 +172,14 @@ export default function BookingCalendar() {
         if (!res.ok) {
           throw new Error("No se pudo cargar la disponibilidad");
         }
-
         return res.json() as Promise<AvailabilityResponse>;
       })
       .then((data) => {
         if (ignore) return;
-
         const map = new Map<string, DayInfo>();
-
         for (const day of data.days) {
           map.set(day.date, day);
         }
-
         setDays(map);
       })
       .catch((e) => {
@@ -224,25 +194,18 @@ export default function BookingCalendar() {
     };
   }, [selectedSlug]);
 
-  // --- Moneda ---
-  // Todos los precios que llegan desde la API se consideran USD.
-  // La conversión es únicamente visual.
   function formatPrice(amount: number) {
     const convertedAmount = convertFromUSD(amount, currency, rates);
-
     return formatCurrency(convertedAmount, currency);
   }
 
-  // --- Unavailable dates ---
   const unavailableDates = useMemo(() => {
     const set = new Set<string>();
-
     days?.forEach((info, date) => {
       if (!info.available) {
         set.add(date);
       }
     });
-
     return set;
   }, [days]);
 
@@ -254,14 +217,12 @@ export default function BookingCalendar() {
     day: today.getDate(),
   });
 
-  // --- Total ---
   const stayTotal = useMemo(() => {
     if (!startDate || !endDate || !days) {
       return null;
     }
 
     let total = 0;
-
     const cur = toDate(startDate);
     const endTime = toDate(endDate).getTime();
 
@@ -271,9 +232,7 @@ export default function BookingCalendar() {
         month: cur.getMonth(),
         day: cur.getDate(),
       });
-
       total += days.get(key)?.price ?? 0;
-
       cur.setDate(cur.getDate() + 1);
     }
 
@@ -281,15 +240,11 @@ export default function BookingCalendar() {
       (toDate(endDate).getTime() - toDate(startDate).getTime()) / 86_400_000,
     );
 
-    return {
-      nights,
-      total,
-    };
+    return { nights, total };
   }, [startDate, endDate, days]);
 
   function getDayInfo(parts: DateParts): DayInfo {
     const key = toDateKey(parts);
-
     return (
       days?.get(key) ?? {
         date: key,
@@ -306,7 +261,6 @@ export default function BookingCalendar() {
 
   function goToPreviousMonth() {
     setHoveredDay(null);
-
     if (viewMonth === 0) {
       setViewMonth(11);
       setViewYear((y) => y - 1);
@@ -317,7 +271,6 @@ export default function BookingCalendar() {
 
   function goToNextMonth() {
     setHoveredDay(null);
-
     if (viewMonth === 11) {
       setViewMonth(0);
       setViewYear((y) => y + 1);
@@ -327,12 +280,7 @@ export default function BookingCalendar() {
   }
 
   function handleDayClick(day: number) {
-    const clicked: DateParts = {
-      year: viewYear,
-      month: viewMonth,
-      day,
-    };
-
+    const clicked: DateParts = { year: viewYear, month: viewMonth, day };
     const clickedTime = toDate(clicked).getTime();
 
     if (clickedTime < today.getTime() || isBooked(clicked)) {
@@ -344,13 +292,11 @@ export default function BookingCalendar() {
     if (startDate && endDate) {
       setStartDate(clicked);
       setEndDate(null);
-
       return;
     }
 
     if (!startDate) {
       setStartDate(clicked);
-
       return;
     }
 
@@ -358,28 +304,19 @@ export default function BookingCalendar() {
 
     if (clickedTime < startTime) {
       if (rangeHasDateInSet(clicked, startDate, unavailableDates)) {
-        setRangeError("Ese rango incluye fechas ocupadas. Elegí otra estadía.");
-
+        setRangeError(t("rangoConFechasOcupadas"));
         setStartDate(clicked);
         setEndDate(null);
-
         return;
       }
 
       const nights = nightsBetween(clicked, startDate);
-
       const requiredMinStay = getDayInfo(clicked).minStay ?? 1;
 
       if (nights < requiredMinStay) {
-        setRangeError(
-          `La estadía mínima es de ${requiredMinStay} ${
-            requiredMinStay === 1 ? "noche" : "noches"
-          }. Elegí una fecha de salida más lejana.`,
-        );
-
+        setRangeError(t("estadiaMinima", { count: requiredMinStay }));
         setStartDate(clicked);
         setEndDate(null);
-
         return;
       }
 
@@ -387,27 +324,18 @@ export default function BookingCalendar() {
       setStartDate(clicked);
     } else {
       if (rangeHasDateInSet(startDate, clicked, unavailableDates)) {
-        setRangeError("Ese rango incluye fechas ocupadas. Elegí otra estadía.");
-
+        setRangeError(t("rangoConFechasOcupadas"));
         setStartDate(clicked);
         setEndDate(null);
-
         return;
       }
 
       const nights = nightsBetween(startDate, clicked);
-
       const requiredMinStay = getDayInfo(startDate).minStay ?? 1;
 
       if (nights < requiredMinStay) {
-        setRangeError(
-          `La estadía mínima es de ${requiredMinStay} ${
-            requiredMinStay === 1 ? "noche" : "noches"
-          }. Elegí una fecha de salida más lejana.`,
-        );
-
+        setRangeError(t("estadiaMinima", { count: requiredMinStay }));
         setEndDate(null);
-
         return;
       }
 
@@ -421,14 +349,12 @@ export default function BookingCalendar() {
     }
 
     if (!guestName.trim() || !guestEmail.trim() || !guestPhone.trim()) {
-      setSubmitError("Completá tu nombre, email y teléfono para continuar.");
-
+      setSubmitError(t("completaDatosParaContinuar"));
       return;
     }
 
     if (!EMAIL_REGEX.test(guestEmail.trim())) {
-      setSubmitError("Ingresá un email válido.");
-
+      setSubmitError(t("emailValido"));
       return;
     }
 
@@ -438,11 +364,7 @@ export default function BookingCalendar() {
     try {
       const res = await fetch("/api/reservations", {
         method: "POST",
-
-        headers: {
-          "Content-Type": "application/json",
-        },
-
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           propertyId: selectedProperty.id,
           startDate: toDateKey(startDate),
@@ -456,36 +378,25 @@ export default function BookingCalendar() {
       const data = await res.json();
 
       if (!res.ok || !data.ok) {
-        setSubmitError(data.error ?? "No se pudo completar la reserva.");
-
+        setSubmitError(data.error ?? t("noSePudoCompletarReserva"));
         return;
       }
 
       router.push(`/reserva-confirmada?id=${data.reservationId}`);
     } catch {
-      setSubmitError("Ocurrió un error. Intentá de nuevo.");
+      setSubmitError(t("errorGenerico"));
     } finally {
       setSubmitting(false);
     }
   }
 
   function getDayState(day: number) {
-    const parts: DateParts = {
-      year: viewYear,
-      month: viewMonth,
-      day,
-    };
-
+    const parts: DateParts = { year: viewYear, month: viewMonth, day };
     const key = toDateKey(parts);
-
     const time = toDate(parts).getTime();
-
     const isPast = time < today.getTime();
-
     const isToday = key === todayKey;
-
     const info = getDayInfo(parts);
-
     const booked = !info.available;
 
     let isStart = false;
@@ -494,34 +405,23 @@ export default function BookingCalendar() {
 
     if (startDate) {
       const startTime = toDate(startDate).getTime();
-
       isStart = key === toDateKey(startDate);
 
       if (endDate) {
         const endTime = toDate(endDate).getTime();
-
         isEnd = key === toDateKey(endDate);
-
         isInRange = time > startTime && time < endTime;
       }
     }
 
-    return {
-      isPast,
-      isToday,
-      isStart,
-      isEnd,
-      isInRange,
-      booked,
-      info,
-    };
+    return { isPast, isToday, isStart, isEnd, isInRange, booked, info };
   }
 
   const selectionHint = !startDate
-    ? "Seleccioná la fecha de entrada"
+    ? t("seleccionaEntrada")
     : !endDate
-      ? "Seleccioná la fecha de salida"
-      : "Seleccioná otra fecha de entrada para modificar";
+      ? t("seleccionaSalida")
+      : t("seleccionaOtraEntrada");
 
   const hasValidRange =
     startDate && endDate && toDateKey(startDate) !== toDateKey(endDate);
@@ -529,7 +429,7 @@ export default function BookingCalendar() {
   if (propertiesError || loadError) {
     return (
       <div className="w-full max-w-lg md:max-w-360 rounded-xl border border-zinc-200 bg-background p-6 text-center text-sm text-zinc-500 shadow-sm">
-        No se pudo cargar la disponibilidad en este momento.
+        {t("noSePudoCargarDisponibilidad")}
       </div>
     );
   }
@@ -544,7 +444,7 @@ export default function BookingCalendar() {
               htmlFor="visitor-property-select"
               className="text-sm font-bold text-primary-foreground bg-primary rounded-t-xl w-full text-center content-center h-15"
             >
-              Seleccioná la propiedad
+              {t("seleccionaPropiedad")}
             </label>
 
             <div className="bg-white p-3 md:p-6 w-full">
@@ -553,7 +453,7 @@ export default function BookingCalendar() {
                   htmlFor="visitor-property-select"
                   className="inline text-sm"
                 >
-                  Hospedaje:
+                  {t("hospedaje")}
                 </label>
 
                 <select
@@ -583,7 +483,6 @@ export default function BookingCalendar() {
           </div>
         )}
 
-        {/* Property content */}
         <div className="property-content-wrapper relative md:grid md:h-full">
           {isLoading && <LoadingOverlay />}
 
@@ -627,20 +526,20 @@ export default function BookingCalendar() {
             <button
               type="button"
               onClick={goToPreviousMonth}
-              aria-label="Mes anterior"
+              aria-label={t("mesAnterior")}
               className="rounded-md px-3 max-h-10 flex items-center text-primary-foreground transition-colors hover:bg-zinc-100"
             >
               <CaretIcon className="rotate-180" />
             </button>
 
             <p className="text-lg font-semibold">
-              {MONTHS[viewMonth]} {viewYear}
+              {months[viewMonth]} {viewYear}
             </p>
 
             <button
               type="button"
               onClick={goToNextMonth}
-              aria-label="Mes siguiente"
+              aria-label={t("mesSiguiente")}
               className="rounded-md px-3 max-h-10 flex items-center text-primary-foreground transition-colors hover:bg-zinc-100"
             >
               <CaretIcon />
@@ -654,7 +553,7 @@ export default function BookingCalendar() {
               className="grid grid-cols-7 gap-1 text-center text-sm"
               onMouseLeave={() => setHoveredDay(null)}
             >
-              {WEEKDAYS.map((weekday) => (
+              {weekdays.map((weekday) => (
                 <div key={weekday} className="py-2 font-medium text-zinc-500">
                   {weekday}
                 </div>
@@ -676,9 +575,7 @@ export default function BookingCalendar() {
                 } = getDayState(day);
 
                 const isSelected = isStart || isEnd;
-
                 const isDisabled = isPast || booked;
-
                 const isHovered = hoveredDay === day;
 
                 let dateLabel: string | null = null;
@@ -695,7 +592,7 @@ export default function BookingCalendar() {
                     key={index}
                     type="button"
                     disabled={isDisabled}
-                    title={booked ? "Ocupado" : undefined}
+                    title={booked ? t("ocupado") : undefined}
                     onClick={() => handleDayClick(day)}
                     onMouseEnter={() => setHoveredDay(day)}
                     className={`relative flex aspect-square flex-col items-center justify-center gap-0.5 rounded-md transition-colors ${
@@ -742,25 +639,24 @@ export default function BookingCalendar() {
           {hasValidRange && !rangeError && stayTotal ? (
             <>
               <p className="text-primary-foreground font-bold mb-2 text-center">
-                Datos de tu reserva:
+                {t("datosDeTuReserva")}
               </p>
 
               <p className="text-center text-sm font-bold text-primary-foreground">
-                {formatDisplayDate(startDate)} → {formatDisplayDate(endDate)}
+                {formatDisplayDate(startDate, months)} →{" "}
+                {formatDisplayDate(endDate, months)}
               </p>
 
               <p className="mt-1 text-center text-sm text-primary-foreground">
-                {stayTotal.nights} {stayTotal.nights === 1 ? "noche" : "noches"}{" "}
-                ·{" "}
+                {tUnits("noches", { count: stayTotal.nights })} ·{" "}
                 <span className="text-[16px] font-bold">
-                  {formatPrice(stayTotal.total)} total
+                  {formatPrice(stayTotal.total)} {t("total")}
                 </span>
               </p>
             </>
           ) : (
             <p className="text-center text-sm text-primary-foreground">
-              Seleccioná un rango de fechas válido para ver la información de tu
-              reserva
+              {t("seleccionaRangoValido")}
             </p>
           )}
         </div>
@@ -768,12 +664,12 @@ export default function BookingCalendar() {
 
       {/* Guest details */}
       <div className="booking-details-wrapper max-w-lg md:max-w-full md:col-span-2 w-full h-fit rounded-xl border border-zinc-200 bg-white p-3 md:p-6 shadow-sm">
-        <h3 className="mb-4">Completá tus datos para reservar</h3>
+        <h3 className="mb-4">{t("completaTusDatos")}</h3>
 
         <div className="grid gap-3">
           <label className="block">
             <span className="mb-1.5 block text-sm font-medium text-zinc-600">
-              Nombre y apellido *
+              {t("nombreYApellido")}
             </span>
 
             <input
@@ -786,7 +682,7 @@ export default function BookingCalendar() {
 
           <label className="block">
             <span className="mb-1.5 block text-sm font-medium text-zinc-600">
-              Email *
+              {t("email")}
             </span>
 
             <input
@@ -800,14 +696,14 @@ export default function BookingCalendar() {
 
             {!isEmailFormatValid && (
               <span className="mt-1 block text-xs font-medium text-red-600">
-                Ingresá un email con formato válido.
+                {t("emailInvalido")}
               </span>
             )}
           </label>
 
           <label className="block">
             <span className="mb-1.5 block text-sm font-medium text-zinc-600">
-              Teléfono *
+              {t("telefono")}
             </span>
 
             <input
@@ -819,12 +715,7 @@ export default function BookingCalendar() {
           </label>
         </div>
 
-        <p className="mt-4 text-sm">
-          Tras enviar el formulario, la reserva quedará pendiente de
-          confirmación durante 24 horas. Para confirmarla, deberás hacer un
-          depósito por el 50% del total, de lo contrario la misma se cancelará.
-          Te enviaremos un correo electrónico con los pasos a seguir.
-        </p>
+        <p className="mt-4 text-sm">{t("condicionesReserva")}</p>
 
         <button
           type="button"
@@ -846,7 +737,7 @@ export default function BookingCalendar() {
           onClick={handleReserve}
           className="mt-4 w-full md:w-fit rounded-md bg-foreground not-disabled:hover:bg-accent-500 px-4 py-2 text-sm font-semibold text-background transition disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {submitting ? "Reservando…" : "Reservar"}
+          {submitting ? t("reservando") : t("reservar")}
         </button>
 
         {submitError && (

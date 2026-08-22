@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import LanguageSwitcher from "./LanguageSwitcher";
 import Image from "next/image";
 
 import { type Currency } from "@/lib/currency";
 import { useCurrency } from "../components/CurrencyProvider";
 
 export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
+  const t = useTranslations("Header");
   const [menuOpen, setMenuOpen] = useState(false);
   const [drawerMounted, setDrawerMounted] = useState(false);
 
@@ -14,7 +17,6 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
 
   const openMenu = () => {
     setDrawerMounted(true);
-
     requestAnimationFrame(() => {
       setMenuOpen(true);
     });
@@ -25,24 +27,17 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
   };
 
   useEffect(() => {
-    // Drawer opne/close
     if (menuOpen) return;
-
     const timeout = setTimeout(() => {
       setDrawerMounted(false);
     }, 300);
-
     return () => clearTimeout(timeout);
   }, [menuOpen]);
 
   useEffect(() => {
-    // Scroll lock
     if (!menuOpen) return;
-
     const originalOverflow = document.body.style.overflow;
-
     document.body.style.overflow = "hidden";
-
     return () => {
       document.body.style.overflow = originalOverflow;
     };
@@ -81,35 +76,34 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
               href="#reservar-button"
               className="text-sm font-medium text-primary-foreground hover:underline"
             >
-              Reservar
+              {t("reservar")}
             </a>
 
             <a
               href="#quienes-somos"
               className="text-sm font-medium text-primary-foreground hover:underline"
             >
-              Nuestras cabañas
+              {t("nuestrasCabanas")}
             </a>
 
             <a
               href="#contact-section"
               className="text-sm font-medium text-primary-foreground hover:underline"
             >
-              Contacto
+              {t("contacto")}
             </a>
           </nav>
-
           {/* Currency selector */}
           {!isReady ? (
             <div
               className="h-9 w-17 animate-pulse rounded-md bg-background/10"
-              aria-label="Cargando moneda"
+              aria-label={t("cargandoMoneda")}
             />
           ) : (
             <select
               value={currency}
               onChange={(event) => handleCurrencyChange(event.target.value)}
-              aria-label="Seleccionar moneda"
+              aria-label={t("seleccionarMoneda")}
               className="cursor-pointer rounded-md border border-white/30 bg-primary px-2 py-1 text-sm font-medium text-primary-foreground outline-none"
             >
               {activeCurrencies.map((item) => (
@@ -123,13 +117,14 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
               ))}
             </select>
           )}
+          <LanguageSwitcher />
         </div>
 
         {/* Mobile menu button */}
         <button
           type="button"
           onClick={openMenu}
-          aria-label="Abrir menú"
+          aria-label={t("abrirMenu")}
           aria-expanded={menuOpen}
           className="flex h-8 w-8 items-center justify-center rounded-md md:hidden"
         >
@@ -147,7 +142,7 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
           {/* Backdrop */}
           <button
             type="button"
-            aria-label="Cerrar menú"
+            aria-label={t("cerrarMenu")}
             onClick={closeMenu}
             className={`absolute inset-0 bg-primary/40 transition-opacity duration-300 ease-in-out ${
               menuOpen ? "opacity-100" : "opacity-0"
@@ -156,7 +151,7 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
 
           {/* Drawer */}
           <nav
-            className={`absolute right-0 top-0 h-full w-72 bg-background p-2 shadow-xl transition-transform duration-300 ease-in-out ${
+            className={`flex flex-col absolute right-0 top-0 h-full w-72 bg-background p-2 shadow-xl transition-transform duration-300 ease-in-out ${
               menuOpen ? "translate-x-0" : "translate-x-full"
             }`}
           >
@@ -165,7 +160,7 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
                 <button
                   type="button"
                   onClick={closeMenu}
-                  aria-label="Cerrar menú"
+                  aria-label={t("cerrarMenu")}
                   className="flex h-8 w-8 items-center justify-center text-2xl text-primary"
                 >
                   ×
@@ -179,7 +174,7 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
                 onClick={closeMenu}
                 className="border-b border-zinc-200 py-4 text-base font-medium text-primary"
               >
-                Reservar
+                {t("reservar")}
               </a>
 
               <a
@@ -187,7 +182,7 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
                 onClick={closeMenu}
                 className="border-b border-zinc-200 py-4 text-base font-medium text-primary"
               >
-                Nuestras cabañas
+                {t("nuestrasCabanas")}
               </a>
 
               <a
@@ -195,35 +190,45 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
                 onClick={closeMenu}
                 className="py-4 text-base font-medium text-primary"
               >
-                Contacto
+                {t("contacto")}
               </a>
             </div>
             {/* Currency selector mobile */}
-            <div className="py-4">
-              <p className="mb-3 text-sm font-medium text-zinc-500">Moneda</p>
-              {!isReady ? (
-                <div
-                  className="h-9 w-17 animate-pulse rounded-md bg-background/10"
-                  aria-label="Cargando moneda"
-                />
-              ) : (
-                <div className="flex gap-2">
-                  {activeCurrencies.map((item) => (
-                    <button
-                      key={item}
-                      type="button"
-                      onClick={() => setCurrency(item)}
-                      className={`rounded-md px-3 py-2 text-sm font-medium transition ${
-                        currency === item
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-zinc-100 text-primary"
-                      }`}
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>
-              )}
+            <div className="flex justify-between mt-auto">
+              <div className="py-4">
+                <p className="mb-3 text-sm font-medium text-zinc-500">
+                  {t("moneda")}
+                </p>
+                {!isReady ? (
+                  <div
+                    className="h-9 w-17 animate-pulse rounded-md bg-background/10"
+                    aria-label={t("cargandoMoneda")}
+                  />
+                ) : (
+                  <div className="flex gap-2">
+                    {activeCurrencies.map((item) => (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() => setCurrency(item)}
+                        className={`rounded-md px-3 py-2 text-sm font-medium transition ${
+                          currency === item
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-zinc-100 text-primary"
+                        }`}
+                      >
+                        {item}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="py-4">
+                <p className="mb-3 text-sm font-medium text-zinc-500">
+                  {t("idioma")}
+                </p>
+                <LanguageSwitcher />
+              </div>
             </div>
           </nav>
         </div>
