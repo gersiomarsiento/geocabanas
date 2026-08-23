@@ -10,10 +10,10 @@ export interface ContactSettings {
   mapLongitude: number | null;
   mapAddress: string | null;
 
-  heroTitle: string | null;
-  heroSubtitle: string | null;
-  heroButtonText: string | null;
-  heroButtonHref: string | null;
+  heroTitle: LocalizedText | null;
+  heroSubtitle: LocalizedText | null;
+  heroButtonText: LocalizedText | null;
+  heroButtonHref: string | null; 
 
   emailSubject: string | null;
   emailIntro: string | null;

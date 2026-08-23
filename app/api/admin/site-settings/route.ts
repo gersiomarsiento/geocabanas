@@ -3,9 +3,9 @@
 // PATCH -> updates contact/map fields on the singleton site_settings row.
 
 // TODO: gate this route behind your admin auth/session check before ship.
-
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import type { LocalizedText } from "@/lib/i18n/getLocalized";
 
 interface SiteSettingsUpdate {
   contactWhatsapp?: string;
@@ -24,8 +24,28 @@ interface SiteSettingsUpdate {
   exchangeRateBrl?: number;
 }
 
+const LOCALIZED_HERO_FIELDS = [
+  ["heroTitle", "hero_title"],
+  ["heroSubtitle", "hero_subtitle"],
+  ["heroButtonText", "hero_button_text"],
+] as const;
+
 export async function PATCH(request: Request) {
   const body = (await request.json()) as SiteSettingsUpdate;
+
+  const needsHeroMerge = LOCALIZED_HERO_FIELDS.some(
+    ([key]) => body[key] != null,
+  );
+
+  let currentHero: Record<string, LocalizedText | null> = {};
+  if (needsHeroMerge) {
+    const { data } = await supabaseAdmin
+      .from("site_settings")
+      .select("hero_title, hero_subtitle, hero_button_text")
+      .eq("id", "singleton")
+      .single();
+    currentHero = data ?? {};
+  }
 
   const update: Record<string, unknown> = {};
   if (body.contactWhatsapp != null)
@@ -36,10 +56,13 @@ export async function PATCH(request: Request) {
   if (body.mapLatitude != null) update.map_latitude = body.mapLatitude;
   if (body.mapLongitude != null) update.map_longitude = body.mapLongitude;
   if (body.mapAddress != null) update.map_address = body.mapAddress;
-  if (body.heroTitle != null) update.hero_title = body.heroTitle;
-  if (body.heroSubtitle != null) update.hero_subtitle = body.heroSubtitle;
-  if (body.heroButtonText != null)
-    update.hero_button_text = body.heroButtonText;
+
+  for (const [bodyKey, column] of LOCALIZED_HERO_FIELDS) {
+    const value = body[bodyKey];
+    if (value == null) continue;
+    update[column] = { ...(currentHero[column] ?? {}), es: value };
+  }
+
   if (body.heroButtonHref != null)
     update.hero_button_href = body.heroButtonHref;
   if (body.emailSubject != null) update.email_subject = body.emailSubject;
@@ -47,7 +70,6 @@ export async function PATCH(request: Request) {
   if (body.exchangeRateUyu != null) {
     update.exchange_rate_uyu = body.exchangeRateUyu;
   }
-
   if (body.exchangeRateBrl != null) {
     update.exchange_rate_brl = body.exchangeRateBrl;
   }
@@ -67,7 +89,6 @@ export async function PATCH(request: Request) {
       { status: 400 },
     );
   }
-
   if (
     body.exchangeRateBrl != null &&
     (!Number.isFinite(body.exchangeRateBrl) || body.exchangeRateBrl < 0)

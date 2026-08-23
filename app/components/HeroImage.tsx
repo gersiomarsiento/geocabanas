@@ -1,14 +1,13 @@
 // app/components/HeroImage.tsx
 //
-// Server component: resolves the hero data before it reaches the browser.
-// The actual <img> loading/error state lives in HeroImageClient, since
-// that part needs to run in the browser.
-
+import { getLocale } from "next-intl/server";
 import { getHeroUrl } from "@/lib/site/hero";
 import { getContactSettings } from "@/lib/site/settings";
+import { getLocalized } from "@/lib/i18n/getLocalized";
 import HeroImageClient from "./HeroImageClient";
 
 export default async function HeroImage() {
+  const locale = await getLocale();
   const heroUrl = await getHeroUrl();
   const { heroTitle, heroSubtitle, heroButtonHref, heroButtonText } =
     await getContactSettings();
@@ -16,10 +15,10 @@ export default async function HeroImage() {
   return (
     <HeroImageClient
       heroUrl={heroUrl ?? "/images/hero.jpg"}
-      heroTitle={heroTitle}
-      heroSubtitle={heroSubtitle}
+      heroTitle={getLocalized(heroTitle, locale) || null}
+      heroSubtitle={getLocalized(heroSubtitle, locale) || null}
       heroButtonHref={heroButtonHref}
-      heroButtonText={heroButtonText}
+      heroButtonText={getLocalized(heroButtonText, locale) || null}
     />
   );
 }

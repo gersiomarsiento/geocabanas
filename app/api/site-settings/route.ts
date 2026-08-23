@@ -18,5 +18,8 @@ export async function GET(req: NextRequest) {
     ...contact,
     aboutTitle: getLocalized(contact.aboutTitle, locale),
     aboutText: getLocalized(contact.aboutText, locale),
+    heroTitle: getLocalized(contact.heroTitle, locale),
+    heroSubtitle: getLocalized(contact.heroSubtitle, locale),
+    heroButtonText: getLocalized(contact.heroButtonText, locale),
   });
 }
