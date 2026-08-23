@@ -197,5 +197,9 @@ h3 {
   @apply text-lg md:text-2xl font-semibold;
 }
 h4 {
-  @apply font-semibold
+  @apply font-semibold;
+}
+
+button:hover {
+  cursor: pointer;
 }

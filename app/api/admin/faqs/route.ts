@@ -2,6 +2,7 @@
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { getLocalized } from "@/lib/i18n/getLocalized";
 import type { FaqCreate } from "@/types/faqs";
 
 // TODO: gate this route behind your admin auth/session check before ship.
@@ -18,8 +19,8 @@ export async function GET() {
   return NextResponse.json(
     data.map((faq) => ({
       id: faq.id,
-      question: faq.question,
-      answer: faq.answer,
+      question: getLocalized(faq.question, "es"),
+      answer: getLocalized(faq.answer, "es"),
       sortOrder: faq.sort_order,
     })),
   );
@@ -36,7 +37,6 @@ export async function POST(request: Request) {
     );
   }
 
-  // New FAQs go at the end of the list by default.
   const { data: existing } = await supabaseAdmin
     .from("faqs")
     .select("sort_order")
@@ -47,8 +47,8 @@ export async function POST(request: Request) {
   const { data: faq, error } = await supabaseAdmin
     .from("faqs")
     .insert({
-      question: body.question.trim(),
-      answer: body.answer.trim(),
+      question: { es: body.question.trim() },
+      answer: { es: body.answer.trim() },
       sort_order: nextSortOrder,
     })
     .select("id, question, answer, sort_order")
@@ -63,8 +63,8 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     id: faq.id,
-    question: faq.question,
-    answer: faq.answer,
+    question: getLocalized(faq.question, "es"),
+    answer: getLocalized(faq.answer, "es"),
     sortOrder: faq.sort_order,
   });
 }

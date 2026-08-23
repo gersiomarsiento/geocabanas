@@ -4,6 +4,7 @@
 
 import { useEffect, useState } from "react";
 import type { Faq } from "@/types/faqs";
+import { CaretIcon } from "@/app/components/icons";
 
 export default function SiteFaqCard() {
   const [faqs, setFaqs] = useState<Faq[] | null>(null);
@@ -81,8 +82,6 @@ export default function SiteFaqCard() {
     const current = faqs[index];
     const target = faqs[targetIndex];
 
-    // Swap sort_order between the two — simplest reorder mechanism without
-    // needing a dedicated bulk-reorder endpoint.
     const reordered = [...faqs];
     reordered[index] = target;
     reordered[targetIndex] = current;
@@ -103,14 +102,13 @@ export default function SiteFaqCard() {
   }
 
   return (
-    <div className=" ">
-
+    <div>
       {error && (
-        <p className="mb-3 text-sm text-red-600 ">{error}</p>
+        <p className="mb-3 text-sm font-medium text-red-600">{error}</p>
       )}
 
       {!faqs ? (
-        <p className="text-sm text-zinc-500 ">Cargando…</p>
+        <p className="text-sm text-zinc-500">Cargando…</p>
       ) : (
         <div className="space-y-3">
           {faqs.map((faq, index) => (
@@ -125,45 +123,45 @@ export default function SiteFaqCard() {
             />
           ))}
           {faqs.length === 0 && (
-            <p className="text-sm text-zinc-500 ">
+            <p className="text-sm text-zinc-500">
               Todavía no hay preguntas frecuentes.
             </p>
           )}
         </div>
       )}
 
-      <div className="mt-6 border-t border-zinc-200 pt-6 ">
-        <h3 className="mb-3 text-sm font-medium text-zinc-600 ">
+      <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+        <h4 className="mb-3 text-lg font-semibold text-primary">
           Agregar nueva pregunta
-        </h3>
+        </h4>
         <div className="grid gap-3">
           <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-zinc-600 ">
+            <span className="mb-1.5 block text-sm font-medium text-zinc-600">
               Pregunta
             </span>
             <input
               type="text"
               value={newQuestion}
               onChange={(e) => setNewQuestion(e.target.value)}
-              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm  "
+              className="w-full rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary-100"
             />
           </label>
           <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-zinc-600 ">
+            <span className="mb-1.5 block text-sm font-medium text-zinc-600">
               Respuesta
             </span>
             <textarea
               value={newAnswer}
               onChange={(e) => setNewAnswer(e.target.value)}
               rows={3}
-              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm  "
+              className="w-full rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary-100"
             />
           </label>
           <button
             type="button"
             disabled={adding || !newQuestion.trim() || !newAnswer.trim()}
             onClick={handleAdd}
-            className="w-fit rounded-md bg-foreground px-4 py-2 text-sm font-semibold text-background disabled:cursor-not-allowed disabled:opacity-40"
+            className="w-fit rounded-md bg-black px-4 py-2 text-sm font-semibold text-accent-foreground transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {adding ? "Agregando…" : "+ Agregar pregunta"}
           </button>
@@ -198,7 +196,7 @@ function FaqRow({
   }
 
   return (
-    <div className="rounded-md border border-zinc-200 p-4 ">
+    <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
       <div className="mb-2 flex items-center justify-between">
         <div className="flex gap-1">
           <button
@@ -206,24 +204,24 @@ function FaqRow({
             onClick={() => onMove("up")}
             disabled={isFirst}
             aria-label="Subir"
-            className="rounded px-2 py-1 text-zinc-500 hover:bg-zinc-100 disabled:opacity-30 "
+            className="rounded-md px-2 py-1 text-primary hover:bg-primary-50 disabled:opacity-30"
           >
-            ↑
+            <CaretIcon className="rotate-270" />
           </button>
           <button
             type="button"
             onClick={() => onMove("down")}
             disabled={isLast}
             aria-label="Bajar"
-            className="rounded px-2 py-1 text-zinc-500 hover:bg-zinc-100 disabled:opacity-30 "
+            className="rounded-md px-2 py-1 text-primary hover:bg-primary-50 disabled:opacity-30"
           >
-            ↓
+            <CaretIcon className="rotate-90" />
           </button>
         </div>
         <button
           type="button"
           onClick={onDelete}
-          className="text-sm text-red-600 hover:underline "
+          className="text-sm font-medium text-red-600 hover:underline"
         >
           Eliminar
         </button>
@@ -236,7 +234,7 @@ function FaqRow({
           setQuestion(e.target.value);
           setDirty(true);
         }}
-        className="mb-2 w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium  "
+        className="mb-2 w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-primary outline-none focus:border-primary focus:ring-2 focus:ring-primary-100"
       />
       <textarea
         value={answer}
@@ -245,14 +243,14 @@ function FaqRow({
           setDirty(true);
         }}
         rows={2}
-        className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm  "
+        className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 outline-none focus:border-primary focus:ring-2 focus:ring-primary-100"
       />
 
       {dirty && (
         <button
           type="button"
           onClick={save}
-          className="mt-2 rounded-md border border-zinc-300 px-3 py-1 text-xs font-medium hover:bg-zinc-50  "
+          className="mt-2 rounded-md bg-accent-500 px-3 py-1 text-xs font-semibold text-accent-foreground transition hover:brightness-95"
         >
           Guardar cambios
         </button>

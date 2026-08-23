@@ -2,6 +2,7 @@
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { getLocalized, type LocalizedText } from "@/lib/i18n/getLocalized";
 import type { FaqUpdate } from "@/types/faqs";
 
 // TODO: gate this route behind your admin auth/session check before ship.
@@ -12,9 +13,31 @@ export async function PATCH(
   const { id } = await params;
   const body = (await request.json()) as FaqUpdate;
 
+  const needsTextMerge = body.question != null || body.answer != null;
+
+  let current: {
+    question: LocalizedText | null;
+    answer: LocalizedText | null;
+  } = {
+    question: null,
+    answer: null,
+  };
+  if (needsTextMerge) {
+    const { data } = await supabaseAdmin
+      .from("faqs")
+      .select("question, answer")
+      .eq("id", id)
+      .single();
+    if (data) current = data;
+  }
+
   const update: Record<string, unknown> = {};
-  if (body.question != null) update.question = body.question.trim();
-  if (body.answer != null) update.answer = body.answer.trim();
+  if (body.question != null) {
+    update.question = { ...(current.question ?? {}), es: body.question.trim() };
+  }
+  if (body.answer != null) {
+    update.answer = { ...(current.answer ?? {}), es: body.answer.trim() };
+  }
   if (body.sortOrder != null) update.sort_order = body.sortOrder;
 
   if (Object.keys(update).length === 0) {
@@ -40,8 +63,8 @@ export async function PATCH(
 
   return NextResponse.json({
     id: faq.id,
-    question: faq.question,
-    answer: faq.answer,
+    question: getLocalized(faq.question, "es"),
+    answer: getLocalized(faq.answer, "es"),
     sortOrder: faq.sort_order,
   });
 }
