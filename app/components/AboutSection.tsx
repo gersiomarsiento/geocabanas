@@ -99,21 +99,21 @@ export default function AboutSection() {
             {t("cargando")}
           </p>
         ) : properties.length > 0 ? (
-          <div className="mt-5 grid grid-cols-1 gap-5 md:mt-10 md:grid-cols-2 md:gap-6">
+          <div className="mt-5 grid grid-cols-1 gap-5 md:mt-10 md:grid-cols-2 md:gap-4">
             {properties.map((property, index) => (
               <div
                 key={property.id}
-                className={`flex h-80 overflow-hidden rounded-xl border border-zinc-200 bg-primary-50 text-foreground shadow-sm ${
-                  index % 2 === 0 ? "flex-row-reverse" : "flex-row"
+                className={`flex flex-col md:h-80 overflow-hidden rounded-xl border border-zinc-200 bg-primary-50 text-foreground shadow-sm ${
+                  index % 2 === 0 ? "md:flex-row-reverse" : "md:flex-row"
                 }`}
               >
-                <div className="w-1/2 lg:w-3/5 shrink-0 self-stretch overflow-hidden bg-background">
+                <div className="md:w-1/2 lg:w-3/5 shrink-0 self-stretch overflow-hidden bg-background">
                   {property.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={property.imageUrl}
                       alt={property.name}
-                      className="h-full w-full object-cover"
+                      className="h-70 md:h-full w-full object-cover"
                     />
                   ) : (
                     <div className="flex h-full min-h-40 w-full items-center justify-center text-sm font-medium text-zinc-400">
