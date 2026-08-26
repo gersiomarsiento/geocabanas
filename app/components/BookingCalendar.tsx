@@ -598,17 +598,19 @@ export default function BookingCalendar() {
                     className={`relative flex aspect-square flex-col items-center justify-center gap-0.5 rounded-md transition-colors ${
                       booked && isToday
                         ? "cursor-not-allowed font-extrabold bg-zinc-100 text-zinc-300 line-through"
-                        : booked
-                          ? "cursor-not-allowed bg-zinc-100 text-zinc-300 line-through"
-                          : isPast
-                            ? "cursor-not-allowed text-zinc-300"
-                            : isSelected
-                              ? "bg-accent-500 font-semibold text-accent-foreground"
-                              : isInRange
-                                ? "bg-accent-200 text-zinc-800"
-                                : isToday
-                                  ? "font-extrabold text-foreground hover:bg-accent-500 hover:text-white"
-                                  : "text-zinc-700 hover:bg-accent-500 hover:text-white"
+                        : booked && isPast
+                          ? "cursor-not-allowed bg-white text-zinc-300 line-through"
+                          : booked
+                            ? "cursor-not-allowed bg-zinc-100 text-zinc-300 line-through"
+                            : isPast
+                              ? "cursor-not-allowed bg-white! text-zinc-300"
+                              : isSelected
+                                ? "bg-accent-500 font-semibold text-accent-foreground"
+                                : isInRange
+                                  ? "bg-accent-200 text-zinc-800"
+                                  : isToday
+                                    ? "font-extrabold text-foreground hover:bg-accent-500 hover:text-white"
+                                    : "text-zinc-700 hover:bg-accent-500 hover:text-white"
                     }`}
                   >
                     {dateLabel && (

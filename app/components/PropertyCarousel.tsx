@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { CaretIcon } from "./icons";
+import ImageLightbox from "./ImageLightbox";
 
 interface CarouselImage {
   id: string;
@@ -20,6 +21,7 @@ export default function PropertyCarousel({
   const t = useTranslations("Carousel");
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   // Tracks whichever slide is most visible, so the counter stays correct
   // whether the visitor drags, swipes, or clicks an arrow — no manual
@@ -69,8 +71,20 @@ export default function PropertyCarousel({
   const dragState = useRef<{ startX: number; startScrollLeft: number } | null>(
     null,
   );
-
+  const didDragRef = useRef(false);
+  const pointerDownRef = useRef<{ x: number; index: number | null } | null>(
+    null,
+  );
   function handlePointerDown(e: React.PointerEvent) {
+    const slide = (e.target as HTMLElement).closest(
+      "[data-index]",
+    ) as HTMLElement | null;
+    pointerDownRef.current = {
+      x: e.clientX,
+      index: slide ? Number(slide.dataset.index) : null,
+    };
+    didDragRef.current = false;
+
     if (e.pointerType !== "mouse") return;
     const scroller = scrollerRef.current;
     if (!scroller) return;
@@ -84,11 +98,23 @@ export default function PropertyCarousel({
   function handlePointerMove(e: React.PointerEvent) {
     if (!dragState.current || !scrollerRef.current) return;
     const delta = e.clientX - dragState.current.startX;
+    if (Math.abs(delta) > 5) didDragRef.current = true;
     scrollerRef.current.scrollLeft = dragState.current.startScrollLeft - delta;
   }
 
-  function handlePointerUp() {
+  function handlePointerUp(e: React.PointerEvent) {
     dragState.current = null;
+
+    const down = pointerDownRef.current;
+    pointerDownRef.current = null;
+    if (!down || down.index === null) return;
+
+    const movedX = Math.abs(e.clientX - down.x);
+    const wasTap = !didDragRef.current && movedX < 10;
+
+    if (wasTap) {
+      setLightboxIndex(down.index);
+    }
   }
 
   if (images.length === 0) return null;
@@ -100,8 +126,11 @@ export default function PropertyCarousel({
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        onPointerLeave={handlePointerUp}
-        className="flex w-full h-full snap-x snap-mandatory overflow-x-auto scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] cursor-grab select-none active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
+        onPointerLeave={() => {
+          dragState.current = null;
+          pointerDownRef.current = null;
+        }}
+        className="flex w-full h-full snap-x snap-mandatory overflow-x-auto scroll-smooth [-ms-overflow-style:none] scrollbar-none cursor-pointer select-none  [&::-webkit-scrollbar]:hidden"
       >
         {images.map((image, index) => (
           <div
@@ -126,8 +155,9 @@ export default function PropertyCarousel({
           <button
             type="button"
             onClick={() => scrollToIndex(Math.max(activeIndex - 1, 0))}
+            disabled={activeIndex === 0}
             aria-label={t("fotoAnterior")}
-            className="absolute left-1 top-1/2 -translate-y-1/2 rounded-full transition-colors text-primary-foreground hover:bg-primary"
+            className="absolute left-1 top-1/2 -translate-y-1/2 rounded-full transition-colors text-primary-foreground hover:bg-primary disabled:bg-transparent disabled:cursor-default! disabled:opacity-10"
           >
             <CaretIcon className="rotate-180" />
           </button>
@@ -136,8 +166,9 @@ export default function PropertyCarousel({
             onClick={() =>
               scrollToIndex(Math.min(activeIndex + 1, images.length - 1))
             }
+            disabled={activeIndex === images.length - 1}
             aria-label={t("fotoSiguiente")}
-            className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full transition-colors text-primary-foreground hover:bg-primary"
+            className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full transition-colors text-primary-foreground hover:bg-primary disabled:bg-transparent disabled:cursor-default! disabled:opacity-10"
           >
             <CaretIcon />
           </button>
@@ -146,6 +177,13 @@ export default function PropertyCarousel({
             {activeIndex + 1} / {images.length}
           </div>
         </>
+      )}
+      {lightboxIndex !== null && (
+        <ImageLightbox
+          images={images}
+          initialIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
       )}
     </div>
   );
