@@ -14,6 +14,10 @@
     "imagenPrincipal": "Imagem principal",
     "botonReservarDefault": "RESERVAR"
   },
+  "Reviews": {
+    "titulo": "O que nossos hóspedes dizem",
+    "subtitulo": "Experiências de quem se hospedou conosco"
+  },
   "About": {
     "ariaLabel": "Sobre nós e nossas cabanas",
     "nuestrasCabanas": "Nossas cabanas",

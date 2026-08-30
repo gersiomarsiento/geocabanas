@@ -14,6 +14,10 @@
     "imagenPrincipal": "Main image",
     "botonReservarDefault": "BOOK NOW"
   },
+  "Reviews": {
+    "titulo": "What our guests say",
+    "subtitulo": "Experiences from those who stayed with us"
+  },
   "About": {
     "ariaLabel": "About us and our cabins",
     "nuestrasCabanas": "Our cabins",

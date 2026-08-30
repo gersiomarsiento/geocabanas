@@ -3,11 +3,12 @@ import BookingCalendar from "../components/BookingCalendar";
 import ContactSection from "../components/ContactSection";
 import FaqSection from "../components/FaqSection";
 import AboutSection from "../components/AboutSection";
+import ReviewsSection from "../components/ReviewsSection";
 
 import Footer from "../components/Footer";
 import HeroImage from "../components/HeroImage";
 import Header from "../components/Header";
-// import InstagramGallery from "../components/InstagramGallery";
+import InstagramGallery from "../components/InstagramGallery";
 // import FeaturesSection from "../components/FeaturesSection";
 
 export default async function Home() {
@@ -28,7 +29,6 @@ export default async function Home() {
 
       <AboutSection />
       {/* <FeaturesSection /> */}
-      {/* <InstagramGallery /> */}
       <main
         id="reservar-button"
         className="mx-auto w-full justify-items-center bg-secondary-50 flex-1 px-3 md:px-6 py-10"
@@ -36,6 +36,8 @@ export default async function Home() {
         <h2 className="mb-6 text-center">{tBooking("hacerTuReserva")}</h2>
         <BookingCalendar />
       </main>
+      <ReviewsSection />
+      <InstagramGallery />
       <FaqSection />
       <ContactSection />
       <Footer />
