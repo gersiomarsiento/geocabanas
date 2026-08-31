@@ -9,6 +9,7 @@ import Footer from "../components/Footer";
 import HeroImage from "../components/HeroImage";
 import Header from "../components/Header";
 import InstagramGallery from "../components/InstagramGallery";
+import WhatsAppButton from "../components/WhatsAppButton";
 // import FeaturesSection from "../components/FeaturesSection";
 
 export default async function Home() {
@@ -41,6 +42,7 @@ export default async function Home() {
       <FaqSection />
       <ContactSection />
       <Footer />
+      <WhatsAppButton />
     </div>
   );
 }
