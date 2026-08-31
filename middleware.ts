@@ -13,7 +13,6 @@ const intlMiddleware = createMiddleware({
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // --- Admin: exactamente la lógica que ya tenías, sin cambios ---
   if (pathname.startsWith("/admin")) {
     const isLoginPage = pathname === "/admin/login";
     const token = req.cookies.get(COOKIE_NAME)?.value;
@@ -33,7 +32,6 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // --- Todo lo demás: detección/redirección de locale ---
   return intlMiddleware(req);
 }
 

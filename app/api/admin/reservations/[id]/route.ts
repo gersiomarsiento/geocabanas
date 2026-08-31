@@ -9,7 +9,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
-// TODO: gate this route behind your admin auth/session check before ship.
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },

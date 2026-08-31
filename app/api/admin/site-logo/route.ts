@@ -4,7 +4,6 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 const BUCKET = "property-images";
 const LOGO_PATH = "site/logo";
 
-// TODO: gate this route behind your admin auth/session check before ship.
 export async function POST(request: Request) {
   const formData = await request.formData();
   const file = formData.get("file");

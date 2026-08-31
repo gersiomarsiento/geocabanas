@@ -5,7 +5,6 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { getLocalized, type LocalizedText } from "@/lib/i18n/getLocalized";
 import type { FaqUpdate } from "@/types/faqs";
 
-// TODO: gate this route behind your admin auth/session check before ship.
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -69,7 +68,6 @@ export async function PATCH(
   });
 }
 
-// TODO: gate this route behind your admin auth/session check before ship.
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> },

@@ -2,7 +2,6 @@
 //
 // PATCH -> updates contact/map fields on the singleton site_settings row.
 
-// TODO: gate this route behind your admin auth/session check before ship.
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import type { LocalizedText } from "@/lib/i18n/getLocalized";

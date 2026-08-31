@@ -3,8 +3,6 @@
 // POST -> uploads a new hero image, overwriting whatever was there
 // before (upsert: true). No DB row involved — see app/api/site-settings/route.ts.
 
-// TODO: gate this route behind your admin auth/session check before ship.
-
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 

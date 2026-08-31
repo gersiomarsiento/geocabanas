@@ -5,7 +5,6 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { getLocalized } from "@/lib/i18n/getLocalized";
 import type { FaqCreate } from "@/types/faqs";
 
-// TODO: gate this route behind your admin auth/session check before ship.
 export async function GET() {
   const { data, error } = await supabaseAdmin
     .from("faqs")
@@ -26,7 +25,6 @@ export async function GET() {
   );
 }
 
-// TODO: gate this route behind your admin auth/session check before ship.
 export async function POST(request: Request) {
   const body = (await request.json()) as FaqCreate;
 

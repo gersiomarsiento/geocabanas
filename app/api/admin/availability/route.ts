@@ -10,7 +10,6 @@ import type {
   DayRate,
 } from "@/types/admin-availability";
 
-// TODO: gate this route behind your admin auth/session check before ship.
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
 
@@ -113,7 +112,7 @@ export async function GET(request: Request) {
       // reservation (like the one that caused the earlier confusion)
       // now correctly shows as reserved too.
       reserved: Boolean(activeReservation),
-      price: Number(override?.price ?? property.default_price ?? 0) ,
+      price: Number(override?.price ?? property.default_price ?? 0),
       minStay: override?.min_stay ?? property.default_min_stay ?? null,
     });
   }
@@ -125,8 +124,6 @@ export async function GET(request: Request) {
 
   return NextResponse.json(response);
 }
-
-// TODO: gate this route behind your admin auth/session check before ship.
 
 export async function PATCH(request: Request) {
   const body = (await request.json()) as BulkUpdatePayload & {

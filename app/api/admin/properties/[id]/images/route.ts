@@ -6,8 +6,6 @@
 // Uses the "property-images" Storage bucket and property_images table
 // set up in the original schema migration.
 
-// TODO: gate this route behind your admin auth/session check before ship.
-
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
@@ -32,7 +30,8 @@ export async function GET(
   const withUrls = images.map((img) => ({
     id: img.id,
     sortOrder: img.sort_order,
-    url: supabaseAdmin.storage.from(BUCKET).getPublicUrl(img.storage_path).data.publicUrl,
+    url: supabaseAdmin.storage.from(BUCKET).getPublicUrl(img.storage_path).data
+      .publicUrl,
   }));
 
   return NextResponse.json(withUrls);
@@ -58,7 +57,10 @@ export async function POST(
     .single();
 
   if (propertyError || !property) {
-    return NextResponse.json({ error: "Propiedad no encontrada" }, { status: 404 });
+    return NextResponse.json(
+      { error: "Propiedad no encontrada" },
+      { status: 404 },
+    );
   }
 
   const extension = file.name.split(".").pop() ?? "jpg";
@@ -70,7 +72,10 @@ export async function POST(
     .upload(storagePath, arrayBuffer, { contentType: file.type });
 
   if (uploadError) {
-    return NextResponse.json({ error: "No se pudo subir la imagen" }, { status: 500 });
+    return NextResponse.json(
+      { error: "No se pudo subir la imagen" },
+      { status: 500 },
+    );
   }
 
   const { count } = await supabaseAdmin
@@ -92,12 +97,16 @@ export async function POST(
     // Clean up the uploaded file if the DB insert failed, so we don't
     // leave an orphaned object in the bucket with no record of it.
     await supabaseAdmin.storage.from(BUCKET).remove([storagePath]);
-    return NextResponse.json({ error: "No se pudo guardar la imagen" }, { status: 500 });
+    return NextResponse.json(
+      { error: "No se pudo guardar la imagen" },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({
     id: image.id,
     sortOrder: image.sort_order,
-    url: supabaseAdmin.storage.from(BUCKET).getPublicUrl(image.storage_path).data.publicUrl,
+    url: supabaseAdmin.storage.from(BUCKET).getPublicUrl(image.storage_path)
+      .data.publicUrl,
   });
 }

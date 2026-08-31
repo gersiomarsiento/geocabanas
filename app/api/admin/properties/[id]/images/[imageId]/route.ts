@@ -7,8 +7,6 @@
 // harmless (nothing references it), versus a DB row pointing at a file
 // that no longer exists, which would break rendering.
 
-// TODO: gate this route behind your admin auth/session check before ship.
-
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 

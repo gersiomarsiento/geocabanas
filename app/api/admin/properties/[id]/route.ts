@@ -5,7 +5,6 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import type { PropertySettingsUpdate } from "@/types/admin-availability";
 import { BASE_CURRENCY } from "@/lib/currency";
 
-// TODO: gate this route behind your admin auth/session check before ship.
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -14,7 +13,8 @@ export async function PATCH(
   const body = (await request.json()) as PropertySettingsUpdate;
 
   const update: Record<string, unknown> = {};
-  if (body.name != null && body.name.trim() !== "") update.name = body.name.trim();
+  if (body.name != null && body.name.trim() !== "")
+    update.name = body.name.trim();
   if (body.defaultPrice != null) update.default_price = body.defaultPrice;
   if (body.defaultMinStay != null)
     update.default_min_stay = body.defaultMinStay;
@@ -26,7 +26,8 @@ export async function PATCH(
   if (body.childrenAllowed != null)
     update.children_allowed = body.childrenAllowed;
   if (body.petsAllowed != null) update.pets_allowed = body.petsAllowed;
-  if (body.hideNightlyPrice != null) update.hide_nightly_price = body.hideNightlyPrice;
+  if (body.hideNightlyPrice != null)
+    update.hide_nightly_price = body.hideNightlyPrice;
   if (body.amenities != null) update.amenities = body.amenities;
 
   if (Object.keys(update).length === 0) {
