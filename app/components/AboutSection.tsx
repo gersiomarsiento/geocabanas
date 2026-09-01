@@ -89,7 +89,7 @@ export default function AboutSection() {
         </p>
       </div>
 
-      <div className="mt-10 md:mt-16">
+      <div className="mt-10 md:mt-16 max-w-354 w-full justify-self-center">
         <h3 className="text-center text-md md:text-2xl font-semibold">
           {t("nuestrasCabanas")}
         </h3>
@@ -103,7 +103,7 @@ export default function AboutSection() {
             {properties.map((property, index) => (
               <div
                 key={property.id}
-                className={`flex flex-col md:h-80 overflow-hidden rounded-xl border border-zinc-200 bg-primary-50 text-foreground shadow-sm ${
+                className={`flex flex-col md:h-80 overflow-hidden rounded-xl bg-primary-50 text-foreground shadow-[2px_-2px_8px] shadow-secondary/80 ${
                   index % 2 === 0 ? "md:flex-row-reverse" : "md:flex-row"
                 }`}
               >

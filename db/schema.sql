@@ -20,6 +20,7 @@
 -- bottom of this file to remove it from an existing database.
 
 create extension if not exists "pgcrypto";
+create extension if not exists "btree_gist";
 
 
 -- ==========================
@@ -158,7 +159,18 @@ create table reservations (
   expires_at timestamptz,
 
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+
+  -- Prevents two overlapping pending/confirmed reservations for the same
+  -- property, at the database level — the app layer also checks this
+  -- before inserting (for a fast, friendly error message), but this is
+  -- the real backstop against the race condition where two near-
+  -- simultaneous requests both pass that check before either inserts.
+  exclude using gist (
+    property_id with =,
+    daterange(start_date, end_date, '[)') with &&
+  )
+  where (status in ('pending', 'confirmed'))
 );
 
 

@@ -46,7 +46,7 @@ export default function InstagramGallery() {
         </h2>
         <p className="text-white mb-8">@geopuntadeldiablo</p>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-0.5">
           {POSTS.map((post) => (
             <Link
               key={post.url}

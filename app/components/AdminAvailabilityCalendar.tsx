@@ -68,6 +68,16 @@ type PatchResult = {
   failedDates: { date: string; error: string }[];
 };
 
+type AvailabilityChoice = "unchanged" | "available" | "blocked";
+
+type ConfirmRequest = {
+  title: string;
+  message: string;
+  confirmLabel: string;
+  cancelLabel: string;
+  resolve: (value: boolean) => void;
+};
+
 async function submitAvailabilityPatch(
   payload: BulkUpdatePayload & { confirmIcalOverride?: boolean },
 ): Promise<PatchResult> {
@@ -114,26 +124,28 @@ export default function AdminAvailabilityCalendar() {
   const [rates, setRates] = useState<Map<string, DayRate> | null>(null);
   const [ratesError, setRatesError] = useState<string | null>(null);
 
+  async function loadRates(propertyId: string, year: number, month: number) {
+    const params = new URLSearchParams({
+      propertyId,
+      year: String(year),
+      month: String(month + 1), // API takes 1-indexed months
+    });
+    const res = await fetch(`/api/admin/availability?${params.toString()}`);
+    if (!res.ok) throw new Error("No se pudo cargar la disponibilidad");
+    const data = (await res.json()) as AvailabilityResponse;
+    const map = new Map<string, DayRate>();
+    for (const day of data.days) map.set(day.date, day);
+    return map;
+  }
+
   useEffect(() => {
     if (!selectedPropertyId) return;
     setRates(null);
     setRatesError(null);
-    const params = new URLSearchParams({
-      propertyId: selectedPropertyId,
-      year: String(viewYear),
-      month: String(viewMonth + 1), // API takes 1-indexed months
-    });
-    fetch(`/api/admin/availability?${params.toString()}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("No se pudo cargar la disponibilidad");
-        return res.json() as Promise<AvailabilityResponse>;
-      })
-      .then((data) => {
-        const map = new Map<string, DayRate>();
-        for (const day of data.days) map.set(day.date, day);
-        setRates(map);
-      })
+    loadRates(selectedPropertyId, viewYear, viewMonth)
+      .then(setRates)
       .catch((e) => setRatesError(e.message));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPropertyId, viewYear, viewMonth]);
 
   // --- Date selection (same click-a-start-then-an-end pattern as the visitor calendar) ---
@@ -165,8 +177,10 @@ export default function AdminAvailabilityCalendar() {
     const clickedTime = toDate(clicked).getTime();
     const rate = getRate(toDateKey(clicked));
 
-    // Past days and days already tied to a real guest reservation can't be edited here.
-    if (clickedTime < today.getTime() || rate.reserved) return;
+    // Past days can't be edited. Reserved days CAN be selected — the
+    // apply flow below already knows how to detect the conflicting
+    // reservation and offer to cancel it before retrying the edit.
+    if (clickedTime < today.getTime()) return;
 
     setFormMessage(null);
 
@@ -174,6 +188,13 @@ export default function AdminAvailabilityCalendar() {
       setSelectionStart(clicked);
       setSelectionEnd(clicked);
       setSelectionLocked(false);
+      // The prefill effect below immediately overrides these for a
+      // single-day click. For the first click of a new range, this
+      // just keeps the form from silently carrying over values from
+      // whatever was selected before.
+      setAvailableInput("unchanged");
+      setPriceInput("");
+      setMinStayInput("");
       return;
     }
 
@@ -235,9 +256,8 @@ export default function AdminAvailabilityCalendar() {
   }
 
   // --- Bulk edit form, prefilled from the current selection ---
-  const [availableInput, setAvailableInput] = useState<"available" | "blocked">(
-    "available",
-  );
+  const [availableInput, setAvailableInput] =
+    useState<AvailabilityChoice>("unchanged");
   const [priceInput, setPriceInput] = useState("");
   const [minStayInput, setMinStayInput] = useState("");
   const [saving, setSaving] = useState(false);
@@ -246,6 +266,19 @@ export default function AdminAvailabilityCalendar() {
     text: string;
   } | null>(null);
 
+  // Replaces window.confirm with an in-app modal. Resolve/reject the
+  // returned promise from the rendered dialog's buttons.
+  const [confirmRequest, setConfirmRequest] = useState<ConfirmRequest | null>(
+    null,
+  );
+  function confirmDialog(
+    options: Omit<ConfirmRequest, "resolve">,
+  ): Promise<boolean> {
+    return new Promise((resolve) => {
+      setConfirmRequest({ ...options, resolve });
+    });
+  }
+
   // Prefill the form whenever the selection settles on a single day, so
   // single-day edits show the day's real current values.
   useEffect(() => {
@@ -253,7 +286,13 @@ export default function AdminAvailabilityCalendar() {
     const sameDay = toDateKey(selectionStart) === toDateKey(selectionEnd);
     if (!sameDay || !rates) return;
     const rate = getRate(toDateKey(selectionStart));
-    setAvailableInput(rate.available ? "available" : "blocked");
+    // A reserved date's real availability is governed by the
+    // reservation, not by any override — default to "no change" so a
+    // price-only save on a reserved date doesn't implicitly ask to
+    // cancel it.
+    setAvailableInput(
+      rate.reserved ? "unchanged" : rate.available ? "available" : "blocked",
+    );
     setPriceInput(rate.price != null ? String(rate.price) : "");
     setMinStayInput(rate.minStay != null ? String(rate.minStay) : "");
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -268,7 +307,10 @@ export default function AdminAvailabilityCalendar() {
       propertyId: selectedPropertyId,
       startDate: toDateKey(selectionStart),
       endDate: toDateKey(selectionEnd),
-      available: availableInput === "available",
+      available:
+        availableInput === "unchanged"
+          ? undefined
+          : availableInput === "available",
       price: priceInput.trim() === "" ? null : Number(priceInput),
       minStay: minStayInput.trim() === "" ? null : Number(minStayInput),
     };
@@ -276,8 +318,10 @@ export default function AdminAvailabilityCalendar() {
     try {
       let result = await submitAvailabilityPatch(basePayload);
 
-      // Reservation conflicts: the only way through is cancelling the
-      // reservation itself. Ask once per unique reservation in the range.
+      // Reservation conflicts only happen when this edit is actually
+      // trying to change availability on a reserved date (see
+      // AvailabilityChoice above) — the only way through is cancelling
+      // the reservation itself. Ask once per unique reservation in range.
       if (result.skippedDates.length > 0) {
         const uniqueReservations = Array.from(
           new Map(
@@ -286,11 +330,14 @@ export default function AdminAvailabilityCalendar() {
         );
 
         for (const reservation of uniqueReservations) {
-          const wantsToCancel = window.confirm(
-            `${reservation.guestName} tiene una reserva ${
+          const wantsToCancel = await confirmDialog({
+            title: "Hay una reserva en estas fechas",
+            message: `${reservation.guestName} tiene una reserva ${
               reservation.status === "pending" ? "pendiente" : "confirmada"
-            } del ${reservation.startDate} al ${reservation.endDate}.\n\n¿Cancelar esta reserva para liberar esas fechas?`,
-          );
+            } del ${reservation.startDate} al ${reservation.endDate}.`,
+            confirmLabel: "Cancelar la reserva",
+            cancelLabel: "No cancelar",
+          });
 
           if (wantsToCancel) {
             const cancelRes = await fetch(
@@ -317,11 +364,14 @@ export default function AdminAvailabilityCalendar() {
       // iCal conflicts (Booking.com/Airbnb): optional, explicit override —
       // never automatic.
       if (result.icalConflictDates.length > 0) {
-        const wantsToOverride = window.confirm(
-          `Estas fechas figuran como ocupadas en Booking.com o Airbnb:\n${result.icalConflictDates.join(
+        const wantsToOverride = await confirmDialog({
+          title: "Conflicto con Booking.com / Airbnb",
+          message: `Estas fechas figuran como ocupadas en Booking.com o Airbnb: ${result.icalConflictDates.join(
             ", ",
-          )}\n\nSi continuás, solo se modificarán en tu sitio — acordate de ajustarlas también en esa plataforma para evitar inconsistencias.\n\n¿Continuar de todas formas?`,
-        );
+          )}. Si continuás, solo se modificarán en tu sitio — acordate de ajustarlas también en esa plataforma para evitar inconsistencias.`,
+          confirmLabel: "Continuar de todas formas",
+          cancelLabel: "Cancelar",
+        });
 
         if (wantsToOverride) {
           result = await submitAvailabilityPatch({
@@ -331,21 +381,12 @@ export default function AdminAvailabilityCalendar() {
         }
       }
 
-      // Only reflect dates that actually changed — anything still
-      // skipped/declined keeps showing its real, unchanged state.
-      setRates((prev) => {
-        const next = new Map(prev ?? []);
-        for (const key of result.updatedDates) {
-          next.set(key, {
-            date: key,
-            available: basePayload.available!,
-            reserved: next.get(key)?.reserved ?? false,
-            price: basePayload.price ?? null,
-            minStay: basePayload.minStay ?? null,
-          });
-        }
-        return next;
-      });
+      // Reload the whole month from the server instead of hand-patching
+      // local state — cancelling a reservation can free nights outside
+      // the edited range too, and this is the only way the grid is
+      // guaranteed to match reality rather than a stale local guess.
+      const freshRates = await loadRates(selectedPropertyId, viewYear, viewMonth);
+      setRates(freshRates);
 
       if (result.failedDates.length > 0) {
         setFormMessage({
@@ -520,7 +561,7 @@ export default function AdminAvailabilityCalendar() {
                 if (day === null) return <div key={index} aria-hidden />;
                 const { isPast, isToday, isSelected, isInRange, occupied, rate } =
                   getDayState(day);
-                const isDisabled = isPast || rate.reserved;
+                const isDisabled = isPast;
                 const price = rate.price ?? selectedProperty?.defaultPrice;
                 return (
                   <button
@@ -543,11 +584,7 @@ export default function AdminAvailabilityCalendar() {
                           : isInRange
                             ? "bg-zinc-200 text-zinc-800  "
                             : occupied
-                              ? `bg-red-100 text-red-700 ring-1 ring-inset ring-red-300  ${
-                                  rate.reserved
-                                    ? "cursor-not-allowed"
-                                    : "hover:bg-red-200"
-                                }`
+                              ? `bg-red-100 text-red-700 ring-1 ring-inset ring-red-300 hover:bg-red-200  `
                               : `bg-emerald-50 text-emerald-800 ring-1 ring-inset ring-emerald-200 hover:bg-emerald-100  ${
                                   isToday ? "ring-2 ring-foreground/40" : ""
                                 }`
@@ -555,7 +592,7 @@ export default function AdminAvailabilityCalendar() {
                   >
                     <span>{day}</span>
                     {!isPast && price != null && (
-                      <span className="text-[10px] font-normal leading-none opacity-80">
+                      <span className="text-[9px] lg:text-xs font-normal leading-none opacity-80">
                         {money.format(price)}
                       </span>
                     )}
@@ -595,6 +632,17 @@ export default function AdminAvailabilityCalendar() {
               <div className="flex gap-2">
                 <button
                   type="button"
+                  onClick={() => setAvailableInput("unchanged")}
+                  className={`flex-1 rounded-md border px-3 py-1.5 text-sm transition-colors ${
+                    availableInput === "unchanged"
+                      ? "border-zinc-400 bg-zinc-100 text-zinc-800 "
+                      : "border-zinc-300 text-zinc-600 hover:bg-zinc-50"
+                  }`}
+                >
+                  Sin cambios
+                </button>
+                <button
+                  type="button"
                   onClick={() => setAvailableInput("available")}
                   className={`flex-1 rounded-md border px-3 py-1.5 text-sm transition-colors ${
                     availableInput === "available"
@@ -616,6 +664,12 @@ export default function AdminAvailabilityCalendar() {
                   Bloquear
                 </button>
               </div>
+              {availableInput === "unchanged" && (
+                <p className="mt-1.5 text-xs text-zinc-400">
+                  No se va a modificar la disponibilidad de estas fechas —
+                  solo precio / estadía mínima.
+                </p>
+              )}
             </div>
             <label className="block">
               <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
@@ -676,6 +730,41 @@ export default function AdminAvailabilityCalendar() {
           )}
         </div>
       </div>
+
+      {confirmRequest && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-sm rounded-xl bg-white p-5 shadow-lg">
+            <p className="text-base font-semibold text-zinc-900">
+              {confirmRequest.title}
+            </p>
+            <p className="mt-2 text-sm text-zinc-600">
+              {confirmRequest.message}
+            </p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  confirmRequest.resolve(false);
+                  setConfirmRequest(null);
+                }}
+                className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50"
+              >
+                {confirmRequest.cancelLabel}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  confirmRequest.resolve(true);
+                  setConfirmRequest(null);
+                }}
+                className="rounded-md bg-foreground px-3 py-1.5 text-sm font-semibold text-background hover:opacity-90"
+              >
+                {confirmRequest.confirmLabel}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

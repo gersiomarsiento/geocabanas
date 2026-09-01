@@ -13,17 +13,6 @@ urgency, not by when they were found.
   hardcoded property ID and date range. Lower stakes, but it's debug
   scaffolding sitting in the live API surface — delete or gate it too.
 
-## Data integrity
-
-- **Reservation race condition:** `app/api/reservations/route.ts` checks
-  for overlapping `pending`/`confirmed` reservations and *then* inserts,
-  with nothing preventing two near-simultaneous submits from both passing
-  the check before either insert lands (double-click, retry after a slow
-  response, etc). This is the likely cause of the duplicate-reservation
-  rows seen early on. Fix with a DB-level guard — e.g. a Postgres
-  exclusion constraint on `(property_id, daterange(start_date, end_date))`
-  — rather than relying on the application-level check alone.
-
 ## Cleanup
 
 - Once `test-availability` is removed, `lib/booking/availability.ts`

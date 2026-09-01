@@ -164,6 +164,18 @@ export async function POST(request: Request) {
     .single();
 
   if (insertError || !reservation) {
+    // 23P01 = Postgres exclusion_violation — the reservations_no_overlap
+    // constraint caught an overlap that slipped past the check above
+    // (two near-simultaneous requests for the same dates). This is the
+    // race condition the constraint exists to close; treat it exactly
+    // like the earlier availability check failing.
+    if (insertError?.code === "23P01") {
+      return NextResponse.json(
+        { error: "Esas fechas ya no están disponibles. Elegí otra estadía." },
+        { status: 409 },
+      );
+    }
+
     console.error("Reservation insert failed:", insertError);
     return NextResponse.json(
       { error: "No se pudo crear la reserva" },

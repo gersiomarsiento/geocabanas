@@ -219,11 +219,15 @@ export async function PATCH(request: Request) {
   let current = startDate;
 
   while (current <= endDate) {
-    // Reservation conflicts are never overridable from this endpoint,
-    // regardless of confirmIcalOverride — that flag only ever applies
-    // to iCal conflicts, checked separately below.
+    // Reservation conflicts only matter when this request is actually
+    // trying to change availability status — a price/minStay-only edit
+    // doesn't affect whether the date is bookable (the reservation stays
+    // authoritative for that either way, see GET above), so there's
+    // nothing to conflict with. Only block/report when `available` is
+    // part of this request. confirmIcalOverride never applies here
+    // regardless — that flag only ever applies to iCal conflicts below.
     const reservation = reservationByDate.get(current);
-    if (reservation) {
+    if (reservation && available !== undefined) {
       skippedDates.push({
         date: current,
         reservation: {
@@ -287,7 +291,7 @@ export async function PATCH(request: Request) {
   return NextResponse.json({
     ok: failedDates.length === 0,
     updatedDates,
-    skippedDates, // reservation conflicts — only fixable by cancelling the reservation
+    skippedDates, // availability-change conflicts — only fixable by cancelling the reservation
     icalConflictDates, // Booking.com/Airbnb conflicts — resend with confirmIcalOverride: true to force
     failedDates,
   });

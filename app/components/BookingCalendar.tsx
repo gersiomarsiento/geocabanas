@@ -551,7 +551,11 @@ export default function BookingCalendar() {
 
             <div
               className="grid grid-cols-7 gap-1 text-center text-sm"
-              onMouseLeave={() => setHoveredDay(null)}
+              onPointerLeave={(e) => {
+                if (e.pointerType === "mouse") {
+                  setHoveredDay(null);
+                }
+              }}
             >
               {weekdays.map((weekday) => (
                 <div key={weekday} className="py-2 font-medium text-zinc-500">
@@ -594,7 +598,11 @@ export default function BookingCalendar() {
                     disabled={isDisabled}
                     title={booked ? t("ocupado") : undefined}
                     onClick={() => handleDayClick(day)}
-                    onMouseEnter={() => setHoveredDay(day)}
+                    onPointerEnter={(e) => {
+                      if (e.pointerType === "mouse") {
+                        setHoveredDay(day);
+                      }
+                    }}
                     className={`relative flex aspect-square flex-col items-center justify-center gap-0.5 rounded-md transition-colors ${
                       booked && isToday
                         ? "cursor-not-allowed font-extrabold bg-zinc-100 text-zinc-300 line-through"
@@ -625,7 +633,7 @@ export default function BookingCalendar() {
                       !booked &&
                       !selectedProperty?.hideNightlyPrice &&
                       info.price != null && (
-                        <span className="text-[10px] font-normal leading-none opacity-70">
+                        <span className="text-[9px] lg:text-[12px] font-normal leading-none opacity-70">
                           {formatPrice(info.price)}
                         </span>
                       )}
