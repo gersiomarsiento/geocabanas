@@ -10,6 +10,7 @@ import HeroImage from "../components/HeroImage";
 import Header from "../components/Header";
 import InstagramGallery from "../components/InstagramGallery";
 import WhatsAppButton from "../components/WhatsAppButton";
+import AvailabilitySearch from "../components/AvailabilitySearch";
 // import FeaturesSection from "../components/FeaturesSection";
 
 export default async function Home() {
@@ -36,6 +37,7 @@ export default async function Home() {
       >
         <h2 className="mb-6 text-center">{tBooking("hacerTuReserva")}</h2>
         <BookingCalendar />
+        <AvailabilitySearch />
       </main>
       <ReviewsSection />
       <InstagramGallery />

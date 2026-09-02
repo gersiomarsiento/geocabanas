@@ -1,6 +1,9 @@
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { getBookedRanges } from "./bookingCalendar";
 
+import { nextDate } from "@/lib/calendar/dates";
+import { expandRangesToDateSet } from "@/lib/calendar/dates";
+
 export type AvailabilityResult = {
   available: boolean;
   reason:
@@ -10,6 +13,14 @@ export type AvailabilityResult = {
     | "confirmed_reservation"
     | null;
 };
+
+export interface RangeAvailability {
+  available: boolean;
+  totalPrice: number;
+  nights: number;
+  minStayOk: boolean;
+  blockingDate: string | null;
+}
 
 export async function isDateAvailable(
   propertyId: string,
@@ -124,4 +135,88 @@ export async function getAvailabilityRange(
   );
 
   return availability;
+}
+
+export async function getRangeAvailability(
+  propertyId: string,
+  startDate: string,
+  endDate: string,
+): Promise<RangeAvailability> {
+  const { data: property, error: propertyError } = await supabaseAdmin
+    .from("properties")
+    .select("id, default_price, default_min_stay, booking_ical_url")
+    .eq("id", propertyId)
+    .single();
+
+  if (propertyError || !property) {
+    throw new Error("Property not found");
+  }
+
+  const icalBookedDates = property.booking_ical_url
+    ? await getBookedRanges(property.booking_ical_url)
+        .then((ranges) => expandRangesToDateSet(ranges))
+        .catch(() => new Set<string>())
+    : new Set<string>();
+
+  const [{ data: overrides }, { data: existingReservations }] =
+    await Promise.all([
+      supabaseAdmin
+        .from("calendar_days")
+        .select("date, status, price")
+        .eq("property_id", propertyId)
+        .gte("date", startDate)
+        .lt("date", endDate),
+
+      supabaseAdmin
+        .from("reservations")
+        .select("start_date, end_date")
+        .eq("property_id", propertyId)
+        .in("status", ["pending", "confirmed"])
+        .lt("start_date", endDate)
+        .gt("end_date", startDate),
+    ]);
+
+  if (existingReservations && existingReservations.length > 0) {
+    return {
+      available: false,
+      totalPrice: 0,
+      nights: 0,
+      minStayOk: false,
+      blockingDate: startDate,
+    };
+  }
+
+  let totalPrice = 0;
+  let nights = 0;
+  let current = startDate;
+  let blockingDate: string | null = null;
+
+  while (current < endDate) {
+    const override = overrides?.find(
+      (item) => String(item.date).slice(0, 10) === current,
+    );
+
+    const blocked = override?.status === "blocked";
+    const forcedOpen = override?.status === "available";
+    const icalBooked = icalBookedDates.has(current);
+
+    if (!forcedOpen && (blocked || icalBooked)) {
+      blockingDate = current;
+      break;
+    }
+
+    totalPrice += Number(override?.price ?? property.default_price ?? 0);
+    nights += 1;
+    current = nextDate(current);
+  }
+
+  const minStay = property.default_min_stay ?? 1;
+
+  return {
+    available: blockingDate === null,
+    totalPrice,
+    nights,
+    minStayOk: nights >= minStay,
+    blockingDate,
+  };
 }
