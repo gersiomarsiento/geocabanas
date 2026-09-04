@@ -2,14 +2,19 @@
 //
 // PATCH -> updates contact/map fields on the singleton site_settings row.
 
+// TODO: gate this route behind your admin auth/session check before ship.
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import type { LocalizedText } from "@/lib/i18n/getLocalized";
 
 interface SiteSettingsUpdate {
+  businessName?: string;
+  businessAddress?: string;
   contactWhatsapp?: string;
+  contactPhone?: string;
   contactEmail?: string;
   contactInstagram?: string;
+  contactFacebook?: string;
   mapLatitude?: number;
   mapLongitude?: number;
   mapAddress?: string;
@@ -47,11 +52,17 @@ export async function PATCH(request: Request) {
   }
 
   const update: Record<string, unknown> = {};
+  if (body.businessName != null) update.business_name = body.businessName;
+  if (body.businessAddress != null)
+    update.business_address = body.businessAddress;
   if (body.contactWhatsapp != null)
     update.contact_whatsapp = body.contactWhatsapp;
+  if (body.contactPhone != null) update.contact_phone = body.contactPhone;
   if (body.contactEmail != null) update.contact_email = body.contactEmail;
   if (body.contactInstagram != null)
     update.contact_instagram = body.contactInstagram;
+  if (body.contactFacebook != null)
+    update.contact_facebook = body.contactFacebook;
   if (body.mapLatitude != null) update.map_latitude = body.mapLatitude;
   if (body.mapLongitude != null) update.map_longitude = body.mapLongitude;
   if (body.mapAddress != null) update.map_address = body.mapAddress;

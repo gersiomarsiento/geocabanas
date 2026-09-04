@@ -122,5 +122,39 @@
   "Carousel": {
     "fotoAnterior": "Previous photo",
     "fotoSiguiente": "Next photo"
+  },
+  "AvailabilitySearch": {
+    "titulo": "Large group?",
+    "subtitulo": "Search and we'll automatically put together the best option for you.",
+    "entrada": "Check-in",
+    "salida": "Check-out",
+    "personas": "Guests",
+    "habitacionesOpcional": "Rooms (optional)",
+    "viajamosConNinos": "We're traveling with children",
+    "viajamosConMascota": "We're traveling with a pet",
+    "buscarDisponibilidad": "Search availability",
+    "buscando": "Searching…",
+    "completaFechasYPersonas": "Enter the dates and number of guests.",
+    "fechaSalidaInvalida": "The check-out date must be after the check-in date.",
+    "noSePudoBuscar": "Could not search for availability.",
+    "sinResultados": "We couldn't find availability for your group on those dates. Try another date range, or use the booking calendar to search cabin by cabin.",
+    "cabanasParaGrupo": "{count, plural, =1 {# cabin} other {# cabins}} for your group",
+    "combinacionRecomendada": "Recommended combination",
+    "alcanzaConUnaCabana": "One cabin is enough for your group",
+    "habitacionesRelajadas": "We couldn't find an option with exactly the number of rooms you requested, but this one can accommodate the whole group.",
+    "hastaPersonas": "Up to {count, plural, =1 {# guest} other {# guests}}",
+    "resultados": "Results",
+    "realizaUnaBusqueda": "Run a search to see available accommodations here.",
+    "total": "Total",
+    "reservasCount": "{count, plural, =1 {# booking} other {# bookings}}",
+    "reservaExitosa": "All set! We sent you an email with the details of your {count, plural, =1 {booking} other {bookings}}.",
+    "reservarTodas": "Book all",
+    "placeholderNombre": "Full name",
+    "placeholderEmail": "Email",
+    "placeholderTelefono": "Phone number"
+  },
+
+  "Instagram": {
+    "titulo": "Follow us on Instagram"
   }
 }

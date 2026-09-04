@@ -3,6 +3,7 @@
 // app/components/AvailabilitySearch.tsx
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { convertFromUSD, formatCurrency } from "@/lib/currency";
 import { useCurrency } from "./CurrencyProvider";
 
@@ -80,6 +81,9 @@ function CheckIcon() {
 }
 
 export default function AvailabilitySearch() {
+  const t = useTranslations("AvailabilitySearch");
+  const tBooking = useTranslations("Booking");
+  const tUnits = useTranslations("Units");
   const { currency, rates } = useCurrency();
 
   const [startDate, setStartDate] = useState("");
@@ -112,11 +116,11 @@ export default function AvailabilitySearch() {
 
   async function handleSearch() {
     if (!startDate || !endDate || guests < 1) {
-      setSearchError("Completá las fechas y la cantidad de personas.");
+      setSearchError(t("completaFechasYPersonas"));
       return;
     }
     if (startDate >= endDate) {
-      setSearchError("La fecha de salida debe ser posterior a la de entrada.");
+      setSearchError(t("fechaSalidaInvalida"));
       return;
     }
 
@@ -136,7 +140,7 @@ export default function AvailabilitySearch() {
       if (needsPets) params.set("pets", "true");
 
       const res = await fetch(`/api/booking/search?${params.toString()}`);
-      if (!res.ok) throw new Error("No se pudo buscar disponibilidad.");
+      if (!res.ok) throw new Error(t("noSePudoBuscar"));
       const data = (await res.json()) as SearchResponse;
 
       setBedroomsRelaxed(data.bedroomsRelaxed);
@@ -151,9 +155,7 @@ export default function AvailabilitySearch() {
         setRecommended(null);
       }
     } catch (e) {
-      setSearchError(
-        e instanceof Error ? e.message : "No se pudo buscar disponibilidad.",
-      );
+      setSearchError(e instanceof Error ? e.message : t("noSePudoBuscar"));
     } finally {
       setSearching(false);
     }
@@ -162,11 +164,11 @@ export default function AvailabilitySearch() {
   async function handleReserve() {
     if (!recommended || !searchedDates) return;
     if (!guestName.trim() || !guestEmail.trim() || !guestPhone.trim()) {
-      setReserveError("Completá tu nombre, email y teléfono para continuar.");
+      setReserveError(tBooking("completaDatosParaContinuar"));
       return;
     }
     if (!EMAIL_REGEX.test(guestEmail.trim())) {
-      setReserveError("Ingresá un email válido.");
+      setReserveError(tBooking("emailValido"));
       return;
     }
 
@@ -208,13 +210,13 @@ export default function AvailabilitySearch() {
       const data = await res.json();
 
       if (!res.ok || !data.ok) {
-        throw new Error(data.error ?? "No se pudo completar la reserva.");
+        throw new Error(data.error ?? tBooking("noSePudoCompletarReserva"));
       }
 
       setReserved(true);
     } catch (e) {
       setReserveError(
-        e instanceof Error ? e.message : "No se pudo completar la reserva.",
+        e instanceof Error ? e.message : tBooking("noSePudoCompletarReserva"),
       );
     } finally {
       setReserving(false);
@@ -230,9 +232,9 @@ export default function AvailabilitySearch() {
     <div className="w-full max-w-lg md:max-w-354 mt-4 flex flex-col md:flex-row gap-4">
       <div className="overflow-hidden rounded-xl border border-zinc-200 shadow-sm w-full">
         <div className="bg-primary px-4 py-3 md:px-6 md:py-4 text-primary-foreground">
-          <h3 className="font-bold">¿Grupo grande?</h3>
+          <h3 className="font-bold">{t("titulo")}</h3>
           <p className="mt-0.5 text-sm text-primary-foreground/80">
-            Buscá y te armamos la mejor opción automáticamente.
+            {t("subtitulo")}
           </p>
         </div>
 
@@ -240,7 +242,7 @@ export default function AvailabilitySearch() {
           <div className="grid gap-3 grid-cols-2 items-end">
             <label className="block">
               <span className="mb-1.5 block text-sm font-medium text-zinc-600">
-                Entrada
+                {t("entrada")}
               </span>
               <input
                 type="date"
@@ -252,7 +254,7 @@ export default function AvailabilitySearch() {
 
             <label className="block">
               <span className="mb-1.5 block text-sm font-medium text-zinc-600">
-                Salida
+                {t("salida")}
               </span>
               <input
                 type="date"
@@ -264,7 +266,7 @@ export default function AvailabilitySearch() {
 
             <label className="block">
               <span className="mb-1.5 block text-sm font-medium text-zinc-600">
-                Personas
+                {t("personas")}
               </span>
               <input
                 type="number"
@@ -277,7 +279,7 @@ export default function AvailabilitySearch() {
 
             <label className="block">
               <span className="mb-1.5 block text-sm font-medium text-zinc-600">
-                Habitaciones (opcional)
+                {t("habitacionesOpcional")}
               </span>
               <input
                 type="number"
@@ -300,7 +302,7 @@ export default function AvailabilitySearch() {
                 checked={needsChildren}
                 onChange={(e) => setNeedsChildren(e.target.checked)}
               />
-              Viajamos con niños
+              {t("viajamosConNinos")}
             </label>
             <label className="flex items-center gap-2 text-sm text-zinc-700">
               <input
@@ -308,7 +310,7 @@ export default function AvailabilitySearch() {
                 checked={needsPets}
                 onChange={(e) => setNeedsPets(e.target.checked)}
               />
-              Viajamos con mascota
+              {t("viajamosConMascota")}
             </label>
           </div>
 
@@ -318,7 +320,7 @@ export default function AvailabilitySearch() {
             onClick={handleSearch}
             className="mt-4 w-full md:w-fit rounded-md bg-accent-500 px-4 py-2 text-sm font-semibold text-accent-foreground transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {searching ? "Buscando…" : "Buscar disponibilidad"}
+            {searching ? t("buscando") : t("buscarDisponibilidad")}
           </button>
 
           {searchError && (
@@ -333,11 +335,7 @@ export default function AvailabilitySearch() {
         <div className="overflow-hidden rounded-xl border border-zinc-200 shadow-sm w-full">
           {recommended === null ? (
             <div className="bg-white p-3 md:p-6">
-              <p className="text-sm text-zinc-600">
-                No encontramos disponibilidad para ese grupo en esas fechas.
-                Probá otro rango, o usá el calendario de reservas para buscar
-                cabaña por cabaña.
-              </p>
+              <p className="text-sm text-zinc-600">{t("sinResultados")}</p>
             </div>
           ) : (
             <>
@@ -345,20 +343,21 @@ export default function AvailabilitySearch() {
                 <h3 className="font-bold">
                   {recommended.type === "single"
                     ? recommended.property.name
-                    : `${recommended.combo.properties.length} cabañas para tu grupo`}
+                    : t("cabanasParaGrupo", {
+                        count: recommended.combo.properties.length,
+                      })}
                 </h3>
                 <p className="mt-0.5 text-sm text-primary-foreground/80">
                   {recommended.type === "combo"
-                    ? "Combinación recomendada"
-                    : "Te alcanza con una cabaña"}
+                    ? t("combinacionRecomendada")
+                    : t("alcanzaConUnaCabana")}
                 </p>
               </div>
 
               <div className="bg-white p-3 md:p-6">
                 {bedroomsRelaxed && (
                   <p className="mb-4 rounded-md bg-primary-50 px-3 py-2 text-sm text-primary">
-                    No encontramos una opción con exactamente las habitaciones
-                    que pediste, pero esta cubre a todo el grupo igual.
+                    {t("habitacionesRelajadas")}
                   </p>
                 )}
 
@@ -367,8 +366,8 @@ export default function AvailabilitySearch() {
                     <CalendarIcon />
                     <span>
                       {formatDisplayDate(searchedDates.start)} →{" "}
-                      {formatDisplayDate(searchedDates.end)} · {nights}{" "}
-                      {nights === 1 ? "noche" : "noches"}
+                      {formatDisplayDate(searchedDates.end)} ·{" "}
+                      {tUnits("noches", { count: nights })}
                     </span>
                   </div>
                 )}
@@ -376,8 +375,13 @@ export default function AvailabilitySearch() {
                 {recommended.type === "single" ? (
                   <div className="flex items-center gap-2 rounded-lg bg-secondary-50 px-3 py-2 text-sm text-zinc-700">
                     <CheckIcon />
-                    Hasta {recommended.property.maxGuests} personas ·{" "}
-                    {recommended.property.bedrooms} habitaciones
+                    {t("hastaPersonas", {
+                      count: recommended.property.maxGuests,
+                    })}{" "}
+                    ·{" "}
+                    {tUnits("habitaciones", {
+                      count: recommended.property.bedrooms,
+                    })}
                   </div>
                 ) : (
                   <ul className="space-y-2">
@@ -400,9 +404,11 @@ export default function AvailabilitySearch() {
 
                 <div className="mt-4 flex items-baseline justify-between border-t border-zinc-200 pt-4">
                   <span className="text-sm text-zinc-600">
-                    Total
+                    {t("total")}
                     {recommended.type === "combo"
-                      ? ` · ${recommended.combo.properties.length} reservas`
+                      ? ` · ${t("reservasCount", {
+                          count: recommended.combo.properties.length,
+                        })}`
                       : ""}
                   </span>
                   <span className="text-2xl font-bold text-primary">
@@ -416,29 +422,33 @@ export default function AvailabilitySearch() {
 
                 {reserved ? (
                   <p className="mt-4 rounded-md bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800">
-                    ¡Listo! Te enviamos un email con los detalles de tu reserva
-                    {recommended.type === "combo" ? "s" : ""}.
+                    {t("reservaExitosa", {
+                      count:
+                        recommended.type === "combo"
+                          ? recommended.combo.properties.length
+                          : 1,
+                    })}
                   </p>
                 ) : (
                   <div className="mt-4 border-t border-zinc-200 pt-4">
                     <div className="grid gap-3 md:grid-cols-3">
                       <input
                         type="text"
-                        placeholder="Nombre y apellido"
+                        placeholder={t("placeholderNombre")}
                         value={guestName}
                         onChange={(e) => setGuestName(e.target.value)}
                         className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary-100"
                       />
                       <input
                         type="email"
-                        placeholder="Email"
+                        placeholder={t("placeholderEmail")}
                         value={guestEmail}
                         onChange={(e) => setGuestEmail(e.target.value)}
                         className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary-100"
                       />
                       <input
                         type="tel"
-                        placeholder="Teléfono"
+                        placeholder={t("placeholderTelefono")}
                         value={guestPhone}
                         onChange={(e) => setGuestPhone(e.target.value)}
                         className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary-100"
@@ -452,10 +462,10 @@ export default function AvailabilitySearch() {
                       className="mt-3 w-full md:w-fit rounded-md bg-accent-500 px-4 py-2 text-sm font-semibold text-accent-foreground transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       {reserving
-                        ? "Reservando…"
+                        ? tBooking("reservando")
                         : recommended.type === "combo"
-                          ? "Reservar ambas"
-                          : "Reservar"}
+                          ? t("reservarTodas")
+                          : tBooking("reservar")}
                     </button>
 
                     {reserveError && (
@@ -471,8 +481,12 @@ export default function AvailabilitySearch() {
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-zinc-200 shadow-sm w-full">
-          <div className="bg-primary px-4 py-3 md:px-6 md:py-4 text-primary-foreground min-h-23.5 md:min-h-21.5"><h3 className="font-bold">Resultados</h3></div>
-          <div className="bg-white p-3 md:p-6 min-h-69 h-auto content-center text-center">Realiza una búsqueda para ver aquí los hospedajes disponibles.</div>
+          <div className="bg-primary px-4 py-3 md:px-6 md:py-4 text-primary-foreground min-h-23.5 md:min-h-21.5">
+            <h3 className="font-bold">{t("resultados")}</h3>
+          </div>
+          <div className="bg-white p-3 md:p-6 min-h-69 h-auto content-center text-center">
+            {t("realizaUnaBusqueda")}
+          </div>
         </div>
       )}
     </div>

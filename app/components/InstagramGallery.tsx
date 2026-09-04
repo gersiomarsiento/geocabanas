@@ -1,63 +1,73 @@
+"use client";
+
+// app/components/InstagramGallery.tsx
+
+import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 
 interface InstagramPost {
-  /** Path under /public — e.g. an image you saved from Instagram. */
-  imageSrc: string;
-  /** The real Instagram post URL, opened when the tile is clicked. */
+  id: string;
   url: string;
+  postUrl: string;
 }
 
-// Edit this list to change which photos show up. Add image files to
-// public/images/instagram/ and reference them here.
-const POSTS: InstagramPost[] = [
-  {
-    imageSrc: "/images/instagram/post-1.jpg",
-    url: "https://www.instagram.com/geopuntadeldiablo/p/C3h7fSJArRN/",
-  },
-  {
-    imageSrc: "/images/instagram/post-2.jpg",
-    url: "https://www.instagram.com/geopuntadeldiablo/p/DHJaz8jJCKc/",
-  },
-  {
-    imageSrc: "/images/instagram/post-5.jpg",
-    url: "https://www.instagram.com/geopuntadeldiablo/p/C2dQULvRcD_/",
-  },
-  {
-    imageSrc: "/images/instagram/post-3.jpg",
-    url: "https://www.instagram.com/geopuntadeldiablo/p/C2dn2QnpDMz/",
-  },
-  {
-    imageSrc: "/images/instagram/post-4.jpg",
-    url: "https://www.instagram.com/geopuntadeldiablo/p/Cm6aQqKOkvu/",
-  },
-  {
-    imageSrc: "/images/instagram/post-6.jpg",
-    url: "https://www.instagram.com/geopuntadeldiablo/p/CkRfvcWN-ia/",
-  },
-];
+function toDisplayHandle(value: string) {
+  const trimmed = value.trim().replace(/^@/, "");
+  if (!trimmed.startsWith("http")) return `@${trimmed}`;
+  try {
+    const path = new URL(trimmed).pathname.replace(/^\/|\/$/g, "");
+    return path ? `@${path}` : trimmed;
+  } catch {
+    return trimmed;
+  }
+}
 
 export default function InstagramGallery() {
+  const t = useTranslations("Instagram");
+  const [posts, setPosts] = useState<InstagramPost[] | null>(null);
+  const [handle, setHandle] = useState<string | null>(null);
+
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/instagram-posts").then((res) =>
+        res.ok ? (res.json() as Promise<InstagramPost[]>) : [],
+      ),
+      fetch("/api/site-settings").then((res) =>
+        res.ok
+          ? (res.json() as Promise<{ contactInstagram: string | null }>)
+          : { contactInstagram: null },
+      ),
+    ]).then(([postsData, settings]) => {
+      setPosts(postsData);
+      setHandle(settings.contactInstagram);
+    });
+  }, []);
+
+  // Nothing curated yet — don't show an empty section.
+  if (posts !== null && posts.length === 0) return null;
+
   return (
-    <section className="py-16 px-4 bg-secondary-900">
-      <div className="mx-auto max-w-6xl text-center">
+    <section className="py-16 px-3 md:px-6 bg-secondary-900">
+      <div className="mx-auto max-w-354 text-center">
         <h2 className="text-2xl sm:text-3xl font-semibold text-white mb-2">
-          Seguinos en Instagram
+          {t("titulo")}
         </h2>
-        <p className="text-white mb-8">@geopuntadeldiablo</p>
+        {handle && <p className="text-white mb-8">{toDisplayHandle(handle)}</p>}
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-0.5">
-          {POSTS.map((post) => (
+          {(posts ?? []).map((post) => (
             <Link
-              key={post.url}
-              href={post.url}
-              target="_blank" 
+              key={post.id}
+              href={post.postUrl}
+              target="_blank"
               rel="noopener noreferrer"
               className="group relative block aspect-3/4 overflow-hidden bg-transparent"
             >
               <Image
-                src={post.imageSrc}
-                alt="Foto de Instagram de Geo Punta del Diablo"
+                src={post.url}
+                alt="Foto de Instagram"
                 fill
                 sizes="(max-width: 640px) 50vw, 33vw"
                 className="object-cover transition-transform duration-300 group-hover:scale-105"

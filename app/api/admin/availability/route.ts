@@ -39,11 +39,11 @@ export async function GET(request: Request) {
   const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
   const endDate = `${year}-${String(month).padStart(2, "0")}-${daysInMonth}`;
 
-  // NEW: fetch the Booking.com feed alongside overrides/reservations. If
+  // NEW: fetch the External site feed alongside overrides/reservations. If
   // it fails (feed down, bad URL), don't take the whole admin calendar
   // down with it — fall back to "no iCal data" for this render.
-  const icalPromise = property.booking_ical_url
-    ? getBookedRanges(property.booking_ical_url)
+  const icalPromise = property.external_ical_url
+    ? getBookedRanges(property.external_ical_url)
         .then((ranges) => expandRangesToDateSet(ranges))
         .catch((err) => {
           console.error("iCal fetch failed for admin calendar:", err);
@@ -91,7 +91,7 @@ export async function GET(request: Request) {
 
     // Precedence: an active reservation is your own authoritative data
     // and always wins. Otherwise an explicit override wins. Otherwise
-    // fall back to what Booking.com's feed says.
+    // fall back to what External site's feed says.
     let available: boolean;
     if (activeReservation) {
       available = false;
@@ -145,7 +145,7 @@ export async function PATCH(request: Request) {
 
   const { data: property, error: propertyError } = await supabaseAdmin
     .from("properties")
-    .select("id, booking_ical_url")
+    .select("id, external_ical_url")
     .eq("id", propertyId)
     .single();
 
@@ -188,8 +188,8 @@ export async function PATCH(request: Request) {
 
   // NEW: same iCal fetch GET uses, so PATCH knows which dates are
   // Booking.com/Airbnb conflicts, not just internal reservation conflicts.
-  const icalBookedDates = property.booking_ical_url
-    ? await getBookedRanges(property.booking_ical_url)
+  const icalBookedDates = property.external_ical_url
+    ? await getBookedRanges(property.external_ical_url)
         .then((ranges) => expandRangesToDateSet(ranges))
         .catch((err) => {
           console.error("iCal fetch failed during PATCH:", err);

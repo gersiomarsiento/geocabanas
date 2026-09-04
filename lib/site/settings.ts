@@ -2,9 +2,14 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import type { LocalizedText } from "@/lib/i18n/getLocalized";
 
 export interface ContactSettings {
+  businessName: string | null;
+  businessAddress: string | null;
+
   contactWhatsapp: string | null;
+  contactPhone: string | null;
   contactEmail: string | null;
   contactInstagram: string | null;
+  contactFacebook: string | null;
 
   mapLatitude: number | null;
   mapLongitude: number | null;
@@ -13,7 +18,7 @@ export interface ContactSettings {
   heroTitle: LocalizedText | null;
   heroSubtitle: LocalizedText | null;
   heroButtonText: LocalizedText | null;
-  heroButtonHref: string | null; 
+  heroButtonHref: string | null;
 
   emailSubject: string | null;
   emailIntro: string | null;
@@ -30,9 +35,13 @@ export async function getContactSettings(): Promise<ContactSettings> {
     .from("site_settings")
     .select(
       `
+      business_name,
+      business_address,
       contact_whatsapp,
+      contact_phone,
       contact_email,
       contact_instagram,
+      contact_facebook,
       map_latitude,
       map_longitude,
       map_address,
@@ -55,9 +64,14 @@ export async function getContactSettings(): Promise<ContactSettings> {
     console.error("Failed to load site settings:", error);
 
     return {
+      businessName: null,
+      businessAddress: null,
+
       contactWhatsapp: null,
+      contactPhone: null,
       contactEmail: null,
       contactInstagram: null,
+      contactFacebook: null,
 
       mapLatitude: null,
       mapLongitude: null,
@@ -79,9 +93,14 @@ export async function getContactSettings(): Promise<ContactSettings> {
   }
 
   return {
+    businessName: data.business_name,
+    businessAddress: data.business_address,
+
     contactWhatsapp: data.contact_whatsapp,
+    contactPhone: data.contact_phone,
     contactEmail: data.contact_email,
     contactInstagram: data.contact_instagram,
+    contactFacebook: data.contact_facebook,
 
     mapLatitude: data.map_latitude,
     mapLongitude: data.map_longitude,
@@ -97,7 +116,7 @@ export async function getContactSettings(): Promise<ContactSettings> {
 
     exchangeRateUyu: Number(data.exchange_rate_uyu),
     exchangeRateBrl: Number(data.exchange_rate_brl),
-    
+
     aboutTitle: data.about_title,
     aboutText: data.about_text,
   };

@@ -30,7 +30,6 @@ export default async function Home() {
       </section>
 
       <AboutSection />
-      {/* <FeaturesSection /> */}
       <main
         id="reservar-button"
         className="mx-auto w-full justify-items-center bg-secondary-50 flex-1 px-3 md:px-6 py-10"

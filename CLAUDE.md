@@ -66,7 +66,9 @@ over this file if the two ever disagree). Key points:
 - **`properties`** — one row per property/room. `default_price`,
   `default_min_stay`, `min_reservation_fee`, `deposit_percentage` are the
   property-level defaults used when a stay has no `calendar_days`
-  override. `booking_ical_url` is per-property, not a shared env var.
+  override. `external_ical_url` is per-property, not a shared env var,
+  and platform-agnostic (Booking.com, Airbnb, etc. — see iCal sync
+  section below).
   `hide_nightly_price` toggles whether the nightly rate is shown to
   visitors — fully wired end-to-end (admin checkbox, admin API, public
   properties API, `BookingCalendar.tsx`).
@@ -105,9 +107,10 @@ For any given day, in order — first match wins:
 2. **`calendar_days` override** → explicit admin block, or explicit
    "force available" (meaningful only for overriding stale iCal data,
    never for overriding a real reservation).
-3. **Booking.com iCal feed** (`lib/booking/bookingCalendar.ts`, fetched
-   via `getBookedRanges(property.booking_ical_url)`) → unavailable unless
-   overridden.
+3. **External iCal feed** (`lib/booking/bookingCalendar.ts`, fetched via
+   `getBookedRanges(property.external_ical_url)`) → unavailable unless
+   overridden. The platform varies per property — Booking.com, Airbnb, or
+   others — so this is read generically, not assumed to be one platform.
 4. Otherwise → available.
 
 This exact logic is duplicated across three places (visitor availability
@@ -117,15 +120,28 @@ done. (`lib/booking/availability.ts` / `isDateAvailable` is a fourth,
 separate implementation, but it's only used by the debug
 `app/api/test-availability` route, not by any of the three real ones.)
 
-## iCal sync direction
+## iCal sync
 
-- **Inbound (Booking.com → us):** working, via `bookingCalendar.ts`.
-- **Outbound (us → Airbnb):** `app/api/ical/[slug]/route.ts` is
-  implemented — it merges Booking.com iCal data, `calendar_days`
-  overrides, and internal reservations into unavailable-date ranges and
-  serves a real `.ics` feed. Booking.com itself no longer accepts iCal
-  imports from personal sites (changed March 2025); Airbnb still does,
-  one-directionally, which is what this endpoint feeds.
+Each property has its own `external_ical_url` (set per property via
+`PropertyDetailsForm.tsx`, previously named `booking_ical_url` — renamed
+2026-09-01 once it turned out the field holds whichever platform's URL a
+given property actually uses, not always Booking.com). Don't assume
+which platform a given property's feed is from; the code treats it
+generically.
+
+- **Inbound (external platform → us):** `lib/booking/bookingCalendar.ts`
+  fetches whatever URL is set and treats those dates as booked, subject
+  to the precedence rules above.
+- **Outbound (us → external platform):** `app/api/ical/[slug]/route.ts`
+  publishes a combined feed (internal reservations + `calendar_days`
+  overrides + the inbound feed) as a real `.ics` file, capped at 365 days
+  out to match Airbnb's own import limit. This URL is what you'd paste
+  into a platform's "import calendar" field.
+- Booking.com stopped accepting iCal imports from personal sites in
+  March 2025; Airbnb still does. Whether a given property's outbound feed
+  is actually consumed anywhere depends on which platforms that property
+  is listed on and whether the owner set it up on that platform's end —
+  this code can't tell you that, it just always makes the feed available.
 
 ## Admin auth
 

@@ -54,8 +54,10 @@ create table properties (
 
   currency text not null default 'USD',
 
-  -- Per-property Booking.com iCal export URL (not a shared env var).
-  booking_ical_url text,
+  -- External calendar (Booking.com, Airbnb, etc.) iCal export URL for
+  -- this specific property — platform varies per property/client, so
+  -- this is intentionally not named after a specific platform.
+  external_ical_url text,
 
   children_allowed boolean not null default true,
   pets_allowed boolean not null default false,
@@ -176,6 +178,25 @@ create table reservations (
 
 
 -- ==========================
+-- INSTAGRAM POSTS
+-- ==========================
+-- Admin-curated gallery for the homepage Instagram section — replaces
+-- what used to be a hardcoded array in InstagramGallery.tsx. Images live
+-- in the same "property-images" Storage bucket, under an "instagram/"
+-- prefix, rather than a separate bucket.
+
+create table instagram_posts (
+  id uuid primary key default gen_random_uuid(),
+  image_storage_path text not null,
+  -- The real Instagram post URL, opened when the tile is clicked.
+  post_url text not null,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+
+
+-- ==========================
 -- FAQS
 -- ==========================
 -- question/answer are localized: {"es": "...", "en"?: "...", "pt"?: "..."}
@@ -203,9 +224,21 @@ create table faqs (
 create table site_settings (
   id text primary key default 'singleton',
 
+  business_name text,
+  -- Free text, rendered as separate lines split on newline — not
+  -- necessarily the same as map_address below (that one's specifically
+  -- the caption/link text shown next to the embedded map).
+  business_address text,
+
   contact_whatsapp text,
+  -- Separate from contact_whatsapp on purpose: some businesses use a
+  -- different number for calls than for WhatsApp.
+  contact_phone text,
   contact_email text,
   contact_instagram text not null default '',
+  -- Stored as a full URL (unlike Instagram's handle-based normalization
+  -- above) since Facebook page URLs don't follow as clean a pattern.
+  contact_facebook text,
 
   map_latitude numeric,
   map_longitude numeric,
@@ -235,11 +268,63 @@ create table site_settings (
 
 
 -- ==========================
+-- FUNCTIONS
+-- ==========================
+
+-- Powers the group/bundle booking flow (app/api/reservations/group).
+-- Inserts one reservations row per "leg" (one per property) for the same
+-- guest, all inside a single implicit transaction — if any leg's insert
+-- throws (most commonly reservations_no_overlap firing because another
+-- booking beat it to that property/date range), the exception propagates
+-- and every leg inserted so far in this call rolls back together. This
+-- is what makes the group booking atomic: it's one function call, not a
+-- sequence of separate inserts from the API route.
+create or replace function create_group_reservation(
+  p_guest_name text,
+  p_guest_email text,
+  p_guest_phone text,
+  p_legs jsonb
+)
+returns setof reservations
+language plpgsql
+as $$
+declare
+  leg jsonb;
+  new_reservation reservations;
+begin
+  for leg in select * from jsonb_array_elements(p_legs)
+  loop
+    insert into reservations (
+      property_id, guest_name, guest_email, guest_phone,
+      start_date, end_date, total_price, deposit_amount, status
+    ) values (
+      (leg->>'property_id')::uuid,
+      p_guest_name,
+      p_guest_email,
+      p_guest_phone,
+      (leg->>'start_date')::date,
+      (leg->>'end_date')::date,
+      (leg->>'total_price')::numeric,
+      (leg->>'deposit_amount')::numeric,
+      'pending'
+    )
+    returning * into new_reservation;
+
+    return next new_reservation;
+  end loop;
+  return;
+end;
+$$;
+
+
+
+-- ==========================
 -- SECURITY
 -- ==========================
 
 alter table properties enable row level security;
 alter table property_images enable row level security;
+alter table instagram_posts enable row level security;
 alter table calendar_days enable row level security;
 alter table reservations enable row level security;
 alter table faqs enable row level security;
@@ -267,3 +352,13 @@ values (
   true
 )
 on conflict (id) do nothing;
+
+
+-- ==========================
+-- CLEANUP FOR EXISTING DATABASES
+-- ==========================
+-- Run these separately against the live DB — they are NOT part of the
+-- create-from-scratch schema above.
+--
+-- drop table if exists google_reviews_cache;
+-- alter table properties rename column booking_ical_url to external_ical_url;

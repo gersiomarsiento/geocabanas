@@ -12,7 +12,7 @@ export async function GET(
 
   const { data: property, error } = await supabaseAdmin
     .from("properties")
-    .select("id, name, booking_ical_url")
+    .select("id, name, external_ical_url")
     .eq("slug", slug)
     .single();
 
@@ -25,8 +25,8 @@ export async function GET(
   endObj.setDate(endObj.getDate() + 365); // matches Airbnb's own 365-day import cap
   const end = isoDate(endObj);
 
-  const icalBookedDates = property.booking_ical_url
-    ? await getBookedRanges(property.booking_ical_url)
+  const icalBookedDates = property.external_ical_url
+    ? await getBookedRanges(property.external_ical_url)
         .then(expandRangesToDateSet)
         .catch(() => new Set<string>())
     : new Set<string>();

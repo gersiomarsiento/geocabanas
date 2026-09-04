@@ -122,5 +122,39 @@
   "Carousel": {
     "fotoAnterior": "Foto anterior",
     "fotoSiguiente": "Próxima foto"
+  },
+  "AvailabilitySearch": {
+    "titulo": "Grupo grande?",
+    "subtitulo": "Pesquise e vamos montar automaticamente a melhor opção para você.",
+    "entrada": "Entrada",
+    "salida": "Saída",
+    "personas": "Hóspedes",
+    "habitacionesOpcional": "Quartos (opcional)",
+    "viajamosConNinos": "Viajamos com crianças",
+    "viajamosConMascota": "Viajamos com animais de estimação",
+    "buscarDisponibilidad": "Buscar disponibilidade",
+    "buscando": "Buscando…",
+    "completaFechasYPersonas": "Preencha as datas e a quantidade de hóspedes.",
+    "fechaSalidaInvalida": "A data de saída deve ser posterior à data de entrada.",
+    "noSePudoBuscar": "Não foi possível buscar a disponibilidade.",
+    "sinResultados": "Não encontramos disponibilidade para esse grupo nessas datas. Tente outro período ou use o calendário de reservas para buscar cabana por cabana.",
+    "cabanasParaGrupo": "{count, plural, =1 {# cabana} other {# cabanas}} para o seu grupo",
+    "combinacionRecomendada": "Combinação recomendada",
+    "alcanzaConUnaCabana": "Uma cabana é suficiente para o seu grupo",
+    "habitacionesRelajadas": "Não encontramos uma opção com exatamente a quantidade de quartos que você pediu, mas esta acomoda todo o grupo.",
+    "hastaPersonas": "Até {count, plural, =1 {# hóspede} other {# hóspedes}}",
+    "resultados": "Resultados",
+    "realizaUnaBusqueda": "Faça uma busca para ver as acomodações disponíveis aqui.",
+    "total": "Total",
+    "reservasCount": "{count, plural, =1 {# reserva} other {# reservas}}",
+    "reservaExitosa": "Tudo certo! Enviamos um e-mail com os detalhes da sua {count, plural, =1 {reserva} other {reserva}}.",
+    "reservarTodas": "Reservar todas",
+    "placeholderNombre": "Nome e sobrenome",
+    "placeholderEmail": "E-mail",
+    "placeholderTelefono": "Telefone"
+  },
+
+  "Instagram": {
+    "titulo": "Siga a gente no Instagram"
   }
 }

@@ -1,4 +1,4 @@
-// Fetches your Booking.com iCal export feed and converts it into a simple
+// Fetches your external iCal export feed and converts it into a simple
 // list of booked date ranges. Server-side only.
 import ical, { VEvent } from "node-ical";
 export interface BookedRange {
@@ -8,11 +8,11 @@ export interface BookedRange {
 
 export async function getBookedRanges(icalUrl: string): Promise<BookedRange[]> {
   if (!icalUrl) {
-    throw new Error("No booking_ical_url provided for this property");
+    throw new Error("No external_ical_url provided for this property");
   }
 
   const res = await fetch(icalUrl, {
-    next: { revalidate: 3600 }, // cache 1hr — Booking.com's own feed lags anyway
+    next: { revalidate: 3600 }, // cache 1hr — External site's feed lags anyway
   });
 
   if (!res.ok) {

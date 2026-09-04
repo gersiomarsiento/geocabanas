@@ -7,9 +7,16 @@ import SiteContactCard from "../propiedades/SiteContactCard";
 import SiteEmailCard from "../propiedades/SiteEmailCard";
 import SiteFaqCard from "../propiedades/SiteFaqCard";
 import SiteCurrencyCard from "../propiedades/SiteCurrencyCard";
+import SiteInstagramCard from "../propiedades/SiteInstagramCard";
 import { CollapsibleSection } from "../propiedades/AdminUI";
 
-type SectionId = "hero" | "contact" | "currency" | "email" | "faq";
+type SectionId =
+  | "hero"
+  | "contact"
+  | "currency"
+  | "email"
+  | "faq"
+  | "instagram";
 
 export default function SitioPage() {
   const [openSection, setOpenSection] = useState<SectionId | null>("hero");
@@ -37,6 +44,14 @@ export default function SitioPage() {
           onToggle={() => handleToggle("contact")}
         >
           <SiteContactCard />
+        </CollapsibleSection>
+
+        <CollapsibleSection
+          title="Instagram"
+          open={openSection === "instagram"}
+          onToggle={() => handleToggle("instagram")}
+        >
+          <SiteInstagramCard />
         </CollapsibleSection>
 
         <CollapsibleSection

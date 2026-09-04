@@ -122,5 +122,38 @@
   "Carousel": {
     "fotoAnterior": "Foto anterior",
     "fotoSiguiente": "Foto siguiente"
+  },
+  "AvailabilitySearch": {
+    "titulo": "¿Grupo grande?",
+    "subtitulo": "Buscá y te armamos la mejor opción automáticamente.",
+    "entrada": "Entrada",
+    "salida": "Salida",
+    "personas": "Personas",
+    "habitacionesOpcional": "Habitaciones (opcional)",
+    "viajamosConNinos": "Viajamos con niños",
+    "viajamosConMascota": "Viajamos con mascota",
+    "buscarDisponibilidad": "Buscar disponibilidad",
+    "buscando": "Buscando…",
+    "completaFechasYPersonas": "Completá las fechas y la cantidad de personas.",
+    "fechaSalidaInvalida": "La fecha de salida debe ser posterior a la de entrada.",
+    "noSePudoBuscar": "No se pudo buscar disponibilidad.",
+    "sinResultados": "No encontramos disponibilidad para ese grupo en esas fechas. Probá otro rango, o usá el calendario de reservas para buscar cabaña por cabaña.",
+    "cabanasParaGrupo": "{count, plural, =1 {# cabaña} other {# cabañas}} para tu grupo",
+    "combinacionRecomendada": "Combinación recomendada",
+    "alcanzaConUnaCabana": "Te alcanza con una cabaña",
+    "habitacionesRelajadas": "No encontramos una opción con exactamente las habitaciones que pediste, pero esta cubre a todo el grupo igual.",
+    "hastaPersonas": "Hasta {count, plural, =1 {# persona} other {# personas}}",
+    "resultados": "Resultados",
+    "realizaUnaBusqueda": "Realizá una búsqueda para ver aquí los hospedajes disponibles.",
+    "total": "Total",
+    "reservasCount": "{count, plural, =1 {# reserva} other {# reservas}}",
+    "reservaExitosa": "¡Listo! Te enviamos un email con los detalles de tu {count, plural, =1 {reserva} other {reservas}}.",
+    "reservarTodas": "Reservar todas",
+    "placeholderNombre": "Nombre y apellido",
+    "placeholderEmail": "Email",
+    "placeholderTelefono": "Teléfono"
+  },
+  "Instagram": {
+    "titulo": "Seguinos en Instagram"
   }
 }

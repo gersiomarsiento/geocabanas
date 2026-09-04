@@ -29,6 +29,10 @@ export async function PATCH(
   if (body.hideNightlyPrice != null)
     update.hide_nightly_price = body.hideNightlyPrice;
   if (body.amenities != null) update.amenities = body.amenities;
+  if (body.externalIcalUrl !== undefined) {
+    const trimmed = body.externalIcalUrl?.trim() ?? "";
+    update.external_ical_url = trimmed === "" ? null : trimmed;
+  }
 
   if (Object.keys(update).length === 0) {
     return NextResponse.json(
@@ -55,7 +59,8 @@ export async function PATCH(
       max_guests,
       children_allowed,
       pets_allowed,
-      amenities
+      amenities,
+      external_ical_url
     `,
     )
     .single();
@@ -81,5 +86,6 @@ export async function PATCH(
     hideNightlyPrice: property.hide_nightly_price,
     petsAllowed: property.pets_allowed,
     amenities: property.amenities ?? [],
+    externalIcalUrl: property.external_ical_url,
   });
 }

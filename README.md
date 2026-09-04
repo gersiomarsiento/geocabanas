@@ -42,9 +42,10 @@ Then run the dev server:
 npm run dev
 ```
 
-Each property's Booking.com iCal export URL is stored per-property in the
-database (`properties.booking_ical_url`), not as an env var — set it from
-the admin panel or directly in Supabase.
+Each property's external iCal export URL (Booking.com, Airbnb, or
+whichever platform that property uses) is stored per-property in the
+database (`properties.external_ical_url`), not as an env var — set it
+from the admin panel or directly in Supabase.
 
 ## Database setup
 

@@ -125,7 +125,7 @@ export default function ReviewsSection() {
       aria-labelledby="reviews-title"
       className="w-full py-10 md:py-16 bg-linear-180 from-primary to-secondary-50"
     >
-      <div className="mx-auto max-w-360">
+      <div className="mx-auto max-w-354">
         <div className="mb-6 px-3 md:px-6 text-center md:mb-10">
           <h2
             id="reviews-title"

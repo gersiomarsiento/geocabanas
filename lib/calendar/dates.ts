@@ -75,7 +75,7 @@ export function enumerateRange(start: DateParts, end: DateParts): string[] {
 
 // Expands [{start, end}] ranges into a flat Set of individual "YYYY-MM-DD"
 // keys, so day-lookups in the grid are O(1). `end` is treated as checkout
-// day (exclusive), matching how Booking.com's iCal feed represents stays.
+// day (exclusive), matching how External site's iCal feed represents stays.
 export function expandRangesToDateSet(
   ranges: { start: string; end: string }[],
 ): Set<string> {

@@ -25,6 +25,8 @@ export type Property = {
   petsAllowed: boolean;
   /** Array of amenity ids — see lib/amenities.ts for the option list. */
   amenities: string[];
+  /** external iCal export URL for this specific property. null if not set. */
+  externalIcalUrl: string | null;
 };
 
 export type DayRate = {
@@ -69,4 +71,6 @@ export type PropertySettingsUpdate = {
   childrenAllowed?: boolean;
   petsAllowed?: boolean;
   amenities?: string[];
+  /** Pass "" (or null) explicitly to clear it. */
+  externalIcalUrl?: string | null;
 };

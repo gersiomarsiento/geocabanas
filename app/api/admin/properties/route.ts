@@ -29,7 +29,8 @@ export async function GET() {
       max_guests,
       children_allowed,
       pets_allowed,
-      amenities
+      amenities,
+      external_ical_url
     `,
     )
     .order("created_at", { ascending: true });
@@ -52,6 +53,7 @@ export async function GET() {
     childrenAllowed: property.children_allowed,
     petsAllowed: property.pets_allowed,
     amenities: property.amenities ?? [],
+    externalIcalUrl: property.external_ical_url,
   }));
 
   return NextResponse.json(properties);
@@ -129,5 +131,6 @@ export async function POST(request: Request) {
     childrenAllowed: property.children_allowed,
     petsAllowed: property.pets_allowed,
     amenities: property.amenities ?? [],
+    externalIcalUrl: property.external_ical_url,
   });
 }

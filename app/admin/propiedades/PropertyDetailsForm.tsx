@@ -24,6 +24,7 @@ export default function PropertyDetailsForm({
     childrenAllowed: property.childrenAllowed,
     petsAllowed: property.petsAllowed,
     amenities: property.amenities,
+    externalIcalUrl: property.externalIcalUrl,
   });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{
@@ -163,6 +164,28 @@ export default function PropertyDetailsForm({
             );
           })}
         </div>
+      </div>
+
+      <div className="mt-5">
+        <label className="block">
+          <span className="mb-1.5 block text-sm font-medium text-zinc-600">
+            URL de exportación iCal de Airbnb
+          </span>
+          <input
+            type="url"
+            placeholder="https://es.airbnb.com/calendar/ical/00000000.ics?..."
+            value={draft.externalIcalUrl ?? ""}
+            onChange={(e) =>
+              setDraft((d) => ({ ...d, externalIcalUrl: e.target.value }))
+            }
+            className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
+          />
+          <span className="mt-1 block text-xs text-zinc-400">
+            Se usa para bloquear automáticamente en este sitio las fechas
+            ocupadas en Airbnb. Dejalo vacío si esta cabaña no está publicada
+            ahí.
+          </span>
+        </label>
       </div>
 
       <button

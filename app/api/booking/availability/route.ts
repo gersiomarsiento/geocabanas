@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     let query = supabaseAdmin
       .from("properties")
       .select(
-        "id, name, slug, currency, default_price, default_min_stay, booking_ical_url",
+        "id, name, slug, currency, default_price, default_min_stay, external_ical_url",
       )
       .limit(1);
     if (slug) query = query.eq("slug", slug);
@@ -42,8 +42,8 @@ export async function GET(request: NextRequest) {
     endDateObj.setDate(endDateObj.getDate() + daysAhead);
     const end = isoDate(endDateObj);
 
-    const icalBookedDates = property.booking_ical_url
-      ? await getBookedRanges(property.booking_ical_url)
+    const icalBookedDates = property.external_ical_url
+      ? await getBookedRanges(property.external_ical_url)
           .then((ranges) => expandRangesToDateSet(ranges))
           .catch((err) => {
             console.error("iCal fetch failed for visitor calendar:", err);

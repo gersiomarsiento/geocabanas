@@ -55,7 +55,7 @@ export async function POST(request: Request) {
   const { data: property, error: propertyError } = await supabaseAdmin
     .from("properties")
     .select(
-      "id, name, default_price, default_min_stay, deposit_percentage, booking_ical_url",
+      "id, name, default_price, default_min_stay, deposit_percentage, external_ical_url",
     )
     .eq("id", propertyId)
     .single();
@@ -78,8 +78,8 @@ export async function POST(request: Request) {
   // --- Re-check availability for every night, same three sources the
   // calendars use (iCal, calendar_days overrides, existing reservations) ---
 
-  const icalBookedDates = property.booking_ical_url
-    ? await getBookedRanges(property.booking_ical_url)
+  const icalBookedDates = property.external_ical_url
+    ? await getBookedRanges(property.external_ical_url)
         .then((ranges) => expandRangesToDateSet(ranges))
         .catch(() => new Set<string>()) // fail open on iCal errors — don't block a real booking over a feed hiccup
     : new Set<string>();

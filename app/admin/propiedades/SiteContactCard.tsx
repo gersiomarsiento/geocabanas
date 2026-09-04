@@ -5,9 +5,13 @@
 import { useEffect, useState } from "react";
 
 interface SiteSettingsResponse {
+  businessName: string | null;
+  businessAddress: string | null;
   contactWhatsapp: string | null;
+  contactPhone: string | null;
   contactEmail: string | null;
   contactInstagram: string | null;
+  contactFacebook: string | null;
   mapLatitude: number | null;
   mapLongitude: number | null;
   mapAddress: string | null;
@@ -31,9 +35,13 @@ export default function SiteContactCard() {
       })
       .then((data) =>
         setDraft({
+          businessName: data.businessName,
+          businessAddress: data.businessAddress,
           contactWhatsapp: data.contactWhatsapp,
+          contactPhone: data.contactPhone,
           contactEmail: data.contactEmail,
           contactInstagram: data.contactInstagram,
+          contactFacebook: data.contactFacebook,
           mapLatitude: data.mapLatitude,
           mapLongitude: data.mapLongitude,
           mapAddress: data.mapAddress,
@@ -52,9 +60,13 @@ export default function SiteContactCard() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          businessName: draft.businessName ?? "",
+          businessAddress: draft.businessAddress ?? "",
           contactWhatsapp: draft.contactWhatsapp ?? "",
+          contactPhone: draft.contactPhone ?? "",
           contactEmail: draft.contactEmail ?? "",
           contactInstagram: draft.contactInstagram ?? "",
+          contactFacebook: draft.contactFacebook ?? "",
           mapLatitude: draft.mapLatitude,
           mapLongitude: draft.mapLongitude,
           mapAddress: draft.mapAddress ?? "",
@@ -80,6 +92,58 @@ export default function SiteContactCard() {
         <p className="text-sm text-zinc-500  ">Cargando…</p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
+              Nombre del negocio
+            </span>
+            <input
+              type="text"
+              value={draft.businessName ?? ""}
+              onChange={(e) =>
+                setDraft((d) =>
+                  d ? { ...d, businessName: e.target.value } : d,
+                )
+              }
+              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
+              Teléfono (texto visible, ej: +598 98 583 384)
+            </span>
+            <input
+              type="text"
+              value={draft.contactPhone ?? ""}
+              onChange={(e) =>
+                setDraft((d) =>
+                  d ? { ...d, contactPhone: e.target.value } : d,
+                )
+              }
+              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
+            />
+          </label>
+
+          <label className="block sm:col-span-2">
+            <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
+              Dirección del negocio (una línea por renglón)
+            </span>
+            <textarea
+              rows={3}
+              value={draft.businessAddress ?? ""}
+              onChange={(e) =>
+                setDraft((d) =>
+                  d ? { ...d, businessAddress: e.target.value } : d,
+                )
+              }
+              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
+            />
+            <span className="mt-1 block text-xs text-zinc-400">
+              Se muestra junto al logo en la sección de contacto — no tiene por
+              qué coincidir con la dirección del mapa más abajo.
+            </span>
+          </label>
+
           <label className="block">
             <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
               WhatsApp (sin + ni espacios, ej: 59899123456)
@@ -122,6 +186,23 @@ export default function SiteContactCard() {
               onChange={(e) =>
                 setDraft((d) =>
                   d ? { ...d, contactInstagram: e.target.value } : d,
+                )
+              }
+              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-medium text-zinc-600  ">
+              Facebook (URL completa)
+            </span>
+            <input
+              type="url"
+              placeholder="https://www.facebook.com/..."
+              value={draft.contactFacebook ?? ""}
+              onChange={(e) =>
+                setDraft((d) =>
+                  d ? { ...d, contactFacebook: e.target.value } : d,
                 )
               }
               className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
@@ -207,9 +288,7 @@ export default function SiteContactCard() {
       {message && (
         <p
           className={`mt-3 text-sm font-medium ${
-            message.type === "success"
-              ? "text-emerald-600 "
-              : "text-red-600 "
+            message.type === "success" ? "text-emerald-600 " : "text-red-600 "
           }`}
         >
           {message.text}

@@ -26,7 +26,7 @@ export async function isDateAvailable(
   propertyId: string,
   date: string,
 ): Promise<AvailabilityResult> {
-  // 1. Revisar Booking.com
+  // 1. Revisar External site
   const { data: property, error: propertyError } = await supabaseAdmin
     .from("properties")
     .select("*")
@@ -37,8 +37,8 @@ export async function isDateAvailable(
     throw new Error("Property not found");
   }
 
-  const bookingRanges = property.booking_ical_url
-    ? await getBookedRanges(property.booking_ical_url)
+  const bookingRanges = property.external_ical_url
+    ? await getBookedRanges(property.external_ical_url)
     : [];
 
   const bookedExternally = bookingRanges.some((range) => {
@@ -144,7 +144,7 @@ export async function getRangeAvailability(
 ): Promise<RangeAvailability> {
   const { data: property, error: propertyError } = await supabaseAdmin
     .from("properties")
-    .select("id, default_price, default_min_stay, booking_ical_url")
+    .select("id, default_price, default_min_stay, external_ical_url")
     .eq("id", propertyId)
     .single();
 
@@ -152,8 +152,8 @@ export async function getRangeAvailability(
     throw new Error("Property not found");
   }
 
-  const icalBookedDates = property.booking_ical_url
-    ? await getBookedRanges(property.booking_ical_url)
+  const icalBookedDates = property.external_ical_url
+    ? await getBookedRanges(property.external_ical_url)
         .then((ranges) => expandRangesToDateSet(ranges))
         .catch(() => new Set<string>())
     : new Set<string>();

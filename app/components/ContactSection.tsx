@@ -16,9 +16,13 @@ import {
 
 interface SiteSettingsResponse {
   logoUrl: string | null;
+  businessName: string | null;
+  businessAddress: string | null;
   contactWhatsapp: string | null;
+  contactPhone: string | null;
   contactEmail: string | null;
   contactInstagram: string | null;
+  contactFacebook: string | null;
   mapLatitude: number | null;
   mapLongitude: number | null;
   mapAddress: string | null;
@@ -56,16 +60,20 @@ export default function ContactSection() {
 
   const {
     logoUrl,
+    businessName,
+    businessAddress,
     contactWhatsapp,
+    contactPhone,
     contactEmail,
     contactInstagram,
+    contactFacebook,
     mapLatitude,
     mapLongitude,
     mapAddress,
   } = settings;
   const hasMap = mapLatitude != null && mapLongitude != null;
   const hasAnyContact = Boolean(
-    contactWhatsapp || contactEmail || contactInstagram,
+    contactWhatsapp || contactEmail || contactInstagram || contactFacebook,
   );
 
   if (!hasAnyContact && !hasMap) return null;
@@ -81,34 +89,41 @@ export default function ContactSection() {
       id="contact-section"
       className="w-full border border-zinc-200 bg-secondary-100 p-6 py-10 shadow-sm    "
     >
-      <div className="max-w-360 md:flex md:justify-between w-full justify-self-center md:px-6 ">
+      <div className="max-w-354 md:flex md:justify-between w-full justify-self-center md:px-6 ">
         <div className="md:w-1/2 relative">
           <h2 className="mb-4">{t("titulo")}</h2>
           {logoUrl && (
             <Image
               src={logoUrl}
-              alt="Geocabañas"
+              alt={businessName ?? "Logo"}
               width={120}
               height={30}
               className="mb-3 h-14 w-auto brightness-0"
             />
           )}
-          <h4 className="font-bold">Geocabañas</h4>
-          <p>Danubio y San Francisco</p>
-          <p>Punta del Diablo, Rocha</p>
-          <p>Uruguay</p>
-          <p className="flex gap-2 items-center mt-2">
-            <span>
-              <PhoneIcon />
-            </span>
-            +598 98 583 384
-          </p>
-          <p className="flex gap-2 items-center mt-2">
-            <span>
-              <LetterIcon />
-            </span>
-            reservas@geocabañas.com.uy
-          </p>
+          {businessName && <h4 className="font-bold">{businessName}</h4>}
+          {businessAddress &&
+            businessAddress
+              .split("\n")
+              .map((line) => line.trim())
+              .filter(Boolean)
+              .map((line, i) => <p key={i}>{line}</p>)}
+          {contactPhone && (
+            <p className="flex gap-2 items-center mt-2">
+              <span>
+                <PhoneIcon />
+              </span>
+              {contactPhone}
+            </p>
+          )}
+          {contactEmail && (
+            <p className="flex gap-2 items-center mt-2">
+              <span>
+                <LetterIcon />
+              </span>
+              {contactEmail}
+            </p>
+          )}
           {hasAnyContact && (
             <div className="my-6 md:mb-0 flex flex-wrap gap-3">
               {contactWhatsapp && (
@@ -131,14 +146,16 @@ export default function ContactSection() {
                   <InstagramIcon className="h-8 w-8" />
                 </a>
               )}
-              <a
-                href="https://www.facebook.com/GeoPuntadelDiablo/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-[#1877f2] hover:text-primary-foreground"
-              >
-                <FacebookIcon className="h-8 w-8" />
-              </a>
+              {contactFacebook && (
+                <a
+                  href={contactFacebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-[#1877f2] hover:text-primary-foreground"
+                >
+                  <FacebookIcon className="h-8 w-8" />
+                </a>
+              )}
             </div>
           )}
         </div>
