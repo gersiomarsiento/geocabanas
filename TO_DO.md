@@ -6,28 +6,28 @@ adopted 2026-09-02, so anything before that date in git history may still
 show the old resolved-notes style.)
 
 See also `NEW_CLIENT_SETUP.md` — a couple of items below (translations,
-seed data) are referenced from there too, since they directly affect how
-much manual work a new client instance needs. Update that file's affected
-steps as those items get resolved here.
-
-## Refactor opportunity
-
-- The availability-precedence logic (reservation → calendar_days override
-  → iCal → default) is duplicated across four real routes: visitor
-  availability, admin availability, reservation creation, and
-  `booking/search` + `reservations/group` sharing a fourth copy via
-  `lib/booking/availability.ts`. Worth factoring into one shared function
-  so none of them can drift apart from each other — the more places this
-  lives, the more likely one of them quietly diverges.
+seed data, bank account) are referenced from there too, since they
+directly affect how much manual work a new client instance needs.
+Update that file's affected steps as those items get resolved here.
 
 ## Translations audit
 
-- **Missing `en`/`pt` values** on content that *is* in the i18n system:
-  FAQ questions/answers, property descriptions, and site-settings
-  hero/about copy are all localized `jsonb`, but the admin routes for
-  all of them only ever write the `es` key. Decide how `en`/`pt` should
-  actually get populated — admin UI fields per locale, or a separate
-  translation pass/service — and build it.
+- **Missing `en`/`pt` values** on FAQ questions/answers, property
+  descriptions, and site-settings hero/about copy (all localized
+  `jsonb`, admin only ever writes the `es` key). **Deliberately out of
+  scope for now** — discussed 2026-09-02: admins are expected to be
+  Spanish-only for the foreseeable future, so there's no one to type
+  `en`/`pt` values even if the admin UI supported it. `getLocalized()`'s
+  existing fallback to `es` covers the gap in the meantime; non-Spanish
+  visitors just see Spanish for this dynamic content, same as today.
+  Eventual direction, whenever this gets picked back up: let admins
+  supply their own `en`/`pt` translations per field (not auto-translate
+  via an API) — revisit then, don't build toward auto-translation.
+- **Reservation confirmation/admin-notification emails are hardcoded
+  Spanish** (`lib/email/reservationEmails.ts`) — a non-Spanish-speaking
+  guest gets a Spanish confirmation email regardless of site locale.
+  Same deliberate-scope reasoning as above; revisit together whenever
+  the translations item gets picked back up.
 
 ## Product gaps
 
@@ -37,11 +37,14 @@ steps as those items get resolved here.
   `calendar_days`, and a couple of FAQs would make spinning up a new demo
   or client instance much faster. Not started yet — deliberately saved
   for last.
-- **Hardcoded-business-info audit isn't fully done.** `ContactSection.tsx`
-  is fixed, but `lib/email/reservationEmails.ts` templates and
-  `app/layout.tsx` metadata haven't been checked for the same pattern
-  (business name/contact info baked into code instead of pulled from
-  `site_settings`).
+- **Deposit bank-account info is hardcoded** in the guest confirmation
+  email fallback (`lib/email/reservationEmails.ts` — `BROU: xxxxxxxx`).
+  Discussed 2026-09-08: `site_settings` has no column for this, and
+  adding one was deliberately deferred rather than done as a drive-by
+  change. Each new client instance currently needs this line manually
+  edited in code — worth a `site_settings` column (e.g.
+  `deposit_account_info`) whenever this gets picked up, same spirit as
+  the seed-data item above.
 
 ## Backlog / revisit later
 

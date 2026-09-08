@@ -1,9 +1,12 @@
 // app/api/admin/availability/route.ts
 
-import { nextDate, expandRangesToDateSet } from "@/lib/calendar/dates";
+import { nextDate } from "@/lib/calendar/dates";
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { getBookedRanges } from "@/lib/booking/bookingCalendar";
+import {
+  getPropertyAvailabilityDays,
+  getIcalBookedDates,
+} from "@/lib/booking/availability";
 import type {
   AvailabilityResponse,
   BulkUpdatePayload,
@@ -35,87 +38,14 @@ export async function GET(request: Request) {
   }
 
   const daysInMonth = new Date(year, month, 0).getDate();
-
   const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
   const endDate = `${year}-${String(month).padStart(2, "0")}-${daysInMonth}`;
 
-  // NEW: fetch the External site feed alongside overrides/reservations. If
-  // it fails (feed down, bad URL), don't take the whole admin calendar
-  // down with it — fall back to "no iCal data" for this render.
-  const icalPromise = property.external_ical_url
-    ? getBookedRanges(property.external_ical_url)
-        .then((ranges) => expandRangesToDateSet(ranges))
-        .catch((err) => {
-          console.error("iCal fetch failed for admin calendar:", err);
-          return new Set<string>();
-        })
-    : Promise.resolve(new Set<string>());
-
-  const [{ data: overrides }, { data: reservations }, icalBookedDates] =
-    await Promise.all([
-      supabaseAdmin
-        .from("calendar_days")
-        .select("*")
-        .eq("property_id", propertyId)
-        .gte("date", startDate)
-        .lte("date", endDate),
-
-      supabaseAdmin
-        .from("reservations")
-        .select("*")
-        .eq("property_id", propertyId)
-        .in("status", ["pending", "confirmed"])
-        .lte("start_date", endDate)
-        .gte("end_date", startDate),
-
-      icalPromise,
-    ]);
-
-  const days: DayRate[] = [];
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-
-    const override = overrides?.find(
-      (item) => String(item.date).slice(0, 10) === date,
-    );
-
-    // CHANGED: no longer filtered to `status !== "cancelled"` after the
-    // fact — the query above already only fetches pending/confirmed, so
-    // any match here is by definition active.
-    const activeReservation = reservations?.find(
-      (item) => date >= item.start_date && date < item.end_date,
-    );
-
-    const icalBooked = icalBookedDates.has(date);
-
-    // Precedence: an active reservation is your own authoritative data
-    // and always wins. Otherwise an explicit override wins. Otherwise
-    // fall back to what External site's feed says.
-    let available: boolean;
-    if (activeReservation) {
-      available = false;
-    } else if (override?.status === "blocked") {
-      available = false;
-    } else if (override?.status === "available") {
-      available = true; // force-open, meaningful for overriding stale iCal data
-    } else if (icalBooked) {
-      available = false;
-    } else {
-      available = true;
-    }
-
-    days.push({
-      date,
-      available,
-      // CHANGED: was `reservation?.status === "confirmed"` — a pending
-      // reservation (like the one that caused the earlier confusion)
-      // now correctly shows as reserved too.
-      reserved: Boolean(activeReservation),
-      price: Number(override?.price ?? property.default_price ?? 0),
-      minStay: override?.min_stay ?? property.default_min_stay ?? null,
-    });
-  }
+  const days: DayRate[] = await getPropertyAvailabilityDays(
+    propertyId,
+    startDate,
+    endDate,
+  );
 
   const response: AvailabilityResponse = {
     propertyId,
@@ -188,14 +118,7 @@ export async function PATCH(request: Request) {
 
   // NEW: same iCal fetch GET uses, so PATCH knows which dates are
   // Booking.com/Airbnb conflicts, not just internal reservation conflicts.
-  const icalBookedDates = property.external_ical_url
-    ? await getBookedRanges(property.external_ical_url)
-        .then((ranges) => expandRangesToDateSet(ranges))
-        .catch((err) => {
-          console.error("iCal fetch failed during PATCH:", err);
-          return new Set<string>();
-        })
-    : new Set<string>();
+  const icalBookedDates = await getIcalBookedDates(property.external_ical_url);
 
   const updatedDates: string[] = [];
   const skippedDates: {

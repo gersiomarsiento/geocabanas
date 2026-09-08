@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
 import { ACTIVE_THEME } from "@/lib/site/theme";
+import { getContactSettings } from "@/lib/site/settings";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,10 +15,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "GEOCABAÑAS - Punta del Diablo",
-  description: "GEOCABAÑAS - Punta del Diablo",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { businessName } = await getContactSettings();
+  const title = businessName ?? "Cabañas";
+
+  return {
+    title,
+    description: title,
+  };
+}
 
 export default async function RootLayout({
   children,
@@ -33,6 +39,9 @@ export default async function RootLayout({
       data-theme={ACTIVE_THEME}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <meta name="apple-mobile-web-app-title" content="Geo Cabañas" />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

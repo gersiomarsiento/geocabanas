@@ -6,13 +6,13 @@ import type {
   BulkUpdatePayload,
   DayRate,
   Property,
-  PropertySettingsUpdate,
+  // PropertySettingsUpdate,
 } from "@/types/admin-availability";
 import {
   type DateParts,
   toDate,
   toDateKey,
-  enumerateRange,
+  // enumerateRange,
   startOfToday,
   buildCalendarDays,
 } from "@/lib/calendar/dates";
@@ -175,7 +175,7 @@ export default function AdminAvailabilityCalendar() {
   function handleDayClick(day: number) {
     const clicked: DateParts = { year: viewYear, month: viewMonth, day };
     const clickedTime = toDate(clicked).getTime();
-    const rate = getRate(toDateKey(clicked));
+    // const rate = getRate(toDateKey(clicked));
 
     // Past days can't be edited. Reserved days CAN be selected — the
     // apply flow below already knows how to detect the conflicting
@@ -410,52 +410,52 @@ export default function AdminAvailabilityCalendar() {
   }
 
   // --- Property-level settings (default price, default min stay, min reservation fee) ---
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [settingsDraft, setSettingsDraft] = useState<PropertySettingsUpdate>(
-    {},
-  );
-  const [settingsSaving, setSettingsSaving] = useState(false);
-  const [settingsMessage, setSettingsMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
+  // const [settingsOpen, setSettingsOpen] = useState(false);
+  // const [settingsDraft, setSettingsDraft] = useState<PropertySettingsUpdate>(
+  //   {},
+  // );
+  // const [settingsSaving, setSettingsSaving] = useState(false);
+  // const [settingsMessage, setSettingsMessage] = useState<{
+  //   type: "success" | "error";
+  //   text: string;
+  // } | null>(null);
 
-  useEffect(() => {
-    if (!selectedProperty) return;
-    setSettingsDraft({
-      defaultPrice: selectedProperty.defaultPrice,
-      defaultMinStay: selectedProperty.defaultMinStay,
-      minReservationFee: selectedProperty.minReservationFee,
-    });
-  }, [selectedProperty]);
+  // useEffect(() => {
+  //   if (!selectedProperty) return;
+  //   setSettingsDraft({
+  //     defaultPrice: selectedProperty.defaultPrice,
+  //     defaultMinStay: selectedProperty.defaultMinStay,
+  //     minReservationFee: selectedProperty.minReservationFee,
+  //   });
+  // }, [selectedProperty]);
 
-  async function saveSettings() {
-    if (!selectedProperty) return;
-    setSettingsSaving(true);
-    setSettingsMessage(null);
-    try {
-      const res = await fetch(`/api/admin/properties/${selectedProperty.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(settingsDraft),
-      });
-      if (!res.ok) throw new Error("No se pudo guardar la configuración");
-      setProperties(
-        (prev) =>
-          prev?.map((p) =>
-            p.id === selectedProperty.id ? { ...p, ...settingsDraft } : p,
-          ) ?? null,
-      );
-      setSettingsMessage({ type: "success", text: "Configuración guardada." });
-    } catch (e) {
-      setSettingsMessage({
-        type: "error",
-        text: e instanceof Error ? e.message : "Error desconocido",
-      });
-    } finally {
-      setSettingsSaving(false);
-    }
-  }
+  // async function saveSettings() {
+  //   if (!selectedProperty) return;
+  //   setSettingsSaving(true);
+  //   setSettingsMessage(null);
+  //   try {
+  //     const res = await fetch(`/api/admin/properties/${selectedProperty.id}`, {
+  //       method: "PATCH",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(settingsDraft),
+  //     });
+  //     if (!res.ok) throw new Error("No se pudo guardar la configuración");
+  //     setProperties(
+  //       (prev) =>
+  //         prev?.map((p) =>
+  //           p.id === selectedProperty.id ? { ...p, ...settingsDraft } : p,
+  //         ) ?? null,
+  //     );
+  //     setSettingsMessage({ type: "success", text: "Configuración guardada." });
+  //   } catch (e) {
+  //     setSettingsMessage({
+  //       type: "error",
+  //       text: e instanceof Error ? e.message : "Error desconocido",
+  //     });
+  //   } finally {
+  //     setSettingsSaving(false);
+  //   }
+  // }
 
   const money = currencyFormatter(selectedProperty?.currency ?? "UYU");
   const selectionLabel =

@@ -6,6 +6,10 @@
 // second ago), so this is the actual source of truth for "can this
 // reservation happen."
 //
+// Availability/pricing/min-stay checks now come from getStayAvailability
+// (lib/booking/availability.ts) instead of a fourth inline copy of the
+// same logic — see TO_DO.md "Refactor opportunity".
+//
 // ASSUMPTION: reservations has `total_price` and `deposit_amount`
 // numeric columns, and `status` defaulting to 'pending' — matching the
 // schema from early on. If those columns aren't actually there, this
@@ -13,8 +17,8 @@
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { getBookedRanges } from "@/lib/booking/bookingCalendar";
-import { expandRangesToDateSet, nextDate, isoDate } from "@/lib/calendar/dates";
+import { getStayAvailability } from "@/lib/booking/availability";
+import { isoDate } from "@/lib/calendar/dates";
 import { sendReservationEmails } from "@/lib/email/reservationEmails";
 
 interface ReservationRequest {
@@ -75,76 +79,33 @@ export async function POST(request: Request) {
     );
   }
 
-  // --- Re-check availability for every night, same three sources the
-  // calendars use (iCal, calendar_days overrides, existing reservations) ---
+  const availability = await getStayAvailability(
+    propertyId,
+    startDate,
+    endDate,
+  );
 
-  const icalBookedDates = property.external_ical_url
-    ? await getBookedRanges(property.external_ical_url)
-        .then((ranges) => expandRangesToDateSet(ranges))
-        .catch(() => new Set<string>()) // fail open on iCal errors — don't block a real booking over a feed hiccup
-    : new Set<string>();
-
-  const [{ data: overrides }, { data: existingReservations }] =
-    await Promise.all([
-      supabaseAdmin
-        .from("calendar_days")
-        .select("date, status, price, min_stay")
-        .eq("property_id", propertyId)
-        .gte("date", startDate)
-        .lt("date", endDate),
-
-      supabaseAdmin
-        .from("reservations")
-        .select("start_date, end_date")
-        .eq("property_id", propertyId)
-        .in("status", ["pending", "confirmed"])
-        .lt("start_date", endDate)
-        .gt("end_date", startDate),
-    ]);
-
-  if (existingReservations && existingReservations.length > 0) {
+  if (!availability.available) {
     return NextResponse.json(
-      { error: "Esas fechas ya no están disponibles. Elegí otra estadía." },
+      {
+        error: availability.blockingDate
+          ? `La fecha ${availability.blockingDate} ya no está disponible. Elegí otra estadía.`
+          : "Esas fechas ya no están disponibles. Elegí otra estadía.",
+      },
       { status: 409 },
     );
   }
 
-  let totalPrice = 0;
-  let nights = 0;
-  let current = startDate;
-
-  while (current < endDate) {
-    const override = overrides?.find(
-      (item) => String(item.date).slice(0, 10) === current,
-    );
-
-    const blocked = override?.status === "blocked";
-    const forcedOpen = override?.status === "available";
-    const icalBooked = icalBookedDates.has(current);
-
-    const unavailable = !forcedOpen && (blocked || icalBooked);
-    if (unavailable) {
-      return NextResponse.json(
-        {
-          error: `La fecha ${current} ya no está disponible. Elegí otra estadía.`,
-        },
-        { status: 409 },
-      );
-    }
-
-    totalPrice += override?.price ?? property.default_price ?? 0;
-    nights += 1;
-    current = nextDate(current);
-  }
-
-  const minStay = property.default_min_stay ?? 1;
-  if (nights < minStay) {
+  if (!availability.minStayOk) {
     return NextResponse.json(
-      { error: `La estadía mínima para estas fechas es de ${minStay} noches.` },
+      {
+        error: `La estadía mínima para estas fechas es de ${availability.requiredMinStay} noches.`,
+      },
       { status: 400 },
     );
   }
 
+  const { totalPrice, nights } = availability;
   const depositAmount = totalPrice * ((property.deposit_percentage ?? 0) / 100);
 
   const { data: reservation, error: insertError } = await supabaseAdmin

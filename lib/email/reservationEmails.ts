@@ -9,13 +9,14 @@ export interface ReservationEmailData {
   guestName: string;
   guestEmail: string;
   guestPhone: string | null;
-  startDate: string; // "YYYY-MM-DD"
+  startDate: string;
   endDate: string;
   nights: number;
   totalPrice: number;
   depositAmount: number;
   emailSubject: string | null;
   emailIntro: string | null;
+  contactWhatsapp: string | null;
 }
 
 function formatDate(dateISO: string): string {
@@ -50,7 +51,7 @@ export async function sendGuestConfirmationEmail(data: ReservationEmailData) {
         <p>La misma estará pendiente de confirmación durante las siguientes 24 horas. Para confirmar tu reserva, pedimos un depósito del 50% del total de la misma. En caso de no recibir el depósito, la reserva se cancelará y se liberarán las fechas en el calendario.</p>
         <p>Puedes hacer tu depósito a la siguiente cuenta:</p>
         <p>BROU: xxxxxxxx</p>
-        <p>Una vez realizada, contactanos por WhatsApp al +598 1234 1234 para enviarnos el comprobante.</p>`
+        <p>Una vez realizada, contactanos por WhatsApp al ${data.contactWhatsapp ?? ""}  para enviarnos el comprobante.</p>`
         }</div>
         <table style="width: 100%; margin: 16px 0; font-size: 14px; border-collapse: collapse;">
           <tr><td style="padding: 4px 0;">Check-in</td><td style="text-align: right;"><strong>${formatDate(data.startDate)}</strong></td></tr>
@@ -103,11 +104,19 @@ export async function sendAdminNotificationEmail(data: ReservationEmailData) {
 // and neither failure should ever undo the reservation itself — by the
 // time this runs, it's already committed to the DB.
 export async function sendReservationEmails(
-  data: Omit<ReservationEmailData, "emailSubject" | "emailIntro">,
+  data: Omit<
+    ReservationEmailData,
+    "emailSubject" | "emailIntro" | "contactWhatsapp"
+  >,
 ) {
-  const { emailSubject, emailIntro } = await getContactSettings();
-  const fullData: ReservationEmailData = { ...data, emailSubject, emailIntro };
-
+  const { emailSubject, emailIntro, contactWhatsapp } =
+    await getContactSettings();
+  const fullData: ReservationEmailData = {
+    ...data,
+    emailSubject,
+    emailIntro,
+    contactWhatsapp,
+  };
   const results = await Promise.allSettled([
     sendGuestConfirmationEmail(fullData),
     sendAdminNotificationEmail(fullData),

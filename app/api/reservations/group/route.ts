@@ -2,7 +2,7 @@
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { getRangeAvailability } from "@/lib/booking/availability";
+import { getStayAvailability  } from "@/lib/booking/availability";
 import { sendReservationEmails } from "@/lib/email/reservationEmails";
 
 interface GroupLeg {
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
   const revalidated = await Promise.all(
     legs.map(async (leg) => {
       const property = propertyRows.find((p) => p.id === leg.propertyId)!;
-      const availability = await getRangeAvailability(
+      const availability = await getStayAvailability(
         leg.propertyId,
         leg.startDate,
         leg.endDate,

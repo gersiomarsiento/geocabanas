@@ -1,15 +1,14 @@
 // app/api/booking/availability/route.ts
 //
-// REPLACES the current bookedRanges-only version. Now returns a
-// per-day array with price, merging the same three sources the admin
-// route uses (iCal, calendar_days overrides, reservations) — but
-// stripped down to only what a visitor should see: no guest info, no
-// internal reservation status detail, just available + price.
+// Per-day availability + price for the visitor-facing single-property
+// calendar. Precedence logic now comes from getPropertyAvailabilityDays
+// (lib/booking/availability.ts) instead of a fourth inline copy — see
+// TO_DO.md "Refactor opportunity".
 
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { getBookedRanges } from "@/lib/booking/bookingCalendar";
-import { expandRangesToDateSet, isoDate } from "@/lib/calendar/dates";
+import { getPropertyAvailabilityDays } from "@/lib/booking/availability";
+import { isoDate } from "@/lib/calendar/dates";
 import { BASE_CURRENCY } from "@/lib/currency";
 
 export async function GET(request: NextRequest) {
@@ -42,69 +41,7 @@ export async function GET(request: NextRequest) {
     endDateObj.setDate(endDateObj.getDate() + daysAhead);
     const end = isoDate(endDateObj);
 
-    const icalBookedDates = property.external_ical_url
-      ? await getBookedRanges(property.external_ical_url)
-          .then((ranges) => expandRangesToDateSet(ranges))
-          .catch((err) => {
-            console.error("iCal fetch failed for visitor calendar:", err);
-            return new Set<string>();
-          })
-      : new Set<string>();
-
-    const [{ data: overrides }, { data: reservations }] = await Promise.all([
-      supabaseAdmin
-        .from("calendar_days")
-        .select("date, status, price, min_stay")
-        .eq("property_id", property.id)
-        .gte("date", start)
-        .lte("date", end),
-
-      supabaseAdmin
-        .from("reservations")
-        .select("start_date, end_date")
-        .eq("property_id", property.id)
-        .in("status", ["pending", "confirmed"])
-        .lte("start_date", end)
-        .gte("end_date", start),
-    ]);
-
-    const days: {
-      date: string;
-      available: boolean;
-      price: number | null;
-      minStay: number | null;
-    }[] = [];
-
-    const cur = new Date(start);
-    const endTime = new Date(end).getTime();
-
-    while (cur.getTime() <= endTime) {
-      const date = isoDate(cur);
-
-      const override = overrides?.find(
-        (item) => String(item.date).slice(0, 10) === date,
-      );
-      const activeReservation = reservations?.find(
-        (item) => date >= item.start_date && date < item.end_date,
-      );
-      const icalBooked = icalBookedDates.has(date);
-
-      let available: boolean;
-      if (activeReservation) available = false;
-      else if (override?.status === "blocked") available = false;
-      else if (override?.status === "available") available = true;
-      else if (icalBooked) available = false;
-      else available = true;
-
-      days.push({
-        date,
-        available,
-        price: Number(override?.price ?? property.default_price ?? 0),
-        minStay: override?.min_stay ?? property.default_min_stay ?? null,
-      });
-
-      cur.setDate(cur.getDate() + 1);
-    }
+    const days = await getPropertyAvailabilityDays(property.id, start, end);
 
     return NextResponse.json({
       property: {
@@ -113,7 +50,12 @@ export async function GET(request: NextRequest) {
         slug: property.slug,
         currency: BASE_CURRENCY,
       },
-      days,
+      days: days.map(({ date, available, price, minStay }) => ({
+        date,
+        available,
+        price,
+        minStay,
+      })),
     });
   } catch (err) {
     console.error("Availability fetch failed:", err);

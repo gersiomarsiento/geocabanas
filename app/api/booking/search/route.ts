@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { getRangeAvailability } from "@/lib/booking/availability";
+import { getStayAvailability } from "@/lib/booking/availability";
 import { BASE_CURRENCY } from "@/lib/currency";
 
 const MAX_COMBO_SIZE = 4;
@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
   const results = await Promise.all(
     properties.map(async (property) => {
       try {
-        const availability = await getRangeAvailability(
+        const availability = await getStayAvailability(
           property.id,
           startDate,
           endDate,
