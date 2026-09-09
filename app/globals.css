@@ -59,6 +59,7 @@ html {
 }
 
 @theme inline {
+  --breakpoint-xs: 30rem;
   /* Flat semantic tokens — each points at the differently-named
      seed variable above, so runtime [data-theme] switching
      actually flows through instead of self-referencing. */

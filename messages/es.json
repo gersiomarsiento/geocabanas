@@ -16,7 +16,8 @@
   },
   "Reviews": {
     "titulo": "Lo que dicen nuestros huéspedes",
-    "subtitulo": "Experiencias de quienes nos visitaron"
+    "subtitulo": "Experiencias de quienes nos visitaron",
+    "cargando": "Cargando..."
   },
   "About": {
     "ariaLabel": "Quiénes somos y nuestras cabañas",

@@ -76,10 +76,17 @@ export default function BookingCalendar() {
   const months = t.raw("months") as string[];
 
   const { currency, rates } = useCurrency();
-  const today = startOfToday();
+  const [today, setToday] = useState<Date | null>(null);
+  const [viewYear, setViewYear] = useState<number | null>(null);
+  const [viewMonth, setViewMonth] = useState<number | null>(null);
 
-  const [viewYear, setViewYear] = useState(today.getFullYear());
-  const [viewMonth, setViewMonth] = useState(today.getMonth());
+  useEffect(() => {
+    const t = startOfToday();
+    setToday(t);
+    setViewYear(t.getFullYear());
+    setViewMonth(t.getMonth());
+  }, []);
+
   const [hoveredDay, setHoveredDay] = useState<number | null>(null);
 
   const [startDate, setStartDate] = useState<DateParts | null>(null);
@@ -209,13 +216,18 @@ export default function BookingCalendar() {
     return set;
   }, [days]);
 
-  const calendarDays = buildCalendarDays(viewYear, viewMonth);
+  const calendarDays =
+    viewYear !== null && viewMonth !== null
+      ? buildCalendarDays(viewYear, viewMonth)
+      : [];
 
-  const todayKey = toDateKey({
-    year: today.getFullYear(),
-    month: today.getMonth(),
-    day: today.getDate(),
-  });
+  const todayKey = today
+    ? toDateKey({
+        year: today.getFullYear(),
+        month: today.getMonth(),
+        day: today.getDate(),
+      })
+    : "";
 
   const stayTotal = useMemo(() => {
     if (!startDate || !endDate || !days) {
@@ -260,26 +272,29 @@ export default function BookingCalendar() {
   }
 
   function goToPreviousMonth() {
+    if (viewMonth === null || viewYear === null) return;
     setHoveredDay(null);
     if (viewMonth === 0) {
       setViewMonth(11);
-      setViewYear((y) => y - 1);
+      setViewYear((y) => (y ?? 0) - 1);
     } else {
-      setViewMonth((m) => m - 1);
+      setViewMonth((m) => (m ?? 0) - 1);
     }
   }
 
   function goToNextMonth() {
+    if (viewMonth === null || viewYear === null) return;
     setHoveredDay(null);
     if (viewMonth === 11) {
       setViewMonth(0);
-      setViewYear((y) => y + 1);
+      setViewYear((y) => (y ?? 0) + 1);
     } else {
-      setViewMonth((m) => m + 1);
+      setViewMonth((m) => (m ?? 0) + 1);
     }
   }
 
   function handleDayClick(day: number) {
+    if (!today || viewYear === null || viewMonth === null) return;
     const clicked: DateParts = { year: viewYear, month: viewMonth, day };
     const clickedTime = toDate(clicked).getTime();
 
@@ -391,6 +406,17 @@ export default function BookingCalendar() {
   }
 
   function getDayState(day: number) {
+    if (!today || viewYear === null || viewMonth === null) {
+      return {
+        isPast: false,
+        isToday: false,
+        isStart: false,
+        isEnd: false,
+        isInRange: false,
+        booked: false,
+        info: { date: "", available: false, price: null, minStay: null },
+      };
+    }
     const parts: DateParts = { year: viewYear, month: viewMonth, day };
     const key = toDateKey(parts);
     const time = toDate(parts).getTime();
@@ -432,6 +458,10 @@ export default function BookingCalendar() {
         {t("noSePudoCargarDisponibilidad")}
       </div>
     );
+  }
+
+  if (!today || viewYear === null || viewMonth === null) {
+    return <LoadingOverlay />;
   }
 
   return (

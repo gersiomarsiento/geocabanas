@@ -66,7 +66,12 @@ export default function SiteFaqCard() {
       const res = await fetch(`/api/admin/faqs/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(patch),
+        body: JSON.stringify({
+          ...(patch.question != null
+            ? { question: { es: patch.question } }
+            : {}),
+          ...(patch.answer != null ? { answer: { es: patch.answer } } : {}),
+        }),
       });
       if (!res.ok) throw new Error("No se pudo guardar");
     } catch (e) {

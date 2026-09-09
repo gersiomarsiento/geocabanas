@@ -12,22 +12,46 @@ Update that file's affected steps as those items get resolved here.
 
 ## Translations audit
 
-- **Missing `en`/`pt` values** on FAQ questions/answers, property
-  descriptions, and site-settings hero/about copy (all localized
-  `jsonb`, admin only ever writes the `es` key). **Deliberately out of
-  scope for now** — discussed 2026-09-02: admins are expected to be
-  Spanish-only for the foreseeable future, so there's no one to type
-  `en`/`pt` values even if the admin UI supported it. `getLocalized()`'s
-  existing fallback to `es` covers the gap in the meantime; non-Spanish
-  visitors just see Spanish for this dynamic content, same as today.
-  Eventual direction, whenever this gets picked back up: let admins
-  supply their own `en`/`pt` translations per field (not auto-translate
-  via an API) — revisit then, don't build toward auto-translation.
+- **Admin can now translate hero/about copy, FAQs, and reviews**
+  (2026-09-09): a "Traducciones" tab (`app/admin/traducciones/`) lets the
+  admin fill in `en`/`pt` for each field, reading/writing the raw
+  `{es,en,pt}` jsonb via a new aggregate `GET /api/admin/translations`
+  and the existing per-resource PATCH routes. The write-path bug where
+  those PATCH routes only ever wrote the `es` key (site-settings, faqs,
+  reviews) is fixed across the board. Property name/description
+  translation was explicitly deferred to a later session — not yet
+  scoped, may or may not need the same treatment depending on whether
+  properties have freeform text fields (unconfirmed).
+- **Public `ReviewsSection.tsx` may still read from the hardcoded
+  `REVIEWS` array instead of the `reviews` table** — the admin CRUD
+  (`SiteReviewsCard.tsx`, `/api/admin/reviews`) already existed before
+  this session, but whether the public-facing component was switched
+  over wasn't confirmed here. Worth checking before relying on the
+  Traducciones tab's review translations actually showing up on the
+  site.
 - **Reservation confirmation/admin-notification emails are hardcoded
-  Spanish** (`lib/email/reservationEmails.ts`) — a non-Spanish-speaking
-  guest gets a Spanish confirmation email regardless of site locale.
-  Same deliberate-scope reasoning as above; revisit together whenever
-  the translations item gets picked back up.
+  Spanish** (`lib/email/reservationEmails.ts`) — in progress. Scoped
+  2026-09-09, not yet built:
+  - Neither `POST /api/reservations` nor `POST /api/reservations/group`
+    accept a `locale` in the request body — the guest's selected
+    language never reaches the backend at all, which is the actual
+    blocker (not just missing translated strings).
+  - Static labels in the email HTML ("Check-in", "Total", "Seña
+    requerida", etc.) are hardcoded Spanish, as are `formatDate`/`money`
+    (`Intl` calls hardcoded to `es-UY`).
+  - Plan: add `locale` to `BookingCalendar.tsx` and the group-booking
+    form's POST bodies (via `useLocale()`); thread it through both API
+    routes into `sendReservationEmails`; move `emailSubject`/
+    `emailIntro` into the same localized-jsonb pattern as hero/about
+    (including the `SiteEmailCard.tsx` caller fix); move static labels
+    into a new `Email` namespace in `messages/*.json`, read server-side
+    (can't use `useTranslations()` outside React); localize
+    `formatDate`/`money` per locale (assumed `es-UY`/`en-US`/`pt-BR` —
+    unconfirmed, flag if wrong). Admin notification email intentionally
+    stays Spanish-only (internal, not guest-facing).
+  - Still need `lib/site/settings.ts`, `SiteEmailCard.tsx`, and the
+    group-booking form before continuing — that's where the next
+    session should pick up.
 
 ## Product gaps
 
@@ -55,3 +79,4 @@ Update that file's affected steps as those items get resolved here.
   cancelará," but nothing in the code actually enforces that 24-hour
   window — worth keeping in mind since the UI promise and the system's
   real behavior don't match yet, in case it becomes worth fixing later.
+  

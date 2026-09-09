@@ -1,11 +1,13 @@
 // app/api/admin/site-settings/route.ts
 //
-// PATCH -> updates contact/map fields on the singleton site_settings row.
+// PATCH -> updates contact/map/localized-content fields on the singleton site_settings row.
 
 // TODO: gate this route behind your admin auth/session check before ship.
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import type { LocalizedText } from "@/lib/i18n/getLocalized";
+
+type LocalizedFieldUpdate = Partial<Record<"es" | "en" | "pt", string>>;
 
 interface SiteSettingsUpdate {
   businessName?: string;
@@ -18,37 +20,51 @@ interface SiteSettingsUpdate {
   mapLatitude?: number;
   mapLongitude?: number;
   mapAddress?: string;
-  heroTitle?: string;
-  heroSubtitle?: string;
-  heroButtonText?: string;
+  heroTitle?: LocalizedFieldUpdate;
+  heroSubtitle?: LocalizedFieldUpdate;
+  heroButtonText?: LocalizedFieldUpdate;
   heroButtonHref?: string;
+  aboutTitle?: LocalizedFieldUpdate;
+  aboutText?: LocalizedFieldUpdate;
   emailSubject?: string;
   emailIntro?: string;
   exchangeRateUyu?: number;
   exchangeRateBrl?: number;
 }
 
-const LOCALIZED_HERO_FIELDS = [
+const LOCALIZED_FIELDS = [
   ["heroTitle", "hero_title"],
   ["heroSubtitle", "hero_subtitle"],
   ["heroButtonText", "hero_button_text"],
+  ["aboutTitle", "about_title"],
+  ["aboutText", "about_text"],
 ] as const;
+
+function pickLocales(value: LocalizedFieldUpdate): LocalizedFieldUpdate {
+  const result: LocalizedFieldUpdate = {};
+  for (const locale of ["es", "en", "pt"] as const) {
+    if (value[locale] != null) result[locale] = value[locale];
+  }
+  return result;
+}
 
 export async function PATCH(request: Request) {
   const body = (await request.json()) as SiteSettingsUpdate;
 
-  const needsHeroMerge = LOCALIZED_HERO_FIELDS.some(
+  const needsLocalizedMerge = LOCALIZED_FIELDS.some(
     ([key]) => body[key] != null,
   );
 
-  let currentHero: Record<string, LocalizedText | null> = {};
-  if (needsHeroMerge) {
+  let currentLocalized: Record<string, LocalizedText | null> = {};
+  if (needsLocalizedMerge) {
     const { data } = await supabaseAdmin
       .from("site_settings")
-      .select("hero_title, hero_subtitle, hero_button_text")
+      .select(
+        "hero_title, hero_subtitle, hero_button_text, about_title, about_text",
+      )
       .eq("id", "singleton")
       .single();
-    currentHero = data ?? {};
+    currentLocalized = data ?? {};
   }
 
   const update: Record<string, unknown> = {};
@@ -67,10 +83,13 @@ export async function PATCH(request: Request) {
   if (body.mapLongitude != null) update.map_longitude = body.mapLongitude;
   if (body.mapAddress != null) update.map_address = body.mapAddress;
 
-  for (const [bodyKey, column] of LOCALIZED_HERO_FIELDS) {
+  for (const [bodyKey, column] of LOCALIZED_FIELDS) {
     const value = body[bodyKey];
     if (value == null) continue;
-    update[column] = { ...(currentHero[column] ?? {}), es: value };
+    update[column] = {
+      ...(currentLocalized[column] ?? {}),
+      ...pickLocales(value),
+    };
   }
 
   if (body.heroButtonHref != null)

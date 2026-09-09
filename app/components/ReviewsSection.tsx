@@ -1,116 +1,39 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import Image from "next/image";
-// import Image from "../../public";
 
-type Review = {
-  id: number;
+interface PublicReview {
+  id: string;
   author: string;
   rating: number;
   source: "Google" | "Booking" | "Airbnb";
-  text: {
-    es: string;
-    en: string;
-    pt: string;
-  };
-};
-
-const REVIEWS: Review[] = [
-  {
-    id: 1,
-    author: "María",
-    rating: 5,
-    source: "Google",
-    text: {
-      es: "Un lugar hermoso, tranquilo y muy cerca de la playa. La cabaña estaba impecable y nos sentimos como en casa.",
-      en: "A beautiful, peaceful place very close to the beach. The cabin was spotless and we felt right at home.",
-      pt: "Um lugar lindo, tranquilo e muito perto da praia. A cabana estava impecável e nos sentimos em casa.",
-    },
-  },
-  {
-    id: 2,
-    author: "Juan",
-    rating: 5,
-    source: "Booking",
-    text: {
-      es: "Excelente ubicación y mucha tranquilidad. Todo estaba muy cuidado y la atención fue excelente.",
-      en: "Excellent location and very peaceful. Everything was very well maintained and the service was excellent.",
-      pt: "Excelente localização e muita tranquilidade. Tudo muito bem cuidado e o atendimento foi excelente.",
-    },
-  },
-  {
-    id: 3,
-    author: "Sofía",
-    rating: 5,
-    source: "Airbnb",
-    text: {
-      es: "Pasamos unos días increíbles. La cabaña es cómoda, linda y tiene todo lo necesario para disfrutar.",
-      en: "We had an amazing few days. The cabin is comfortable, beautiful, and has everything you need to enjoy your stay.",
-      pt: "Passamos dias incríveis. A cabana é confortável, bonita e tem tudo o que é necessário para aproveitar a estadia.",
-    },
-  },
-  {
-    id: 4,
-    author: "Lucas",
-    rating: 5,
-    source: "Airbnb",
-    text: {
-      es: "Un lugar tranquilo y acogedor. Disfrutamos mucho nuestra estadía y sin dudas volveríamos.",
-      en: "A peaceful and welcoming place. We really enjoyed our stay and would definitely come back.",
-      pt: "Um lugar tranquilo e acolhedor. Aproveitamos muito a estadia e com certeza voltaríamos.",
-    },
-  },
-  {
-    id: 5,
-    author: "Martín",
-    rating: 5,
-    source: "Google",
-    text: {
-      es: "Un lugar hermoso para descansar y desconectarse. Todo estuvo impecable y la atención fue excelente.",
-      en: "A beautiful place to relax and disconnect. Everything was spotless and the hospitality was excellent.",
-      pt: "Um lugar lindo para descansar e se desconectar. Tudo estava impecável e a hospitalidade foi excelente.",
-    },
-  },
-  {
-    id: 6,
-    author: "Camila",
-    rating: 5,
-    source: "Booking",
-    text: {
-      es: "La ubicación es excelente, muy cerca de la playa. La cabaña estaba limpia, cómoda y muy bien equipada.",
-      en: "The location is excellent, very close to the beach. The cabin was clean, comfortable, and very well equipped.",
-      pt: "A localização é excelente, muito perto da praia. A cabana estava limpa, confortável e muito bem equipada.",
-    },
-  },
-];
-
-const REVIEW_URLS = {
-  Google:
-    "https://www.google.com/travel/search?q=google%20maps%20geo%20punta%20del%20diablo&g2lb=4965990%2C72471280%2C72560029%2C72573224%2C72647020%2C72686036%2C72803964%2C72880339%2C72882230%2C72887409%2C73064764%2C121529350%2C121608706%2C121738283%2C121762713%2C121921500&hl=en-UY&gl=uy&cs=1&ssta=1&ts=CAEaRwopEicyJTB4OTU3MzJkNzBmNjNkYTJiNzoweGJjNjViMzUxNTkxYmY1MDISGhIUCgcI6g8QCRgHEgcI6g8QCRgIGAEyAhAA&qs=CAEyFENnc0lndXJ2eUpYcTdMSzhBUkFCOAJCCQkC9RtZUbNlvEIJCQL1G1lRs2W8&ap=ugEHcmV2aWV3cw&ictx=111&ved=0CAAQ5JsGahcKEwiIiNypgL-WAxUAAAAAHQAAAAAQAw",
-  Booking:
-    "https://www.booking.com/hotel/uy/geo-punta-del-diablo-apartamento-2.es.html?label=gen173nr-10CAso7QFCImdlby1wdW50YS1kZWwtZGlhYmxvLWFwYXJ0YW1lbnRvLTJIM1gEaO0BiAEBmAEzuAEXyAEM2AED6AEB-AEBiAIBqAIBuAL56rvUBsACAdICJDUwNzI4YmRjLWJmNjEtNGUwZS05NzRkLWYxYjQyMTU2ZGVjYdgCAeACAQ&sid=eef9a494f8a0517a1b1d224618efaf2f&dist=0&keep_landing=1&sb_price_type=total&type=total&#tab-reviews",
-  Airbnb:
-    "https://www.airbnb.com/rooms/22339840?source_impression_id=p3_1787771665_P3F5IL0NS9SVlTE0",
-};
+  url: string;
+  text: string;
+}
 
 function Stars({ rating }: { rating: number }) {
   return (
     <div className="flex gap-0.5 text-accent" aria-label={`${rating} de 5`}>
       {Array.from({ length: 5 }).map((_, index) => (
-        <span key={index}>★</span>
+        <span key={index} className={index < rating ? "" : "opacity-30"}>
+          ★
+        </span>
       ))}
     </div>
   );
 }
 
-function SourceBadge({ source }: { source: Review["source"] }) {
+function SourceBadge({ source }: { source: PublicReview["source"] }) {
   return (
-    <span className="rounded-full  px-2.5 py-1 text-xs font-medium">
+    <span className="rounded-full px-2.5 py-1 text-xs font-medium">
       <Image
         src={`/images/${source}.png`}
-        alt="Geocabañas"
+        alt={source}
         width={60}
         height={24}
-        className="w-auto "
+        className="w-auto"
       />
     </span>
   );
@@ -118,12 +41,79 @@ function SourceBadge({ source }: { source: Review["source"] }) {
 
 export default function ReviewsSection() {
   const t = useTranslations("Reviews");
-  const locale = useLocale() as "es" | "en" | "pt";
+  const locale = useLocale();
+  const [reviews, setReviews] = useState<PublicReview[] | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [width, setWidth] = useState(0);
+  const [isTransitionEnabled, setIsTransitionEnabled] = useState(true);
+
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    fetch(`/api/reviews?locale=${locale}`)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("No se pudieron cargar las reseñas");
+        }
+        return res.json() as Promise<PublicReview[]>;
+      })
+      .then((data) => {
+        setReviews(data);
+        if (data && data.length > 0) {
+          // Empezamos exactamente en el primer elemento del bloque del medio
+          setCurrentIndex(data.length);
+        }
+      })
+      .catch(() => setReviews([]));
+  }, [locale]);
+
+  // Efecto para pasar automáticamente cada 5 segundos
+  useEffect(() => {
+    if (!reviews || reviews.length === 0) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => prevIndex + 1);
+    }, 8000);
+
+    return () => clearInterval(interval);
+  }, [reviews]);
+
+  // Lógica de reseteo invisible para el loop infinito continuo
+  useEffect(() => {
+    if (!reviews || reviews.length === 0) return;
+    const n = reviews.length;
+
+    // Si llegamos al tercer bloque, teletransportamos de vuelta al bloque del medio de forma imperceptible
+    if (currentIndex >= n * 2) {
+      const timer = setTimeout(() => {
+        setIsTransitionEnabled(false); // Apagamos la transición para que el salto sea instantáneo
+        setCurrentIndex((prev) => prev - n);
+
+        // Reactivamos la transición en el siguiente ciclo de render
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            setIsTransitionEnabled(true);
+          });
+        });
+      }, 700); // Debe coincidir con la duración de la animación (duration-700)
+
+      return () => clearTimeout(timer);
+    }
+  }, [currentIndex, reviews]);
+
+  if (reviews && reviews.length === 0) return null;
+
+  // Triplicamos el array: [Bloque Izq (Últimas), Bloque Centro (Original), Bloque Der (Primeras)]
+  const extendedReviews = reviews ? [...reviews, ...reviews, ...reviews] : [];
 
   return (
     <section
       aria-labelledby="reviews-title"
-      className="w-full py-10 md:py-16 bg-linear-180 from-primary to-secondary-50"
+      className="w-full py-10 md:py-16 bg-linear-180 from-primary to-secondary-50 overflow-hidden"
     >
       <div className="mx-auto max-w-354">
         <div className="mb-6 px-3 md:px-6 text-center md:mb-10">
@@ -133,35 +123,78 @@ export default function ReviewsSection() {
           >
             {t("titulo")}
           </h2>
-
           <p className="mt-2 text-sm text-background">{t("subtitulo")}</p>
         </div>
 
-        {/* Contenedor con la máscara de desvanecimiento hacia los bordes */}
-        <div className="relative overflow-hidden mask-[linear-gradient(to_right,transparent,black_10%,black_90%,transparent)] [-webkit-mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
-          <div className="reviews-track flex w-max gap-4">
-            {[...REVIEWS, ...REVIEWS].map((review, index) => (
-              <article
-                key={`${review.id}-${index}`}
-                className="flex flex-col max-w-120 rounded-xl border border-zinc-200 bg-primary-50 p-5 shadow-sm transition hover:scale-[1.01]"
-              >
-                <a href={REVIEW_URLS[review.source]} target="_blank">
-                  <div className="flex items-center justify-between gap-3">
-                    <Stars rating={review.rating} />
-                    <SourceBadge source={review.source} />
-                  </div>
-                  <blockquote className="mt-4 flex-1 text-sm leading-6 text-zinc-700">
-                    “{review.text[locale]}”
-                  </blockquote>
-                  <p className="mt-5 text-sm font-semibold text-foreground">
-                    {review.author}
-                  </p>
-                </a>
-              </article>
-            ))}
+        {!reviews ? (
+          <p className="text-center text-sm text-background">{t("cargando")}</p>
+        ) : (
+          /* Contenedor con la máscara de desvanecimiento a los lados que ya tenías */
+          <div className="relative overflow-hidden xs:mask-[linear-gradient(to_right,transparent,black_15%,black_85%,transparent)] [xs:-webkit-mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)] py-4 px-4">
+            {/* Pista (Track) que se desliza suavemente de forma horizontal */}
+            <div
+              className={`flex items-center gap-6 ${
+                isTransitionEnabled
+                  ? "transition-transform duration-700 ease-out"
+                  : ""
+              }`}
+              style={{
+                // Calculamos cuánto se mueve la pista para que la card actual quede centrada
+                // Nota: Usamos un ancho fijo de card (ej. 400px / w-100) + el gap (24px / gap-6)
+                transform: `translateX(calc(50% - var(--card-half) - ${currentIndex} * (var(--card-width) + 24px)))`,
+                // transform: `translateX(calc(50% - ${ width < 768 ? "150px":"200px" } - ${currentIndex * (width < 768 ? 300 + 18 : 400 + 24)}px))`,
+              }}
+            >
+              {extendedReviews.map((review, index) => {
+                const isCenter = index === currentIndex;
+
+                return (
+                  <article
+                    key={`${review.id}-${index}`}
+                    onClick={() => setCurrentIndex(index)}
+                    className={`flex flex-col justify-between min-h-60 shrink-0 w-70 md:w-100 rounded-2xl border bg-primary-50 p-6 shadow-md cursor-pointer transition-all duration-700 ${
+                      isCenter
+                        ? "scale-105 border-0 shadow-xl opacity-100 z-10"
+                        : "scale-85 border-0 opacity-40 blur-[0.5px] hover:opacity-70"
+                    }`}
+                  >
+                    <a
+                      href={review.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <Stars rating={review.rating} />
+                        <SourceBadge source={review.source} />
+                      </div>
+                      <blockquote className="mt-4 flex-1 text-sm md:text-base leading-6 text-zinc-700 line-clamp-4">
+                        “{review.text}”
+                      </blockquote>
+                      <p className="mt-5 text-sm font-semibold text-foreground absolute bottom-5 right-10">
+                        — {review.author}
+                      </p>
+                    </a>
+                  </article>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
       </div>
+      {/* Definimos las métricas exactas por media query para que el cálculo del translate no falle */}
+      <style jsx>{`
+        div {
+          --card-width: 280px;
+          --card-half: 140px;
+        }
+        @media (min-width: 768px) {
+          div {
+            --card-width: 400px;
+            --card-half: 200px;
+          }
+        }
+      `}</style>
     </section>
   );
 }

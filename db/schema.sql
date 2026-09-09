@@ -266,6 +266,24 @@ create table site_settings (
 );
 
 
+-- ==========================
+-- REVIEWS
+-- ==========================
+-- text is localized: {"es": "...", "en"?: "...", "pt"?: "..."}
+-- Follows the same shape as faqs.question / faqs.answer.
+
+create table reviews (
+  id uuid primary key default gen_random_uuid(),
+  author text not null,
+  rating integer not null check (rating between 1 and 5),
+  source text not null check (source in ('Google', 'Booking', 'Airbnb')),
+  url text not null,
+  text jsonb not null,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+
 
 -- ==========================
 -- FUNCTIONS

@@ -1,9 +1,9 @@
-// app/api/admin/faqs/[id]/route.ts
-
 import { NextResponse } from "next/server";
+
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { getLocalized, type LocalizedText } from "@/lib/i18n/getLocalized";
-import type { FaqUpdate } from "@/types/faqs";
+
+import type { ReviewUpdate } from "@/types/reviews";
 
 type LocalizedFieldUpdate = Partial<Record<"es" | "en" | "pt", string>>;
 
@@ -20,40 +20,54 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const body = (await request.json()) as FaqUpdate;
+  const body = (await request.json()) as ReviewUpdate;
 
-  const needsTextMerge = body.question != null || body.answer != null;
+  const needsTextMerge = body.text != null;
 
   let current: {
-    question: LocalizedText | null;
-    answer: LocalizedText | null;
+    text: LocalizedText | null;
   } = {
-    question: null,
-    answer: null,
+    text: null,
   };
+
   if (needsTextMerge) {
     const { data } = await supabaseAdmin
-      .from("faqs")
-      .select("question, answer")
+      .from("reviews")
+      .select("text")
       .eq("id", id)
       .single();
+
     if (data) current = data;
   }
 
   const update: Record<string, unknown> = {};
-  if (body.question != null) {
-    update.question = {
-      ...(current.question ?? {}),
-      ...pickLocales(body.question),
+
+  if (body.author != null) {
+    update.author = body.author.trim();
+  }
+
+  if (body.rating != null) {
+    update.rating = body.rating;
+  }
+
+  if (body.source != null) {
+    update.source = body.source;
+  }
+
+  if (body.url != null) {
+    update.url = body.url.trim();
+  }
+
+  if (body.text != null) {
+    update.text = {
+      ...(current.text ?? {}),
+      ...pickLocales(body.text),
     };
   }
-  if (body.answer != null) {
-    update.answer = {
-      ...(current.answer ?? {}),
-      ...pickLocales(body.answer),
-    };
+
+  if (body.sortOrder != null) {
+    update.sort_order = body.sortOrder;
   }
-  if (body.sortOrder != null) update.sort_order = body.sortOrder;
 
   if (Object.keys(update).length === 0) {
     return NextResponse.json(
@@ -62,38 +76,41 @@ export async function PATCH(
     );
   }
 
-  const { data: faq, error } = await supabaseAdmin
-    .from("faqs")
+  const { data: review, error } = await supabaseAdmin
+    .from("reviews")
     .update(update)
     .eq("id", id)
-    .select("id, question, answer, sort_order")
+    .select("id, author, rating, source, url, text, sort_order")
     .single();
 
-  if (error || !faq) {
+  if (error || !review) {
     return NextResponse.json(
-      { error: "Pregunta no encontrada" },
+      { error: "Reseña no encontrada" },
       { status: 404 },
     );
   }
 
   return NextResponse.json({
-    id: faq.id,
-    question: getLocalized(faq.question, "es"),
-    answer: getLocalized(faq.answer, "es"),
-    sortOrder: faq.sort_order,
+    id: review.id,
+    author: review.author,
+    rating: review.rating,
+    source: review.source,
+    url: review.url,
+    text: getLocalized(review.text, "es"),
+    sortOrder: review.sort_order,
   });
 }
 
 export async function DELETE(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
 
-  const { error } = await supabaseAdmin.from("faqs").delete().eq("id", id);
+  const { error } = await supabaseAdmin.from("reviews").delete().eq("id", id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: "No se pudo eliminar" }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true });

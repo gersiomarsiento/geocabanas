@@ -10,6 +10,8 @@ interface HeroCopy {
   heroSubtitle: string | null;
   heroButtonText: string | null;
   heroButtonHref: string | null;
+  aboutTitle: string | null;
+  aboutText: string | null;
 }
 
 export default function SiteHeroCard() {
@@ -42,6 +44,8 @@ export default function SiteHeroCard() {
           heroSubtitle: data.heroSubtitle,
           heroButtonText: data.heroButtonText,
           heroButtonHref: data.heroButtonHref,
+          aboutTitle: data.aboutTitle,
+          aboutText: data.aboutText,
         });
       })
       .catch((e) => setError(e.message));
@@ -85,7 +89,14 @@ export default function SiteHeroCard() {
       const res = await fetch("/api/admin/site-settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(copyDraft),
+        body: JSON.stringify({
+          heroTitle: { es: copyDraft.heroTitle ?? "" },
+          heroSubtitle: { es: copyDraft.heroSubtitle ?? "" },
+          heroButtonText: { es: copyDraft.heroButtonText ?? "" },
+          heroButtonHref: copyDraft.heroButtonHref ?? "",
+          aboutTitle: { es: copyDraft.aboutTitle ?? "" },
+          aboutText: { es: copyDraft.aboutText ?? "" },
+        }),
       });
       if (!res.ok) throw new Error("No se pudo guardar");
       setCopyMessage({ type: "success", text: "Guardado." });
@@ -198,6 +209,7 @@ export default function SiteHeroCard() {
       {copyDraft && (
         <>
           <div className="mt-6 grid gap-4 border-t border-zinc-200 pt-6 sm:grid-cols-2">
+            <h4>Portada</h4>
             <label className="block sm:col-span-2">
               <span className="mb-1.5 block text-sm font-medium text-zinc-600">
                 Título
@@ -269,6 +281,41 @@ export default function SiteHeroCard() {
             del sitio. Si no coincide con ningún id, el botón no va a hacer nada
             al hacer clic.
           </p>
+
+          <div className="mt-6 grid gap-4 border-t border-zinc-200 pt-6 sm:grid-cols-2">
+            <h4>Quiénes somos</h4>
+            <label className="block sm:col-span-2">
+              <span className="mb-1.5 block text-sm font-medium text-zinc-600">
+                Título
+              </span>
+              <input
+                type="text"
+                value={copyDraft.aboutTitle ?? ""}
+                onChange={(e) =>
+                  setCopyDraft((d) =>
+                    d ? { ...d, aboutTitle: e.target.value } : d,
+                  )
+                }
+                className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
+              />
+            </label>
+
+            <label className="block sm:col-span-2">
+              <span className="mb-1.5 block text-sm font-medium text-zinc-600">
+                Texto
+              </span>
+              <textarea
+                value={copyDraft.aboutText ?? ""}
+                onChange={(e) =>
+                  setCopyDraft((d) =>
+                    d ? { ...d, aboutText: e.target.value } : d,
+                  )
+                }
+                rows={4}
+                className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
+              />
+            </label>
+          </div>
 
           <button
             type="button"

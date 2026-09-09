@@ -16,6 +16,7 @@ const NAV_ITEMS = [
   { href: "/admin", label: "Disponibilidad" },
   { href: "/admin/propiedades", label: "Propiedades" },
   { href: "/admin/sitio", label: "Sitio" },
+  { href: "/admin/traducciones", label: "Traducciones" },
 ];
 
 export default function AdminLayout({

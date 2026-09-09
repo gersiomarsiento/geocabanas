@@ -1,4 +1,4 @@
-@keyframes reviews-scroll {
+/* @keyframes reviews-scroll {
   from {
     transform: translateX(0);
   }
@@ -14,4 +14,4 @@
 
 .reviews-track:hover {
   animation-play-state: paused;
-}
+} */
