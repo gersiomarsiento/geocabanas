@@ -29,7 +29,7 @@ function SourceBadge({ source }: { source: PublicReview["source"] }) {
   return (
     <span className="rounded-full px-2.5 py-1 text-xs font-medium">
       <Image
-        src={`/images/${source}.png`}
+        src={`/images/${source.toLowerCase()}.png`}
         alt={source}
         width={60}
         height={24}
