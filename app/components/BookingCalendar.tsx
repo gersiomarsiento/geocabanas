@@ -463,7 +463,7 @@ export default function BookingCalendar() {
   }
 
   if (!today || viewYear === null || viewMonth === null) {
-    return <LoadingOverlay />;
+    return <LoadingOverlay className=""/>;
   }
 
   return (
@@ -516,19 +516,19 @@ export default function BookingCalendar() {
         )}
 
         <div className="property-content-wrapper relative md:grid md:h-full">
-          {isLoading && <LoadingOverlay />}
+          {isLoading && <LoadingOverlay className="bg-white!"/>}
 
           <div
             className={`overflow-hidden border border-zinc-200 shadow-sm ${
               properties && properties.length > 1
-                ? "border"
+                ? ""
                 : "border rounded-t-xl"
             }`}
           >
             {carouselImages.length > 0 ? (
               <PropertyCarousel images={carouselImages} />
             ) : (
-              <div className="aspect-4/3 w-full animate-pulse bg-background" />
+              <div className="aspect-4/3 w-full animate-pulse bg-secondary-50" />
             )}
           </div>
 
@@ -579,7 +579,7 @@ export default function BookingCalendar() {
           </div>
 
           <div className="">
-            {isLoading && <LoadingOverlay />}
+            {isLoading && <LoadingOverlay className="bg-white!"/>}
 
             <div
               className="grid grid-cols-7 gap-1 text-center text-sm"

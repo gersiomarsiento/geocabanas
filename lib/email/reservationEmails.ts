@@ -113,12 +113,7 @@ export async function sendGuestConfirmationEmail(data: ReservationEmailData) {
           <tr><td style="padding: 4px 0;">${t.total}</td><td style="text-align: right;"><strong>$${money(data.totalPrice, data.locale)}</strong></td></tr>
           ${
             data.depositAmount > 0
-              ? // NOTE: pre-existing behavior, unrelated to this change — this
-                // row has always shown totalPrice / 2 (a hardcoded 50%)
-                // rather than the actual data.depositAmount computed from
-                // property.deposit_percentage. Left as-is; flagging rather
-                // than silently changing displayed behavior.
-                `<tr><td style="padding: 4px 0;">${t.depositDue}</td><td style="text-align: right;"><strong>$${money(data.totalPrice / 2, data.locale)}</strong></td></tr>`
+              ? `<tr><td style="padding: 4px 0;">${t.depositDue}</td><td style="text-align: right;"><strong>$${money(data.depositAmount, data.locale)}</strong></td></tr>`
               : ""
           }
         </table>

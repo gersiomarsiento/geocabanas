@@ -144,7 +144,7 @@ export default function PropertyCarousel({
               fill
               draggable={true}
               sizes="(max-width: 768px) 100vw, 640px"
-              className="object-cover"
+              className="object-cover bg-primary"
             />
           </div>
         ))}
