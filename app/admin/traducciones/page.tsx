@@ -19,6 +19,8 @@ interface SiteTranslations {
   heroButtonText: LocalizedText;
   aboutTitle: LocalizedText;
   aboutText: LocalizedText;
+  emailSubject: LocalizedText;
+  emailIntro: LocalizedText;
 }
 
 interface TranslationsResponse {

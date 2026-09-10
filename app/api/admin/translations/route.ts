@@ -23,6 +23,8 @@ interface SiteTranslations {
   heroButtonText: LocalizedText;
   aboutTitle: LocalizedText;
   aboutText: LocalizedText;
+  emailSubject: LocalizedText;
+  emailIntro: LocalizedText;
 }
 
 export async function GET() {
@@ -30,7 +32,7 @@ export async function GET() {
     supabaseAdmin
       .from("site_settings")
       .select(
-        "hero_title, hero_subtitle, hero_button_text, about_title, about_text",
+        "hero_title, hero_subtitle, hero_button_text, about_title, about_text, email_subject, email_intro",
       )
       .eq("id", "singleton")
       .single(),
@@ -58,6 +60,8 @@ export async function GET() {
     heroButtonText: siteRow?.hero_button_text ?? EMPTY_LOCALIZED,
     aboutTitle: siteRow?.about_title ?? EMPTY_LOCALIZED,
     aboutText: siteRow?.about_text ?? EMPTY_LOCALIZED,
+    emailSubject: siteRow?.email_subject ?? EMPTY_LOCALIZED,
+    emailIntro: siteRow?.email_intro ?? EMPTY_LOCALIZED,
   };
 
   const faqs: FaqTranslations[] = faqsResult.data.map((faq) => ({

@@ -153,8 +153,16 @@
     "placeholderEmail": "Email",
     "placeholderTelefono": "Phone number"
   },
-
   "Instagram": {
     "titulo": "Follow us on Instagram"
+  },
+  "Email": {
+    "greeting": "Thank you, {name}!",
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "nights": "Nights",
+    "total": "Total",
+    "depositDue": "Deposit due",
+    "referenceNumber": "Reference number"
   }
 }

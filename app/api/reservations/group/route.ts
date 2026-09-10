@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { getStayAvailability  } from "@/lib/booking/availability";
 import { sendReservationEmails } from "@/lib/email/reservationEmails";
+import { resolveLocale } from "@/lib/i18n/getEmailMessages";
 
 interface GroupLeg {
   propertyId: string;
@@ -16,6 +17,7 @@ interface GroupReservationRequest {
   guestName: string;
   guestEmail: string;
   guestPhone: string;
+  locale?: string;
 }
 
 interface GroupReservationRow {
@@ -30,6 +32,7 @@ interface GroupReservationRow {
 export async function POST(request: Request) {
   const body = (await request.json()) as GroupReservationRequest;
   const { legs, guestName, guestEmail, guestPhone } = body;
+  const locale = resolveLocale(body.locale);
 
   if (!legs?.length || !guestName || !guestEmail || !guestPhone) {
     return NextResponse.json(
@@ -141,6 +144,7 @@ export async function POST(request: Request) {
         nights,
         totalPrice: reservation.total_price,
         depositAmount: reservation.deposit_amount,
+        locale,
       });
     }),
   );

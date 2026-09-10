@@ -20,8 +20,8 @@ export interface ContactSettings {
   heroButtonText: LocalizedText | null;
   heroButtonHref: string | null;
 
-  emailSubject: string | null;
-  emailIntro: string | null;
+  emailSubject: LocalizedText | null;
+  emailIntro: LocalizedText | null;
 
   exchangeRateUyu: number;
   exchangeRateBrl: number;

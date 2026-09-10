@@ -12,6 +12,8 @@ interface SiteTranslations {
   heroButtonText: LocalizedText;
   aboutTitle: LocalizedText;
   aboutText: LocalizedText;
+  emailSubject: LocalizedText;
+  emailIntro: LocalizedText;
 }
 
 interface SiteDraft {
@@ -20,6 +22,8 @@ interface SiteDraft {
   heroButtonText: string;
   aboutTitle: string;
   aboutText: string;
+  emailSubject: string;
+  emailIntro: string;
 }
 
 function buildDraft(data: SiteTranslations, locale: EditableLocale): SiteDraft {
@@ -29,6 +33,8 @@ function buildDraft(data: SiteTranslations, locale: EditableLocale): SiteDraft {
     heroButtonText: data.heroButtonText[locale] ?? "",
     aboutTitle: data.aboutTitle[locale] ?? "",
     aboutText: data.aboutText[locale] ?? "",
+    emailSubject: data.emailSubject[locale] ?? "",
+    emailIntro: data.emailIntro[locale] ?? "",
   };
 }
 
@@ -66,6 +72,8 @@ export default function TranslationsSiteCard({
           heroButtonText: { [locale]: draft.heroButtonText },
           aboutTitle: { [locale]: draft.aboutTitle },
           aboutText: { [locale]: draft.aboutText },
+          emailSubject: { [locale]: draft.emailSubject },
+          emailIntro: { [locale]: draft.emailIntro },
         }),
       });
       if (!res.ok) throw new Error("No se pudo guardar");
@@ -83,6 +91,7 @@ export default function TranslationsSiteCard({
 
   return (
     <div className="grid gap-4">
+      <h4 className="">Portada</h4>
       <Field
         label="Título"
         reference={data.heroTitle.es}
@@ -101,17 +110,35 @@ export default function TranslationsSiteCard({
         value={draft.heroButtonText}
         onChange={(v) => setDraft((d) => ({ ...d, heroButtonText: v }))}
       />
+      <h4 className="border-t border-zinc-200 mt-3 pt-3">Quiénes Somos</h4>
       <Field
-        label="Título (Quiénes somos)"
+        label="Título"
         reference={data.aboutTitle.es}
         value={draft.aboutTitle}
         onChange={(v) => setDraft((d) => ({ ...d, aboutTitle: v }))}
       />
       <Field
-        label="Texto (Quiénes somos)"
+        label="Texto"
         reference={data.aboutText.es}
         value={draft.aboutText}
         onChange={(v) => setDraft((d) => ({ ...d, aboutText: v }))}
+        multiline
+      />
+      <h4 className="border-t border-zinc-200 mt-3 pt-3">
+        Email de confirmación
+      </h4>
+      <Field
+        label="Asunto"
+        reference={data.emailSubject.es}
+        value={draft.emailSubject}
+        onChange={(v) => setDraft((d) => ({ ...d, emailSubject: v }))}
+        multiline
+      />
+      <Field
+        label="Contenido"
+        reference={data.emailIntro.es}
+        value={draft.emailIntro}
+        onChange={(v) => setDraft((d) => ({ ...d, emailIntro: v }))}
         multiline
       />
 

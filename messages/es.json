@@ -156,5 +156,14 @@
   },
   "Instagram": {
     "titulo": "Seguinos en Instagram"
+  },
+  "Email": {
+    "greeting": "¡Gracias, {name}!",
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "nights": "Noches",
+    "total": "Total",
+    "depositDue": "Seña requerida",
+    "referenceNumber": "Número de referencia"
   }
 }

@@ -21,5 +21,7 @@ export async function GET(req: NextRequest) {
     heroTitle: getLocalized(contact.heroTitle, locale),
     heroSubtitle: getLocalized(contact.heroSubtitle, locale),
     heroButtonText: getLocalized(contact.heroButtonText, locale),
+    emailSubject: getLocalized(contact.emailSubject, locale),
+    emailIntro: getLocalized(contact.emailIntro, locale),
   });
 }

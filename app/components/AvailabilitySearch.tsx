@@ -3,7 +3,7 @@
 // app/components/AvailabilitySearch.tsx
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { convertFromUSD, formatCurrency } from "@/lib/currency";
 import { useCurrency } from "./CurrencyProvider";
 
@@ -85,6 +85,7 @@ export default function AvailabilitySearch() {
   const tBooking = useTranslations("Booking");
   const tUnits = useTranslations("Units");
   const { currency, rates } = useCurrency();
+  const locale = useLocale();
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -190,6 +191,7 @@ export default function AvailabilitySearch() {
               guestName: guestName.trim(),
               guestEmail: guestEmail.trim(),
               guestPhone: guestPhone.trim(),
+              locale,
             }
           : {
               legs: recommended.combo.properties.map((p) => ({
@@ -200,6 +202,7 @@ export default function AvailabilitySearch() {
               guestName: guestName.trim(),
               guestEmail: guestEmail.trim(),
               guestPhone: guestPhone.trim(),
+              locale,
             };
 
       const res = await fetch(endpoint, {

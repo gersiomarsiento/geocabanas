@@ -46,7 +46,10 @@ export default function SiteEmailCard() {
       const res = await fetch("/api/admin/site-settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(draft),
+        body: JSON.stringify({
+          emailSubject: { es: draft.emailSubject ?? "" },
+          emailIntro: { es: draft.emailIntro ?? "" },
+        }),
       });
       if (!res.ok) throw new Error("No se pudo guardar");
       setMessage({ type: "success", text: "Guardado." });

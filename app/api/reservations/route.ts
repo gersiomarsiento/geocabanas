@@ -20,6 +20,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { getStayAvailability } from "@/lib/booking/availability";
 import { isoDate } from "@/lib/calendar/dates";
 import { sendReservationEmails } from "@/lib/email/reservationEmails";
+import { resolveLocale } from "@/lib/i18n/getEmailMessages";
 
 interface ReservationRequest {
   propertyId: string;
@@ -28,12 +29,14 @@ interface ReservationRequest {
   guestName: string;
   guestEmail: string;
   guestPhone?: string;
+  locale?: string;
 }
 
 export async function POST(request: Request) {
   const body = (await request.json()) as ReservationRequest;
   const { propertyId, startDate, endDate, guestName, guestEmail, guestPhone } =
     body;
+  const locale = resolveLocale(body.locale);
 
   if (
     !propertyId ||
@@ -155,6 +158,7 @@ export async function POST(request: Request) {
     nights,
     totalPrice,
     depositAmount,
+    locale,
   });
 
   return NextResponse.json({

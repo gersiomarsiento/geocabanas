@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 import {
   type DateParts,
@@ -74,6 +74,7 @@ export default function BookingCalendar() {
   const tUnits = useTranslations("Units");
   const weekdays = t.raw("weekdays") as string[];
   const months = t.raw("months") as string[];
+  const locale = useLocale();
 
   const { currency, rates } = useCurrency();
   const [today, setToday] = useState<Date | null>(null);
@@ -387,6 +388,7 @@ export default function BookingCalendar() {
           guestName: guestName.trim(),
           guestEmail: guestEmail.trim(),
           guestPhone: guestPhone.trim(),
+          locale,
         }),
       });
 

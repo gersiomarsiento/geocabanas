@@ -26,8 +26,8 @@ interface SiteSettingsUpdate {
   heroButtonHref?: string;
   aboutTitle?: LocalizedFieldUpdate;
   aboutText?: LocalizedFieldUpdate;
-  emailSubject?: string;
-  emailIntro?: string;
+  emailSubject?: LocalizedFieldUpdate;
+  emailIntro?: LocalizedFieldUpdate;
   exchangeRateUyu?: number;
   exchangeRateBrl?: number;
 }
@@ -38,6 +38,8 @@ const LOCALIZED_FIELDS = [
   ["heroButtonText", "hero_button_text"],
   ["aboutTitle", "about_title"],
   ["aboutText", "about_text"],
+  ["emailSubject", "email_subject"],
+  ["emailIntro", "email_intro"],
 ] as const;
 
 function pickLocales(value: LocalizedFieldUpdate): LocalizedFieldUpdate {
@@ -60,7 +62,7 @@ export async function PATCH(request: Request) {
     const { data } = await supabaseAdmin
       .from("site_settings")
       .select(
-        "hero_title, hero_subtitle, hero_button_text, about_title, about_text",
+        "hero_title, hero_subtitle, hero_button_text, about_title, about_text, email_subject, email_intro",
       )
       .eq("id", "singleton")
       .single();
@@ -94,8 +96,6 @@ export async function PATCH(request: Request) {
 
   if (body.heroButtonHref != null)
     update.hero_button_href = body.heroButtonHref;
-  if (body.emailSubject != null) update.email_subject = body.emailSubject;
-  if (body.emailIntro != null) update.email_intro = body.emailIntro;
   if (body.exchangeRateUyu != null) {
     update.exchange_rate_uyu = body.exchangeRateUyu;
   }

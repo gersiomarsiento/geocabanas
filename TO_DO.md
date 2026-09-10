@@ -12,46 +12,35 @@ Update that file's affected steps as those items get resolved here.
 
 ## Translations audit
 
-- **Admin can now translate hero/about copy, FAQs, and reviews**
-  (2026-09-09): a "Traducciones" tab (`app/admin/traducciones/`) lets the
-  admin fill in `en`/`pt` for each field, reading/writing the raw
-  `{es,en,pt}` jsonb via a new aggregate `GET /api/admin/translations`
-  and the existing per-resource PATCH routes. The write-path bug where
-  those PATCH routes only ever wrote the `es` key (site-settings, faqs,
-  reviews) is fixed across the board. Property name/description
-  translation was explicitly deferred to a later session — not yet
-  scoped, may or may not need the same treatment depending on whether
-  properties have freeform text fields (unconfirmed).
-- **Public `ReviewsSection.tsx` may still read from the hardcoded
-  `REVIEWS` array instead of the `reviews` table** — the admin CRUD
-  (`SiteReviewsCard.tsx`, `/api/admin/reviews`) already existed before
-  this session, but whether the public-facing component was switched
-  over wasn't confirmed here. Worth checking before relying on the
-  Traducciones tab's review translations actually showing up on the
-  site.
-- **Reservation confirmation/admin-notification emails are hardcoded
-  Spanish** (`lib/email/reservationEmails.ts`) — in progress. Scoped
-  2026-09-09, not yet built:
-  - Neither `POST /api/reservations` nor `POST /api/reservations/group`
-    accept a `locale` in the request body — the guest's selected
-    language never reaches the backend at all, which is the actual
-    blocker (not just missing translated strings).
-  - Static labels in the email HTML ("Check-in", "Total", "Seña
-    requerida", etc.) are hardcoded Spanish, as are `formatDate`/`money`
-    (`Intl` calls hardcoded to `es-UY`).
-  - Plan: add `locale` to `BookingCalendar.tsx` and the group-booking
-    form's POST bodies (via `useLocale()`); thread it through both API
-    routes into `sendReservationEmails`; move `emailSubject`/
-    `emailIntro` into the same localized-jsonb pattern as hero/about
-    (including the `SiteEmailCard.tsx` caller fix); move static labels
-    into a new `Email` namespace in `messages/*.json`, read server-side
-    (can't use `useTranslations()` outside React); localize
-    `formatDate`/`money` per locale (assumed `es-UY`/`en-US`/`pt-BR` —
-    unconfirmed, flag if wrong). Admin notification email intentionally
-    stays Spanish-only (internal, not guest-facing).
-  - Still need `lib/site/settings.ts`, `SiteEmailCard.tsx`, and the
-    group-booking form before continuing — that's where the next
-    session should pick up.
+- **Property name/description translation** — not yet scoped. Depends on
+  whether properties have freeform text fields at all (unconfirmed);
+  check before deciding if this needs the same jsonb + Traducciones tab
+  treatment as hero/about/FAQs/reviews.
+- **Confirm `ReviewsSection.tsx` reads from the `reviews` table**, not
+  the hardcoded `REVIEWS` array — unconfirmed whether the public-facing
+  component was ever switched over.
+- **Confirm the email localization work actually works end-to-end.**
+  Built 2026-09-09 (locale threading, localized subject/intro,
+  translated labels, per-locale date/number formatting) but no test run
+  has been reported back yet — see the step-by-step test list from that
+  session if picking this back up. Date/number formatting assumes
+  `es-UY`/`en-US`/`pt-BR`; flag if a different regional variant is
+  wanted.
+  guest `locale` is sent from `BookingCalendar.tsx` and
+  `AvailabilitySearch.tsx`, threaded through `POST /api/reservations`
+  and `POST /api/reservations/group` into `sendReservationEmails`.
+  `emailSubject`/`emailIntro` are localized jsonb now (same pattern as
+  hero/about), editable per-locale from the Traducciones tab, with
+  hardcoded per-locale fallback copy when the admin hasn't set custom
+  text for a given language. Static email labels ("Check-in", "Total",
+  etc.) moved into a new `Email` namespace in `messages/*.json`, read
+  server-side via `lib/i18n/getEmailMessages.ts` (bypasses next-intl's
+  request-scoped config, since the guest's locale isn't the current
+  request's locale). Date/number formatting assumes
+  `es-UY`/`en-US`/`pt-BR` — unconfirmed regional variants, flag if
+  wrong. Admin notification email intentionally stays Spanish-only.
+  **Not yet confirmed working end-to-end** — built and reviewed this
+  session, but no test run has been reported back yet.
 
 ## Product gaps
 
@@ -79,4 +68,15 @@ Update that file's affected steps as those items get resolved here.
   cancelará," but nothing in the code actually enforces that 24-hour
   window — worth keeping in mind since the UI promise and the system's
   real behavior don't match yet, in case it becomes worth fixing later.
+- **Guest confirmation email always shows a hardcoded 50% deposit, not the actual configured amount.**  
+- Discovered 2026-09-09 while localizing
+  `lib/email/reservationEmails.ts` — the deposit row in
+  `sendGuestConfirmationEmail` renders `data.totalPrice / 2` instead of
+  the `data.depositAmount` that's already computed from
+  `property.deposit_percentage` and passed into the function. If a
+  property's deposit percentage is ever set to anything other than 50,
+  the number a guest sees in the email won't match what's actually owed.
+  Fix is presumably a one-line swap (`totalPrice / 2` →
+  `depositAmount`), but wasn't made during the localization pass to
+  avoid bundling an unrelated behavior change — left for a dedicated fix.
   
