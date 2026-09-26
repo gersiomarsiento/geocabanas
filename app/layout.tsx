@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Gotham from "next/font/local";
 import "@/app/globals.css";
 import { ACTIVE_THEME } from "@/lib/site/theme";
 import { getContactSettings } from "@/lib/site/settings";
@@ -13,6 +14,11 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const gothamBook = Gotham({
+  variable: "--font-gotham",
+  src: "../public/Gotham_Book.otf",
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -37,7 +43,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       data-theme={ACTIVE_THEME}
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${gothamBook.variable} h-full antialiased`}
     >
       <head>
         <meta name="apple-mobile-web-app-title" content="Geo Cabañas" />
