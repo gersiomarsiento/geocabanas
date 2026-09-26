@@ -169,7 +169,18 @@ Two separate Jest configs, deliberately kept apart:
   `reviews`, and `site_settings` before the run starts, and refuses to
   run at all unless `SUPABASE_URL` in `.env.test` looks local — a hard
   safety guard, not a convenience, since the reset does unfiltered bulk
-  deletes.
+  deletes. As of 2026-09-26 the reset covers `properties`, `faqs`,
+  `reviews`, `instagram_posts`, and `site_settings`, plus the entire
+  `property-images` Storage bucket. Add any new table or bucket a test
+  helper starts touching to this list.
+
+  ### Shared upload validation
+
+  All four file-upload routes (property images, Instagram posts, site
+  hero, site logo) validate MIME type and size through one shared helper,
+  `lib/uploads/validateImageFile.ts`, instead of duplicating the check
+  per route. Add new allowed types or adjust the size cap there, not in
+  the individual routes.
 
 `.env.test` holds credentials for the local Supabase instance only —
 never point it at a real project. Test helpers live in

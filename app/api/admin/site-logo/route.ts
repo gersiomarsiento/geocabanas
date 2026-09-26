@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { validateImageFile } from "@/lib/uploads/validateImageFile";
 
 const BUCKET = "property-images";
 const LOGO_PATH = "site/logo";
@@ -9,6 +10,10 @@ export async function POST(request: Request) {
   const file = formData.get("file");
   if (!file || !(file instanceof File)) {
     return NextResponse.json({ error: "Falta el archivo" }, { status: 400 });
+  }
+  const validationError = validateImageFile(file);
+  if (validationError) {
+    return NextResponse.json({ error: validationError }, { status: 400 });
   }
   const arrayBuffer = await file.arrayBuffer();
   const { error } = await supabaseAdmin.storage

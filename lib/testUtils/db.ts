@@ -4,6 +4,10 @@
 
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
+export function uniqueSlug(base: string): string {
+    return `${base}-${crypto.randomUUID().slice(0, 8)}`;
+  }
+
 const createdPropertyIds: string[] = [];
 
 const createdFaqIds: string[] = [];
@@ -185,6 +189,10 @@ export async function createTestReservation(
 
   return data.id;
 }
+
+export function trackPropertyId(id: string): void {
+    createdPropertyIds.push(id);
+  }
 
 /**
  * Deletes every property created via createTestProperty since the last

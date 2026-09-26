@@ -167,8 +167,16 @@ export async function PATCH(request: Request) {
       continue;
     }
 
-    // iCal conflict, first pass without confirmation -> report, don't write.
-    if (icalBookedDates.has(current) && !confirmIcalOverride) {
+    // iCal conflict, first pass without confirmation -> report, don't
+    // write. Only matters when this request changes availability —
+    // same reasoning as the reservation-conflict check above: a
+    // price/minStay-only edit doesn't actually override anything about
+    // the iCal booking's bookability.
+    if (
+      icalBookedDates.has(current) &&
+      !confirmIcalOverride &&
+      available !== undefined
+    ) {
       icalConflictDates.push(current);
       current = nextDate(current);
       continue;

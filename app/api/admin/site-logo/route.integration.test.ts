@@ -25,6 +25,13 @@ describe("POST /api/admin/site-logo — validation", () => {
     const res = await POST(uploadRequest(null));
     expect(res.status).toBe(400);
   });
+
+  it("returns 400 for a disallowed MIME type", async () => {
+    const res = await POST(
+      uploadRequest(makeFile("doc.pdf", "content", "application/pdf")),
+    );
+    expect(res.status).toBe(400);
+  });
 });
 
 describe("POST /api/admin/site-logo — real upload", () => {

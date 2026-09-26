@@ -52,6 +52,21 @@ export async function POST(request: Request) {
     );
   }
 
+  if (!Number.isInteger(body.rating) || body.rating < 1 || body.rating > 5) {
+    return NextResponse.json(
+      { error: "La calificación debe ser un número entero entre 1 y 5" },
+      { status: 400 },
+    );
+  }
+
+  const ALLOWED_SOURCES = ["Google", "Booking", "Airbnb"];
+  if (!ALLOWED_SOURCES.includes(body.source)) {
+    return NextResponse.json(
+      { error: "La fuente debe ser Google, Booking o Airbnb" },
+      { status: 400 },
+    );
+  }
+
   const { data: existing } = await supabaseAdmin
     .from("reviews")
     .select("sort_order")

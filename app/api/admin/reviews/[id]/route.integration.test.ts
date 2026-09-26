@@ -59,7 +59,7 @@ describe("PATCH /api/admin/reviews/[id] — updates", () => {
   });
 });
 
-describe("PATCH /api/admin/reviews/[id] — the ambiguous 404", () => {
+describe("PATCH /api/admin/reviews/[id] — distinguishing not-found from a real error", () => {
   it("returns 404 for a genuinely nonexistent id", async () => {
     const res = await callPatch("00000000-0000-0000-0000-000000000000", {
       author: "Nuevo",
@@ -67,13 +67,11 @@ describe("PATCH /api/admin/reviews/[id] — the ambiguous 404", () => {
     expect(res.status).toBe(404);
   });
 
-  it("ALSO returns 404 for a real constraint violation on an id that DOES exist — the same status, for a completely different problem", async () => {
+  it("returns a clean 400 for a real constraint violation, caught before hitting the DB (fixed twice over)", async () => {
     const reviewId = await createTestReview();
-    const res = await callPatch(reviewId, { rating: 99 }); // violates the 1-5 check constraint
-    expect(res.status).toBe(404);
+    const res = await callPatch(reviewId, { rating: 99 });
+    expect(res.status).toBe(400);
 
-    // Prove the review is still there, untouched — "not found" was
-    // never actually true.
     const { data } = await supabaseAdmin
       .from("reviews")
       .select("id")
@@ -97,11 +95,8 @@ describe("DELETE /api/admin/reviews/[id]", () => {
     expect(data).toBeNull();
   });
 
-  it("returns ok:true even for an id that was never there — no real existence check", async () => {
+  it("returns 404 for an id that was never there (fixed — used to silently succeed)", async () => {
     const res = await callDelete("00000000-0000-0000-0000-000000000000");
-    const body = await res.json();
-
-    expect(res.status).toBe(200);
-    expect(body.ok).toBe(true);
+    expect(res.status).toBe(404);
   });
 });

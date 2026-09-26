@@ -32,6 +32,15 @@ export async function PATCH(
     .select()
     .single();
 
+  if (error?.code === "PGRST116") {
+    // .single() found zero matching rows — the id genuinely doesn't
+    // exist, as opposed to a real DB error below.
+    return NextResponse.json(
+      { error: "Reserva no encontrada" },
+      { status: 404 },
+    );
+  }
+
   if (error || !data) {
     return NextResponse.json(
       { error: "No se pudo cancelar la reserva" },

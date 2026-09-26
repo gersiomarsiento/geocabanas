@@ -8,6 +8,7 @@
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { validateImageFile } from "@/lib/uploads/validateImageFile";
 
 const BUCKET = "property-images";
 
@@ -48,6 +49,11 @@ export async function POST(
 
   if (!file || !(file instanceof File)) {
     return NextResponse.json({ error: "Falta el archivo" }, { status: 400 });
+  }
+
+  const validationError = validateImageFile(file);
+  if (validationError) {
+    return NextResponse.json({ error: validationError }, { status: 400 });
   }
 
   const { data: property, error: propertyError } = await supabaseAdmin

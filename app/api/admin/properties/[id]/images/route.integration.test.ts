@@ -91,6 +91,25 @@ describe("POST .../images — validation", () => {
     );
     expect(res.status).toBe(404);
   });
+
+  it("returns 400 for a disallowed MIME type", async () => {
+    const propertyId = await createTestProperty({});
+    const res = await callPOST(
+      propertyId,
+      makeFile("doc.pdf", "content", "application/pdf"),
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it("returns 400 for a file over the size cap", async () => {
+    const propertyId = await createTestProperty({});
+    const bigContent = "x".repeat(10 * 1024 * 1024 + 1);
+    const res = await callPOST(
+      propertyId,
+      makeFile("big.jpg", bigContent, "image/jpeg"),
+    );
+    expect(res.status).toBe(400);
+  });
 });
 
 describe("POST .../images — real upload", () => {

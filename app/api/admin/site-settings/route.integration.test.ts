@@ -15,10 +15,8 @@ afterEach(async () => {
   await supabaseAdmin.from("site_settings").delete().eq("id", "singleton");
 });
 
-describe("PATCH /api/admin/site-settings — missing singleton row (current bug)", () => {
-  it("returns ok:true even though nothing was actually persisted", async () => {
-    // Confirm the starting state really has no row, so this test means
-    // what it claims to mean.
+describe("PATCH /api/admin/site-settings — missing singleton row (fixed via upsert)", () => {
+  it("creates the singleton row on first save instead of silently no-oping", async () => {
     const { data: before } = await supabaseAdmin
       .from("site_settings")
       .select("id")
@@ -26,9 +24,7 @@ describe("PATCH /api/admin/site-settings — missing singleton row (current bug)
       .maybeSingle();
     expect(before).toBeNull();
 
-    const res = await PATCH(
-      patchRequest({ businessName: "Should Not Persist" }),
-    );
+    const res = await PATCH(patchRequest({ businessName: "First Ever Save" }));
     const body = await res.json();
 
     expect(res.status).toBe(200);
@@ -36,13 +32,12 @@ describe("PATCH /api/admin/site-settings — missing singleton row (current bug)
 
     const { data: after } = await supabaseAdmin
       .from("site_settings")
-      .select("id")
+      .select("id, business_name")
       .eq("id", "singleton")
       .maybeSingle();
 
-    // The bug: UPDATE on a nonexistent row succeeds silently, so no row
-    // was ever created and nothing was actually saved.
-    expect(after).toBeNull();
+    expect(after).not.toBeNull();
+    expect(after?.business_name).toBe("First Ever Save");
   });
 });
 

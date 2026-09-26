@@ -111,12 +111,23 @@ export async function POST(request: Request) {
     .select("*") // grab everything — see note below on shaping the response
     .single();
 
+  if (error?.code === "23505") {
+    // The retry loop above exhausted its 5 attempts without finding a
+    // free slug — vanishingly unlikely, but this turns a raw insert
+    // failure into a clear, expected response instead of a generic 500.
+    return NextResponse.json(
+      { error: "No se pudo generar un identificador único. Probá de nuevo." },
+      { status: 409 },
+    );
+  }
+
   if (error || !property) {
     return NextResponse.json(
       { error: "No se pudo crear la propiedad" },
       { status: 500 },
     );
   }
+
   return NextResponse.json({
     id: property.id,
     name: property.name,

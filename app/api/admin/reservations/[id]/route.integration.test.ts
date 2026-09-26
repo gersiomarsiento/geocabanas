@@ -60,11 +60,11 @@ describe("PATCH /api/admin/reservations/[id] — validation", () => {
 });
 
 describe("PATCH /api/admin/reservations/[id] — unknown id", () => {
-  it("returns 500, not 404, for an id that doesn't exist — documents a status-code inconsistency worth revisiting", async () => {
+  it("returns 404 for an id that doesn't exist (fixed — was 500)", async () => {
     const res = await callRoute("00000000-0000-0000-0000-000000000000", {
       status: "cancelled",
     });
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(404);
   });
 });
 

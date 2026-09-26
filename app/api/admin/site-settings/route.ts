@@ -132,8 +132,7 @@ export async function PATCH(request: Request) {
 
   const { error } = await supabaseAdmin
     .from("site_settings")
-    .update(update)
-    .eq("id", "singleton");
+    .upsert({ id: "singleton", ...update }, { onConflict: "id" });
 
   if (error) {
     return NextResponse.json(

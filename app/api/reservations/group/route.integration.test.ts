@@ -86,7 +86,7 @@ describe("POST /api/reservations/group — availability re-check", () => {
     expect(res.status).toBe(409);
   });
 
-  it("returns 409 (not 400) when one leg fails min-stay — documents the cross-route inconsistency", async () => {
+  it("returns 400 (fixed — was 409) when one leg fails min-stay", async () => {
     const propertyA = await createTestProperty({ default_price: 100 });
     const propertyB = await createTestProperty({ default_price: 100 });
     await createTestCalendarDay(propertyB, "2027-09-20", {
@@ -111,7 +111,7 @@ describe("POST /api/reservations/group — availability re-check", () => {
         ...validGuest,
       }),
     );
-    expect(res.status).toBe(409);
+    expect(res.status).toBe(400);
   });
 });
 

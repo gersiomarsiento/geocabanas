@@ -5,6 +5,7 @@ import {
   createTestCalendarDay,
   createTestReservation,
   cleanup,
+  uniqueSlug,
 } from "@/lib/testUtils/db";
 
 function icsWithEvent(start: string, end: string): string {
@@ -39,7 +40,6 @@ function mockIcalFetch(icalUrl: string, body: string) {
         } as Response;
       }
 
-      // Anything else (Supabase's own REST calls) goes to the real fetch.
       return realFetch(input, init);
     },
   ) as unknown as typeof fetch;
@@ -51,9 +51,6 @@ function callRoute(slug: string) {
   });
 }
 
-// Parses the route's actual ICS output back into a sorted list of
-// {start, end} ISO-date ranges, via the same real parser the project
-// uses elsewhere -- avoids asserting against a brittle exact string.
 function parseUnavailableRanges(
   text: string,
 ): { start: string; end: string }[] {
@@ -84,9 +81,10 @@ describe("GET /api/ical/[slug]", () => {
   });
 
   it("returns a valid empty calendar when nothing is blocked", async () => {
-    await createTestProperty({ slug: "ical-empty" });
+    const slug = uniqueSlug("ical-empty");
+    await createTestProperty({ slug });
 
-    const res = await callRoute("ical-empty");
+    const res = await callRoute(slug);
     const text = await res.text();
 
     expect(res.headers.get("Content-Type")).toBe(
@@ -97,19 +95,21 @@ describe("GET /api/ical/[slug]", () => {
   });
 
   it("includes one event for a single blocked calendar_days entry", async () => {
-    const propertyId = await createTestProperty({ slug: "ical-blocked" });
+    const slug = uniqueSlug("ical-blocked");
+    const propertyId = await createTestProperty({ slug });
     await createTestCalendarDay(propertyId, "2027-06-15", {
       status: "blocked",
     });
 
-    const res = await callRoute("ical-blocked");
+    const res = await callRoute(slug);
     const ranges = parseUnavailableRanges(await res.text());
 
     expect(ranges).toEqual([{ start: "2027-06-15", end: "2027-06-16" }]);
   });
 
   it("merges consecutive blocked days into a single event, not one per day", async () => {
-    const propertyId = await createTestProperty({ slug: "ical-consecutive" });
+    const slug = uniqueSlug("ical-consecutive");
+    const propertyId = await createTestProperty({ slug });
     await createTestCalendarDay(propertyId, "2027-06-20", {
       status: "blocked",
     });
@@ -120,51 +120,59 @@ describe("GET /api/ical/[slug]", () => {
       status: "blocked",
     });
 
-    const res = await callRoute("ical-consecutive");
+    const res = await callRoute(slug);
     const ranges = parseUnavailableRanges(await res.text());
 
     expect(ranges).toEqual([{ start: "2027-06-20", end: "2027-06-23" }]);
   });
 
   it("includes an event for an active reservation's date range", async () => {
-    const propertyId = await createTestProperty({ slug: "ical-reserved" });
+    const slug = uniqueSlug("ical-reserved");
+    const propertyId = await createTestProperty({ slug });
     await createTestReservation(propertyId, "2027-07-01", "2027-07-04", {
       status: "confirmed",
     });
 
-    const res = await callRoute("ical-reserved");
+    const res = await callRoute(slug);
     const ranges = parseUnavailableRanges(await res.text());
 
     expect(ranges).toEqual([{ start: "2027-07-01", end: "2027-07-04" }]);
   });
 
   it("includes dates blocked by the external iCal feed", async () => {
+    const slug = uniqueSlug("ical-external");
     await createTestProperty({
-      slug: "ical-external",
+      slug,
       external_ical_url: "https://example.com/feed.ics",
     });
-    mockIcalFetch("https://example.com/feed.ics", icsWithEvent("20270801", "20270805"));
+    mockIcalFetch(
+      "https://example.com/feed.ics",
+      icsWithEvent("20270801", "20270805"),
+    );
 
-    const res = await callRoute("ical-external");
+    const res = await callRoute(slug);
     const ranges = parseUnavailableRanges(await res.text());
 
     expect(ranges).toEqual([{ start: "2027-08-01", end: "2027-08-05" }]);
   });
 
   it("excludes a date force-opened by a calendar_days override, even though the external feed blocks it", async () => {
+    const slug = uniqueSlug("ical-forced-open");
     const propertyId = await createTestProperty({
-      slug: "ical-forced-open",
+      slug,
       external_ical_url: "https://example.com/feed.ics",
     });
     await createTestCalendarDay(propertyId, "2027-08-12", {
       status: "available",
     });
-    mockIcalFetch("https://example.com/feed.ics", icsWithEvent("20270810", "20270815"));
+    mockIcalFetch(
+      "https://example.com/feed.ics",
+      icsWithEvent("20270810", "20270815"),
+    );
 
-    const res = await callRoute("ical-forced-open");
+    const res = await callRoute(slug);
     const ranges = parseUnavailableRanges(await res.text());
 
-    // 08-12 should be carved out, splitting the feed's range into two.
     expect(ranges).toEqual([
       { start: "2027-08-10", end: "2027-08-12" },
       { start: "2027-08-13", end: "2027-08-15" },

@@ -39,14 +39,14 @@ describe("POST /api/admin/reviews — validation", () => {
     expect(res.status).toBe(400);
   });
 
-  it("returns a 500, not a clean 400, for an out-of-range rating — documents a validation gap", async () => {
+  it("returns a clean 400 for an out-of-range rating (fixed — used to be a raw 500)", async () => {
     const res = await POST(postRequest({ ...validReview, rating: 6 }));
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(400);
   });
 
-  it("returns a 500, not a clean 400, for a source outside the allowed set — documents the same gap", async () => {
+  it("returns a clean 400 for a source outside the allowed set (fixed — used to be a raw 500)", async () => {
     const res = await POST(postRequest({ ...validReview, source: "Yelp" }));
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(400);
   });
 });
 

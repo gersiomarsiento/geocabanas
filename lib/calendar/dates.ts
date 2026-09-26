@@ -6,10 +6,32 @@ export type DateParts = {
   day: number;
 };
 
-export function isoDate(d: Date) {
-  return d.toISOString().slice(0, 10);
-}
+// This project is built for Uruguay-based clients (Punta del
+// Diablo) — hardcoding the business's own timezone here is the right
+// call for that. If this project is ever templated for a client in a
+// different timezone, this constant is the one thing that needs to
+// change.
+const BUSINESS_TIMEZONE = "America/Montevideo";
 
+export function isoDate(d: Date): string {
+  // Returns the calendar date `d` falls on in the business's own
+  // timezone (UTC-3, no DST) — not the server runtime's UTC clock.
+  // This matters specifically for "today": every caller of isoDate in
+  // this codebase passes `new Date()` (the current instant) to figure
+  // out what day it is right now. Uruguay is 3 hours behind UTC, so
+  // for roughly 9pm-midnight local time, a naivec
+  // `d.toISOString().slice(0, 10)` would already consider it
+  // "tomorrow" server-side, while it's still today for every real
+  // guest and admin — which could reject a legitimate same-day booking
+  // attempt, or shift the visitor calendar's start date by a day,
+  // during exactly that window.
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: BUSINESS_TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d);
+}
 export function toDateKey({ year, month, day }: DateParts): string {
   return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
@@ -52,26 +74,26 @@ export function buildCalendarDays(year: number, month: number) {
   return cells;
 }
 
-export function enumerateRange(start: DateParts, end: DateParts): string[] {
-  const keys: string[] = [];
+// export function enumerateRange(start: DateParts, end: DateParts): string[] {
+//   const keys: string[] = [];
 
-  const current = toDate(start);
-  const endTime = toDate(end).getTime();
+//   const current = toDate(start);
+//   const endTime = toDate(end).getTime();
 
-  while (current.getTime() <= endTime) {
-    keys.push(
-      toDateKey({
-        year: current.getFullYear(),
-        month: current.getMonth(),
-        day: current.getDate(),
-      }),
-    );
+//   while (current.getTime() <= endTime) {
+//     keys.push(
+//       toDateKey({
+//         year: current.getFullYear(),
+//         month: current.getMonth(),
+//         day: current.getDate(),
+//       }),
+//     );
 
-    current.setDate(current.getDate() + 1);
-  }
+//     current.setDate(current.getDate() + 1);
+//   }
 
-  return keys;
-}
+//   return keys;
+// }
 
 // Expands [{start, end}] ranges into a flat Set of individual "YYYY-MM-DD"
 // keys, so day-lookups in the grid are O(1). `end` is treated as checkout

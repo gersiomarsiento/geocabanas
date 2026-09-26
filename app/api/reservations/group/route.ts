@@ -2,7 +2,7 @@
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { getStayAvailability  } from "@/lib/booking/availability";
+import { getStayAvailability } from "@/lib/booking/availability";
 import { sendReservationEmails } from "@/lib/email/reservationEmails";
 import { resolveLocale } from "@/lib/i18n/getEmailMessages";
 
@@ -70,16 +70,29 @@ export async function POST(request: Request) {
     }),
   );
 
-  const failed = revalidated.find(
-    ({ availability }) => !availability.available || !availability.minStayOk,
+  const unavailable = revalidated.find(
+    ({ availability }) => !availability.available,
   );
 
-  if (failed) {
+  if (unavailable) {
     return NextResponse.json(
       {
-        error: `${failed.property.name} ya no está disponible para esas fechas. Volvé a buscar.`,
+        error: `${unavailable.property.name} ya no está disponible para esas fechas. Volvé a buscar.`,
       },
       { status: 409 },
+    );
+  }
+
+  const shortStay = revalidated.find(
+    ({ availability }) => !availability.minStayOk,
+  );
+
+  if (shortStay) {
+    return NextResponse.json(
+      {
+        error: `${shortStay.property.name}: la estadía mínima para estas fechas es de ${shortStay.availability.requiredMinStay} noches.`,
+      },
+      { status: 400 },
     );
   }
 

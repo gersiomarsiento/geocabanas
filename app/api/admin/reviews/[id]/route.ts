@@ -47,10 +47,23 @@ export async function PATCH(
   }
 
   if (body.rating != null) {
+    if (!Number.isInteger(body.rating) || body.rating < 1 || body.rating > 5) {
+      return NextResponse.json(
+        { error: "La calificación debe ser un número entero entre 1 y 5" },
+        { status: 400 },
+      );
+    }
     update.rating = body.rating;
   }
 
   if (body.source != null) {
+    const ALLOWED_SOURCES = ["Google", "Booking", "Airbnb"];
+    if (!ALLOWED_SOURCES.includes(body.source)) {
+      return NextResponse.json(
+        { error: "La fuente debe ser Google, Booking o Airbnb" },
+        { status: 400 },
+      );
+    }
     update.source = body.source;
   }
 
@@ -83,10 +96,20 @@ export async function PATCH(
     .select("id, author, rating, source, url, text, sort_order")
     .single();
 
-  if (error || !review) {
+  if (error?.code === "PGRST116") {
+    // .single() found zero matching rows — genuinely no such review.
     return NextResponse.json(
       { error: "Reseña no encontrada" },
       { status: 404 },
+    );
+  }
+
+  if (error || !review) {
+    // A real error (e.g. a constraint violation on rating/source), not
+    // a missing row — was previously misreported as 404 too.
+    return NextResponse.json(
+      { error: error?.message ?? "No se pudo actualizar la reseña" },
+      { status: 500 },
     );
   }
 
@@ -107,10 +130,24 @@ export async function DELETE(
 ) {
   const { id } = await params;
 
-  const { error } = await supabaseAdmin.from("reviews").delete().eq("id", id);
+  const { data, error } = await supabaseAdmin
+    .from("reviews")
+    .delete()
+    .eq("id", id)
+    .select("id");
 
   if (error) {
     return NextResponse.json({ error: "No se pudo eliminar" }, { status: 500 });
+  }
+
+  if (!data || data.length === 0) {
+    // DELETE matching zero rows isn't a Postgres error, so without this
+    // check, deleting an id that was never there would silently
+    // succeed too.
+    return NextResponse.json(
+      { error: "Reseña no encontrada" },
+      { status: 404 },
+    );
   }
 
   return NextResponse.json({ ok: true });

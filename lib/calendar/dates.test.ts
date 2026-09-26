@@ -1,4 +1,4 @@
-import { nextDate, expandRangesToDateSet } from "@/lib/calendar/dates";
+import { nextDate, expandRangesToDateSet, isoDate } from "@/lib/calendar/dates";
 
 describe("nextDate", () => {
   it("increments a plain day", () => {
@@ -23,6 +23,21 @@ describe("nextDate", () => {
 
   it("handles Feb 28 -> Mar 1 in a non-leap year", () => {
     expect(nextDate("2027-02-28")).toBe("2027-03-01");
+  });
+});
+
+describe("isoDate", () => {
+  it("returns the Uruguay calendar date, not the UTC one, near the UTC day boundary", () => {
+    // 11:30pm in Montevideo (UTC-3) on June 15 is already 2:30am UTC on
+    // June 16. The old UTC-based implementation would have returned
+    // "2027-06-16" here — one day ahead of the actual local date.
+    const almostMidnightInMontevideo = new Date("2027-06-15T23:30:00-03:00");
+    expect(isoDate(almostMidnightInMontevideo)).toBe("2027-06-15");
+  });
+
+  it("agrees with a straightforward UTC morning date", () => {
+    const midday = new Date("2027-06-15T15:00:00-03:00");
+    expect(isoDate(midday)).toBe("2027-06-15");
   });
 });
 

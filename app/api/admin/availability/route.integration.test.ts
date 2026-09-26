@@ -188,8 +188,8 @@ describe("PATCH /api/admin/availability — reservation conflicts", () => {
   });
 });
 
-describe("PATCH /api/admin/availability — iCal conflicts", () => {
-  it("blocks ANY field change on an iCal-conflicted date without confirmIcalOverride, even a price-only edit", async () => {
+describe("PATCH /api/admin/availability — iCal conflicts (fixed to match reservation behavior)", () => {
+  it("does NOT block a price-only edit on an iCal-conflicted date, even without confirmIcalOverride", async () => {
     const propertyId = await createTestProperty({
       default_price: 100,
       external_ical_url: "https://example.com/feed.ics",
@@ -210,11 +210,36 @@ describe("PATCH /api/admin/availability — iCal conflicts", () => {
     const body = await res.json();
 
     expect(res.status).toBe(200);
-    expect(body.icalConflictDates).toEqual(["2027-12-02"]);
+    expect(body.icalConflictDates).toEqual([]);
+    expect(body.updatedDates).toEqual(["2027-12-02"]);
+  });
+
+  it("still blocks an availability change on an iCal-conflicted date without confirmIcalOverride", async () => {
+    const propertyId = await createTestProperty({
+      default_price: 100,
+      external_ical_url: "https://example.com/feed3.ics",
+    });
+    mockUrlFetch(
+      "https://example.com/feed3.ics",
+      icsWithEvent("20271220", "20271225"),
+    );
+
+    const res = await PATCH(
+      patchRequest({
+        propertyId,
+        startDate: "2027-12-21",
+        endDate: "2027-12-21",
+        available: true, // trying to force-open over the iCal booking
+      }),
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body.icalConflictDates).toEqual(["2027-12-21"]);
     expect(body.updatedDates).toEqual([]);
   });
 
-  it("proceeds when confirmIcalOverride is true", async () => {
+  it("proceeds with an availability change when confirmIcalOverride is true", async () => {
     const propertyId = await createTestProperty({
       default_price: 100,
       external_ical_url: "https://example.com/feed2.ics",
@@ -230,6 +255,7 @@ describe("PATCH /api/admin/availability — iCal conflicts", () => {
         startDate: "2027-12-11",
         endDate: "2027-12-11",
         price: 200,
+        available: true,
         confirmIcalOverride: true,
       }),
     );

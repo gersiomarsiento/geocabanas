@@ -55,6 +55,16 @@ describe("POST /api/admin/instagram-posts — validation", () => {
     );
     expect(res.status).toBe(400);
   });
+
+  it("returns 400 for a disallowed MIME type", async () => {
+    const res = await POST(
+      uploadRequest(
+        makeFile("doc.pdf", "content", "application/pdf"),
+        "https://instagram.com/p/abc",
+      ),
+    );
+    expect(res.status).toBe(400);
+  });
 });
 
 describe("POST /api/admin/instagram-posts — real upload", () => {

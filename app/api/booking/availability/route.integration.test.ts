@@ -4,6 +4,7 @@ import {
   createTestProperty,
   createTestCalendarDay,
   cleanup,
+  uniqueSlug,
 } from "@/lib/testUtils/db";
 
 function requestFor(query: string): NextRequest {
@@ -21,29 +22,23 @@ describe("GET /api/booking/availability", () => {
   });
 
   it("returns the property and a default 365-day-ahead (366-entry, inclusive) day list", async () => {
-    await createTestProperty({
-      slug: "route-test-default-days",
-      default_price: 100,
-    });
+    const slug = uniqueSlug("route-test-default-days");
+    await createTestProperty({ slug, default_price: 100 });
 
-    const res = await GET(requestFor("?property=route-test-default-days"));
+    const res = await GET(requestFor(`?property=${slug}`));
     const body = await res.json();
 
     expect(res.status).toBe(200);
-    expect(body.property.slug).toBe("route-test-default-days");
+    expect(body.property.slug).toBe(slug);
     expect(body.days).toHaveLength(366);
     expect(body.days[0].price).toBe(100);
   });
 
   it("respects a custom days param", async () => {
-    await createTestProperty({
-      slug: "route-test-custom-days",
-      default_price: 100,
-    });
+    const slug = uniqueSlug("route-test-custom-days");
+    await createTestProperty({ slug, default_price: 100 });
 
-    const res = await GET(
-      requestFor("?property=route-test-custom-days&days=5"),
-    );
+    const res = await GET(requestFor(`?property=${slug}&days=5`));
     const body = await res.json();
 
     expect(res.status).toBe(200);
@@ -51,23 +46,17 @@ describe("GET /api/booking/availability", () => {
   });
 
   it("returns 502 when the days param is non-numeric", async () => {
-    await createTestProperty({
-      slug: "route-test-bad-days",
-      default_price: 100,
-    });
+    const slug = uniqueSlug("route-test-bad-days");
+    await createTestProperty({ slug, default_price: 100 });
 
-    const res = await GET(
-      requestFor("?property=route-test-bad-days&days=not-a-number"),
-    );
+    const res = await GET(requestFor(`?property=${slug}&days=not-a-number`));
 
     expect(res.status).toBe(502);
   });
 
   it("reflects a calendar_days block through the full route -> DB chain", async () => {
-    const propertyId = await createTestProperty({
-      slug: "route-test-blocked-day",
-      default_price: 100,
-    });
+    const slug = uniqueSlug("route-test-blocked-day");
+    const propertyId = await createTestProperty({ slug, default_price: 100 });
 
     const today = new Date();
     const blockedDate = new Date(today);
@@ -78,9 +67,7 @@ describe("GET /api/booking/availability", () => {
       status: "blocked",
     });
 
-    const res = await GET(
-      requestFor("?property=route-test-blocked-day&days=10"),
-    );
+    const res = await GET(requestFor(`?property=${slug}&days=10`));
     const body = await res.json();
 
     const blockedEntry = body.days.find(

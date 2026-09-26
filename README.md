@@ -83,10 +83,11 @@ project:
    — see `CLAUDE.md`'s Testing section for the exact shape and the
    safety rules around this file.
 
-The integration suite resets its own test data automatically before each
-run (see `jest.integration.globalSetup.ts`) and refuses to run at all
-against anything that doesn't look like a local `SUPABASE_URL` — so a
-misconfigured `.env.test` can't accidentally wipe a real project.
+The integration suite resets its own test data automatically before
+each run — database tables and the `property-images` Storage bucket
+alike (see `jest.integration.globalSetup.ts`) — and refuses to run at
+all against anything that doesn't look like a local `SUPABASE_URL`, so
+a misconfigured `.env.test` can't accidentally wipe a real project.
 
 ## Deployment
 
