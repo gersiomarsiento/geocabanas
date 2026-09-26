@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 function loadEnvTest(): void {
   const envPath = join(__dirname, ".env.test");
@@ -16,6 +16,42 @@ function loadEnvTest(): void {
     const key = trimmed.slice(0, eq).trim();
     const value = trimmed.slice(eq + 1).trim();
     if (!(key in process.env)) process.env[key] = value;
+  }
+}
+
+async function clearBucket(
+  supabaseAdmin: SupabaseClient,
+  bucket: string,
+): Promise<void> {
+  async function listAllPaths(prefix = ""): Promise<string[]> {
+    const { data, error } = await supabaseAdmin.storage
+      .from(bucket)
+      .list(prefix, { limit: 1000 });
+    if (error) {
+      throw new Error(`Failed to list "${bucket}/${prefix}": ${error.message}`);
+    }
+    if (!data) return [];
+
+    let paths: string[] = [];
+    for (const entry of data) {
+      const fullPath = prefix ? `${prefix}/${entry.name}` : entry.name;
+      // Supabase Storage marks folder entries with id: null; files have a
+      // real id. Recurse into folders, collect files.
+      if (entry.id === null) {
+        paths = paths.concat(await listAllPaths(fullPath));
+      } else {
+        paths.push(fullPath);
+      }
+    }
+    return paths;
+  }
+
+  const allPaths = await listAllPaths();
+  if (allPaths.length > 0) {
+    const { error } = await supabaseAdmin.storage.from(bucket).remove(allPaths);
+    if (error) {
+      throw new Error(`Failed to clear bucket "${bucket}": ${error.message}`);
+    }
   }
 }
 
@@ -44,7 +80,7 @@ export default async function globalSetup(): Promise<void> {
   // those. faqs has no FK relationship to properties, so it needs its
   // own clear. Add further tables here if test helpers start covering
   // them (e.g. reviews, instagram_posts).
-  const tables = ["properties", "faqs", "reviews"];
+  const tables = ["properties", "faqs", "reviews", "instagram_posts"];
 
   for (const table of tables) {
     const { error } = await supabaseAdmin
@@ -61,11 +97,16 @@ export default async function globalSetup(): Promise<void> {
       );
     }
   }
+
+  await clearBucket(supabaseAdmin, "property-images");
+
   const { error: settingsError } = await supabaseAdmin
     .from("site_settings")
     .delete()
     .eq("id", "singleton");
   if (settingsError) {
-    throw new Error(`globalSetup: failed to clear "site_settings": ${settingsError.message}`);
+    throw new Error(
+      `globalSetup: failed to clear "site_settings": ${settingsError.message}`,
+    );
   }
 }

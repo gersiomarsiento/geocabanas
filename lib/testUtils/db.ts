@@ -10,6 +10,19 @@ const createdFaqIds: string[] = [];
 
 const createdReviewIds: string[] = [];
 
+const createdStoragePaths: string[] = [];
+
+const createdInstagramPostIds: string[] = [];
+
+export function trackStoragePath(path: string): void {
+  createdStoragePaths.push(path);
+}
+
+
+export function trackInstagramPostId(id: string): void {
+  createdInstagramPostIds.push(id);
+}
+
 export interface TestReviewOverrides {
   author?: string;
   rating?: number;
@@ -204,5 +217,22 @@ export async function cleanup(): Promise<void> {
       .in("id", createdReviewIds);
     if (error) throw new Error(`cleanup (reviews) failed: ${error.message}`);
     createdReviewIds.length = 0;
+  }
+
+  if (createdInstagramPostIds.length > 0) {
+    const { error } = await supabaseAdmin
+      .from("instagram_posts")
+      .delete()
+      .in("id", createdInstagramPostIds);
+    if (error) throw new Error(`cleanup (instagram_posts) failed: ${error.message}`);
+    createdInstagramPostIds.length = 0;
+  }
+
+  if (createdStoragePaths.length > 0) {
+    const { error } = await supabaseAdmin.storage
+      .from("property-images")
+      .remove(createdStoragePaths);
+    if (error) throw new Error(`cleanup (storage) failed: ${error.message}`);
+    createdStoragePaths.length = 0;
   }
 }
