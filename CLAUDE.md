@@ -154,6 +154,46 @@ Several individual route files under `app/api/admin/` still carry
 ship` comments left over from early scaffolding — these are stale; the
 middleware already covers them. Cleanup tracked in `TO_DO.md`.
 
+
+## Testing
+
+Two separate Jest configs, deliberately kept apart:
+
+- **Unit tests** (`npm test`, `jest.config.ts`) — pure logic only, no
+  database. Matches every `*.test.ts` except `*.integration.test.ts`.
+- **Integration tests** (`npm run test:integration`,
+  `jest.integration.config.ts`, run with `--runInBand`) — against a
+  local Supabase instance (Docker, via `supabase start`), never the real
+  project. A `globalSetup` script
+  (`jest.integration.globalSetup.ts`) clears `properties`, `faqs`,
+  `reviews`, and `site_settings` before the run starts, and refuses to
+  run at all unless `SUPABASE_URL` in `.env.test` looks local — a hard
+  safety guard, not a convenience, since the reset does unfiltered bulk
+  deletes.
+
+`.env.test` holds credentials for the local Supabase instance only —
+never point it at a real project. Test helpers live in
+`lib/testUtils/`: `db.ts` for seeding/cleaning test rows, `mockFetch.ts`
+for intercepting one external URL (e.g. an iCal feed) while passing
+every other `fetch` call through untouched — needed because Supabase's
+own client uses `fetch` internally too, so a naive full mock silently
+breaks unrelated calls in the same test.
+
+### ESM-only dependencies need `transpilePackages`, not a Jest patch
+
+`next/jest`'s default `transformIgnorePatterns` skips everything in
+`node_modules` except a small built-in allow-list, so a package that
+ships ESM-only fails with a "Must use import to load ES Module" error.
+The fix is adding the package to `transpilePackages` in
+`next.config.ts` — **not** patching `transformIgnorePatterns` directly
+in a Jest config, since `next/jest` generates its own ignore pattern
+from that list and a second, competing pattern doesn't override it
+(patterns are OR'd together, so the first match — next/jest's own —
+still skips the file). Packages that have needed this so far: `jose`,
+`ical-generator`, `next-intl`, `@formatjs/intl-localematcher`. This can
+chain a few levels deep through a package's own dependencies — add each
+one as it surfaces.
+
 ## Environment variables
 
 ```

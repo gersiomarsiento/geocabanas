@@ -2,6 +2,12 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const nextConfig: NextConfig = {
+  transpilePackages: [
+    "jose",
+    "ical-generator",
+    "next-intl",
+    "@formatjs/intl-localematcher",
+  ],
   images: {
     remotePatterns: [
       {

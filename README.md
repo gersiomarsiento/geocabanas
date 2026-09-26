@@ -60,6 +60,34 @@ evolving over years. Keep it that way — after any schema change, update
 client instance is always one script away. A seed file for sample
 property data is planned; see `TO_DO.md`.
 
+## Testing
+
+Two commands, two different scopes:
+
+```bash
+npm test               # unit tests — pure logic, no database
+npm run test:integration   # integration tests — real local Supabase
+```
+
+Integration tests need a **local** Supabase instance, never the real
+project:
+
+1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop)
+   and the [Supabase CLI](https://github.com/supabase/cli).
+2. `supabase init` (once), then `supabase start`. Note the local API
+   URL, anon/service-role keys, and DB URL it prints.
+3. Run `db/schema.sql` against the local instance via Studio's SQL
+   editor (same one-script setup as a real client instance — see
+   Database setup above).
+4. Create `.env.test` at the project root with those local credentials
+   — see `CLAUDE.md`'s Testing section for the exact shape and the
+   safety rules around this file.
+
+The integration suite resets its own test data automatically before each
+run (see `jest.integration.globalSetup.ts`) and refuses to run at all
+against anything that doesn't look like a local `SUPABASE_URL` — so a
+misconfigured `.env.test` can't accidentally wipe a real project.
+
 ## Deployment
 
 Hosted on Cloudflare Workers via OpenNext (not Vercel, not Cloudflare
