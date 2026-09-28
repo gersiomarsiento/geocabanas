@@ -467,7 +467,7 @@ export default function BookingCalendar() {
   }
 
   return (
-    <div className="booking-wrapper max-w-lg md:max-w-354 w-full space-y-4 justify-items-center md:grid md:grid-cols-2 md:gap-x-4">
+    <div className="booking-wrapper mx-auto max-w-lg md:max-w-354 w-full space-y-4 justify-items-center md:grid md:grid-cols-2 md:gap-x-4">
       {/* Property selector */}
       <div className="property-details-wrapper w-full md:flex md:flex-col">
         {properties && properties.length > 1 && (

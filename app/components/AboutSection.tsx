@@ -89,7 +89,7 @@ export default function AboutSection() {
         </p>
       </div>
 
-      <div className="mt-10 md:mt-16 max-w-354 w-full justify-self-center">
+      <div className="mx-auto mt-10 md:mt-16 max-w-354 w-full justify-self-center">
         <h3 className="text-center text-md md:text-2xl font-semibold">
           {t("nuestrasCabanas")}
         </h3>

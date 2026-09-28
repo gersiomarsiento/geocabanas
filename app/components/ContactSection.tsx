@@ -89,7 +89,7 @@ export default function ContactSection() {
       id="contact-section"
       className="w-full border border-zinc-200 bg-secondary-100 p-6 py-10 shadow-sm    "
     >
-      <div className="max-w-354 md:flex md:justify-between w-full justify-self-center md:px-6 ">
+      <div className="mx-auto max-w-354 md:flex md:justify-between w-full justify-self-center md:px-6 ">
         <div className="md:w-1/2 relative">
           <h2 className="mb-4">{t("titulo")}</h2>
           {logoUrl && (

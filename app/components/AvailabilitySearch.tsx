@@ -232,7 +232,7 @@ export default function AvailabilitySearch() {
       : null;
 
   return (
-    <div className="w-full max-w-lg md:max-w-354 mt-4 flex flex-col md:flex-row gap-4">
+    <div className="w-full mx-auto max-w-lg md:max-w-354 mt-4 flex flex-col md:flex-row gap-4">
       <div className="overflow-hidden rounded-xl border border-zinc-200 shadow-sm w-full">
         <div className="bg-primary px-4 py-3 md:px-6 md:py-4 text-primary-foreground">
           <h3 className="font-bold">{t("titulo")}</h3>

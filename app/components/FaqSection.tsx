@@ -35,7 +35,7 @@ export default function FaqSection() {
       aria-label="Preguntas frecuentes"
       className="mx-auto w-full justify-items-center px-3 py-10 md:px-6"
     >
-      <div className="w-full max-w-lg md:max-w-354">
+      <div className="w-full mx-auto max-w-lg md:max-w-354">
         <h2 className="mb-6 text-center text-primary">{t("titulo")}</h2>
 
         {!faqs ? (
