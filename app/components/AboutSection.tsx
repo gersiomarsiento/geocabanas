@@ -85,7 +85,7 @@ export default function AboutSection() {
       className="isolate mx-auto relative text-primary-foreground w-full px-3 py-10 md:px-6"
     >
       <Image
-        src={`/../images/bg_dark_mesh.webp`}
+        src={`/images/bg_dark_mesh.webp`}
         alt={"Background gradient"}
         fill
         loading="lazy"
@@ -104,14 +104,14 @@ export default function AboutSection() {
           </div>
           <div className="w-full md:max-w-1/2 relative max-h-103">
             <Image
-              src={`/../images/beach.webp`}
+              src={`/images/beach.webp`}
               alt={"Mujer en la playa"}
               width={180}
               height={240}
               className="absolute bottom-0 left-0 rounded-lg max-w-30 lg:max-w-full"
             />
             <Image
-              src={`/../images/ocean.webp`}
+              src={`/images/ocean.webp`}
               alt={"Mar de Punta del Diablo"}
               width={620}
               height={412}
