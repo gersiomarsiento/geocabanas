@@ -75,6 +75,9 @@ html {
   --color-accent: var(--color-accent-500);
   --color-accent-foreground: var(--seed-accent-foreground);
 
+  --color-white: #f5f7ff;
+  --color-black: #0a0b0f;
+
   /* ---- Ramps, computed from the seeds above ----
      Same lightness/chroma-multiplier curve reused for all three
      colors in all themes, so every ramp is equally smooth —
@@ -193,17 +196,19 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-h1, h2, h3 {
-  @apply font-gotham uppercase
+h1,
+h2,
+h3 {
+  @apply font-gotham font-normal uppercase;
 }
-h1 {
-  @apply text-2xl md:text-[60px] font-semibold;
+h1:not(.small) {
+  @apply text-2xl md:text-[60px];
 }
 h2 {
-  @apply text-xl md:text-[48px] font-semibold;
+  @apply text-xl md:text-[48px];
 }
 h3 {
-  @apply text-lg md:text-[30px] font-semibold;
+  @apply text-lg md:text-[30px];
 }
 h4 {
   @apply font-semibold;
@@ -211,4 +216,26 @@ h4 {
 
 button:hover {
   cursor: pointer;
+}
+
+.bg-gradient-1 {
+  background: linear-gradient(180deg, #002331 0%, #104255 38.94%, #368bad 100%);
+}
+
+.bg-gradient-2 {
+  background: radial-gradient(
+    55.33% 55.33% at 50% 63.68%,
+    #002331 0%,
+    #104255 18.75%,
+    #307895 100%
+  );
+}
+
+.bg-gradient-3 {
+  background: radial-gradient(
+    47.04% 47.04% at 50% 63.68%,
+    #60afcf 0%,
+    #044a66 15.72%,
+    #002331 100%
+  );
 }

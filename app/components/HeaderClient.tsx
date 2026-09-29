@@ -71,7 +71,7 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
 
         {/* Desktop */}
         <div className="hidden items-center gap-6 md:flex">
-          <nav className="flex items-center gap-6">
+          <nav className="flex items-center gap-6 uppercase">
             <a
               href="#reservar-button"
               className="text-sm font-medium text-primary-foreground hover:underline"

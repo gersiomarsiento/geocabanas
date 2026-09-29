@@ -4,17 +4,21 @@
 // returns fields a visitor should see (no default_price/min_stay
 // internals beyond what's needed for display, no ical URLs, etc.).
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { BASE_CURRENCY } from "@/lib/currency";
+import { getLocalized } from "@/lib/i18n/getLocalized";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const locale = req.nextUrl.searchParams.get("locale") ?? "es";
+
   const { data, error } = await supabaseAdmin
     .from("properties")
     .select(
       `
       id,
       name,
+      description,
       slug,
       currency,
       bedrooms,
@@ -38,6 +42,7 @@ export async function GET() {
   const properties = data.map((property) => ({
     id: property.id,
     name: property.name,
+    description: getLocalized(property.description, locale),
     slug: property.slug,
     currency: BASE_CURRENCY,
     bedrooms: property.bedrooms,

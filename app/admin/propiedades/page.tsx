@@ -82,7 +82,7 @@ export default function PropiedadesPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Propiedades</h1>
+        <h1 className="small text-xl font-semibold">Propiedades</h1>
         {!addingOpen && (
           <button
             type="button"

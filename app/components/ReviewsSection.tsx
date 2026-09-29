@@ -113,7 +113,7 @@ export default function ReviewsSection() {
   return (
     <section
       aria-labelledby="reviews-title"
-      className="w-full py-10 md:py-16 bg-linear-180 from-primary to-secondary-50 overflow-hidden"
+      className="w-full py-10 md:py-16 bg-gradient-1 overflow-hidden"
     >
       <div className="mx-auto max-w-354">
         <div className="mb-6 px-3 md:px-6 text-center md:mb-10">
@@ -123,14 +123,24 @@ export default function ReviewsSection() {
           >
             {t("titulo")}
           </h2>
-          <p className="mt-2 text-sm text-background">{t("subtitulo")}</p>
+          <p className="mt-2 text-sm md:text-[20px] font-normal text-background">
+            {t("subtitulo")}
+          </p>
         </div>
 
         {!reviews ? (
           <p className="text-center text-sm text-background">{t("cargando")}</p>
         ) : (
           /* Contenedor con la máscara de desvanecimiento a los lados que ya tenías */
-          <div className="relative overflow-hidden xs:mask-[linear-gradient(to_right,transparent,black_15%,black_85%,transparent)] [xs:-webkit-mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)] py-4 px-4">
+          <div
+            className="relative overflow-hidden py-4 px-4"
+            style={{
+              maskImage:
+                "linear-gradient(to right, transparent, black 15%, black 85%, transparent)",
+              WebkitMaskImage:
+                "linear-gradient(to right, transparent, black 15%, black 85%, transparent)",
+            }}
+          >
             {/* Pista (Track) que se desliza suavemente de forma horizontal */}
             <div
               className={`flex items-center gap-6 ${

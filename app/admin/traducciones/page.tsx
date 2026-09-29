@@ -68,7 +68,7 @@ export default function TraduccionesPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Traducciones</h1>
+        <h1 className="small text-xl font-semibold">Traducciones</h1>
 
         <div className="inline-flex rounded-md border border-zinc-300 p-1">
           {(Object.keys(LOCALE_LABELS) as EditableLocale[]).map((l) => (

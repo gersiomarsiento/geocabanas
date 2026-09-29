@@ -54,7 +54,17 @@ export default function InstagramGallery() {
         <h2 className="text-2xl sm:text-3xl font-semibold text-white mb-2">
           {t("titulo")}
         </h2>
-        {handle && <p className="text-white mb-8">{toDisplayHandle(handle)}</p>}
+        {handle && (
+          <div className="mt-2 text-sm md:text-[20px] font-normal text-background mb-8 md:mb-10">
+            <Link
+              href={`https://www.instagram.com/${handle}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {toDisplayHandle(handle)}
+            </Link>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-0.5">
           {(posts ?? []).map((post) => (
