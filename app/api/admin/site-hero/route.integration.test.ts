@@ -35,7 +35,7 @@ describe("POST /api/admin/site-hero — validation", () => {
 describe("POST /api/admin/site-hero — real upload", () => {
   it("uploads real bytes to the fixed site/hero path and includes a cache-busting query param", async () => {
     const res = await POST(
-      uploadRequest(makeFile("hero.jpg", "hero-image-bytes", "image/jpeg")),
+      uploadRequest(makeFile("hero.webp", "hero-image-bytes", "image/jpeg")),
     );
     const body = await res.json();
 

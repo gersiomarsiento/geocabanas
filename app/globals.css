@@ -239,3 +239,9 @@ button:hover {
     #002331 100%
   );
 }
+.bg-light-mesh {
+  background-image: url("/images/bg_light_mesh.webp")
+}
+.bg-dark-mesh {
+  background-image: url("/images/bg_dark_mesh.webp")
+}

@@ -14,7 +14,7 @@ export default async function HeroImage() {
 
   return (
     <HeroImageClient
-      heroUrl={heroUrl ?? "/images/hero.jpg"}
+      heroUrl={heroUrl ?? "/images/hero.webp"}
       heroTitle={getLocalized(heroTitle, locale) || null}
       heroSubtitle={getLocalized(heroSubtitle, locale) || null}
       heroButtonHref={heroButtonHref}
