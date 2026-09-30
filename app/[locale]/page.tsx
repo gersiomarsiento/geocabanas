@@ -13,7 +13,8 @@ import Header from "../components/Header";
 import InstagramGallery from "../components/InstagramGallery";
 import WhatsAppButton from "../components/WhatsAppButton";
 import AvailabilitySearch from "../components/AvailabilitySearch";
-// import FeaturesSection from "../components/FeaturesSection";
+import PropertiesSection from "../components/PropertiesSection";
+import FeaturesSection from "../components/FeaturesSection";
 
 export default async function Home() {
   const t = await getTranslations("Hero");
@@ -21,39 +22,49 @@ export default async function Home() {
 
   return (
     <div className="flex min-h-screen flex-col bg-white font-sans">
-      <section
-        aria-label={t("imagenPrincipal")}
-        className="relative flex h-svh w-full items-center justify-center bg-primary"
-      >
-        <Header />
-        <HeroSlider
-          slides={[
-            <HeroImage key="1" />,
-            <HeroImageClient
-              key="2"
-              heroUrl={"/images/hero.webp"}
-              heroTitle={"Geo"}
-              heroSubtitle={"Siempre con vos"}
-              heroButtonHref={"/#"}
-              heroButtonText={"RESERVAR"}
-            />,
-          ]}
-        />
-      </section>
+      <Header />
 
-      <AboutSection />
-      <main
-        id="reservar-button"
-        className="mx-auto bg-light-mesh w-full justify-items-center flex-1 px-3 md:px-6 py-10"
-      >
-        <h2 className="mb-6 text-center">{tBooking("hacerTuReserva")}</h2>
-        <BookingCalendar />
-        <AvailabilitySearch />
+      <main className="flex-1 overflow-x-hidden">
+        <section
+          aria-label={t("imagenPrincipal")}
+          className="relative flex h-svh w-full items-center justify-center bg-primary"
+        >
+          <HeroSlider
+            slides={[
+              <HeroImage key="1" />,
+              <HeroImageClient
+                key="2"
+                heroUrl={"/images/hero.webp"}
+                heroTitle={"Geo"}
+                heroSubtitle={"Siempre con vos"}
+                heroButtonHref={"/#"}
+                heroButtonText={"RESERVAR"}
+              />,
+            ]}
+          />
+        </section>
+        <FeaturesSection />
+        <section
+          id="reservar-button"
+          aria-labelledby="booking-title"
+          className="mx-auto bg-light-mesh w-full justify-items-center px-3 md:px-6 py-10"
+        >
+          <h2 id="booking-title" className="mb-6 text-center">
+            {tBooking("hacerTuReserva")}
+          </h2>
+          <BookingCalendar />
+          <AvailabilitySearch />
+        </section>
+
+        <AboutSection />
+        <PropertiesSection />
+
+        <ReviewsSection />
+        <InstagramGallery />
+        <FaqSection />
+        <ContactSection />
       </main>
-      <ReviewsSection />
-      <InstagramGallery />
-      <FaqSection />
-      <ContactSection />
+
       <Footer />
       <WhatsAppButton />
     </div>

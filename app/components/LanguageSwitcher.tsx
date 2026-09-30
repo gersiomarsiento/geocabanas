@@ -22,10 +22,11 @@ export default function LanguageSwitcher() {
   }
 
   return (
-    <div className="relative min-h-9 md:min-h-0 w-fit flex items-center gap-2 rounded-md border border-white/30 bg-primary px-2 py-1 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
+    <div className="relative min-h-9 md:min-h-0 w-fit flex items-center gap-2 rounded-md border border-white/30 px-2 py-1 text-sm font-medium bg-black md:bg-transparent text-primary-foreground transition-colors hover:bg-accent">
       {FlagIcon && <FlagIcon />}
 
       <select
+        id="language"
         value={locale}
         onChange={(e) => handleChange(e.target.value)}
         aria-label="Idioma / Language"

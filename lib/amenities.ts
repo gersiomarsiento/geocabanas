@@ -8,12 +8,17 @@ export type AmenityOption = { id: string; label: string };
 
 export const AMENITY_OPTIONS: AmenityOption[] = [
   { id: "wifi", label: "WiFi" },
+  { id: "shared_bathroom", label: "Baño compartido" },
+  { id: "private_bathroom", label: "Baño privado" },
   { id: "parking", label: "Estacionamiento" },
   { id: "pool", label: "Piscina" },
+  { id: "heated_pool", label: "Piscina climatizada" },
   { id: "air_conditioning", label: "Aire acondicionado" },
   { id: "heating", label: "Calefacción" },
-  { id: "kitchen", label: "Cocina equipada" },
+  { id: "shared_kitchen", label: "Cocina compartida" },
+  { id: "private_kitchen", label: "Cocina privada" },
   { id: "tv", label: "TV" },
+  { id: "cable_tv", label: "TV por cable" },
   { id: "washer", label: "Lavarropas" },
   { id: "dryer", label: "Secarropas" },
   { id: "bbq", label: "Parrilla" },

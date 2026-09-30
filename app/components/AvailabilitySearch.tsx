@@ -232,16 +232,16 @@ export default function AvailabilitySearch() {
       : null;
 
   return (
-    <div className="w-full mx-auto max-w-lg md:max-w-354 mt-4 flex flex-col md:flex-row gap-4">
-      <div className="overflow-hidden rounded-xl border border-zinc-200 shadow-sm w-full">
-        <div className="bg-primary px-4 py-3 md:px-6 md:py-4 text-primary-foreground">
+    <div className="w-full mx-auto max-w-lg md:max-w-354 mt-4 flex flex-col md:grid md:grid-cols-2 gap-4">
+      <div className="overflow-hidden rounded-xl border border-zinc-200 shadow-sm w-full flex flex-col md:grid md:grid-rows-12">
+        <div className="bg-primary px-4 py-3 md:px-6 md:py-4 text-primary-foreground md:row-span-3">
           <h3 className="font-bold">{t("titulo")}</h3>
           <p className="mt-0.5 text-sm text-primary-foreground/80">
             {t("subtitulo")}
           </p>
         </div>
 
-        <div className="bg-white p-3 md:p-6 h-full">
+        <div className="bg-white p-3 md:p-6 h-full md:row-span-9 flex flex-col justify-between">
           <div className="grid gap-3 grid-cols-2 items-end">
             <label className="block">
               <span className="mb-1.5 block text-sm font-medium text-zinc-600">
@@ -335,7 +335,7 @@ export default function AvailabilitySearch() {
       </div>
 
       {searched ? (
-        <div className="overflow-hidden rounded-xl border border-zinc-200 shadow-sm w-full">
+        <div className="overflow-hidden rounded-xl border border-zinc-200 shadow-sm w-full flex flex-col md:grid md:grid-rows-12">
           {recommended === null ? (
             <div className="bg-white p-3 md:p-6">
               <p className="text-sm text-zinc-600">{t("sinResultados")}</p>
@@ -483,11 +483,11 @@ export default function AvailabilitySearch() {
           )}
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-zinc-200 shadow-sm w-full">
-          <div className="bg-primary px-4 py-3 md:px-6 md:py-4 text-primary-foreground min-h-23.5 md:min-h-21.5">
+        <div className="overflow-hidden rounded-xl border border-zinc-200 shadow-sm w-full flex flex-col md:grid md:grid-rows-12">
+          <div className="bg-primary px-4 py-3 md:px-6 md:py-4 text-primary-foreground md:row-span-3">
             <h3 className="font-bold">{t("resultados")}</h3>
           </div>
-          <div className="bg-white p-3 md:p-6 min-h-69 h-auto content-center text-center">
+          <div className="bg-white p-3 md:p-6 min-h-69 h-auto content-center text-center md:row-span-9">
             {t("realizaUnaBusqueda")}
           </div>
         </div>

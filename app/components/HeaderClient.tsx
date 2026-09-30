@@ -12,6 +12,39 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
   const t = useTranslations("Header");
   const [menuOpen, setMenuOpen] = useState(false);
   const [drawerMounted, setDrawerMounted] = useState(false);
+  const [atTop, setAtTop] = useState(true);
+  const [hidden, setHidden] = useState(false);
+
+  useEffect(() => {
+    let lastY = window.scrollY;
+    let ticking = false;
+
+    const update = () => {
+      const y = window.scrollY;
+
+      setAtTop(y < 200);
+
+      // Only toggle hide/show after a small delta to avoid jitter
+      if (Math.abs(y - lastY) > 8) {
+        // Never hide while at the very top, or while the mobile drawer is open
+        setHidden(y > lastY && y > 80);
+        lastY = y;
+      }
+
+      ticking = false;
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(update);
+        ticking = true;
+      }
+    };
+
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const { currency, setCurrency, activeCurrencies, isReady } = useCurrency();
 
@@ -48,94 +81,101 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
   }
 
   return (
-    <header className="absolute inset-x-0 top-0 z-20 bg-primary">
-      <div className="flex md:max-w-360 items-center justify-between p-3 md:px-6 mx-auto">
-        <h2 className="text-xl font-bold tracking-tight text-primary-foreground md:text-2xl">
-          {logoUrl ? (
-            <a href="#">
-              <Image
-                src={logoUrl}
-                alt="Geocabañas"
-                width={160}
-                height={40}
-                priority
-                className="h-10 w-auto md:h-14"
+    <>
+      <header
+        className={`fixed inset-x-0 top-0 z-20 transition-all duration-300 ease-in-out ${
+            atTop ? "bg-linear-to-b from-black/50 to-transparent" : "bg-primary shadow-md"
+        } ${hidden && !menuOpen ? "-translate-y-full" : "translate-y-0"}`}
+      >
+        <div className="flex md:max-w-360 items-center justify-between p-3 md:px-6 mx-auto">
+          <h2 className="text-xl font-bold tracking-tight text-primary-foreground md:text-2xl">
+            {logoUrl ? (
+              <a href="#">
+                <Image
+                  src={logoUrl}
+                  alt="Geocabañas"
+                  width={160}
+                  height={40}
+                  priority
+                  className="h-14 w-auto md:h-18"
+                />
+              </a>
+            ) : (
+              <span className="text-xl font-bold tracking-tight text-primary-foreground md:text-2xl">
+                GEOCABAÑAS
+              </span>
+            )}
+          </h2>
+
+          {/* Desktop */}
+          <div className="hidden items-center gap-6 md:flex">
+            <nav className="flex items-center gap-6 uppercase">
+              <a
+                href="#quienes-somos"
+                className="text-sm font-medium text-primary-foreground transition-colors hover:text-accent-300"
+              >
+                {t("nuestrasCabanas")}
+              </a>
+
+              <a
+                href="#contact-section"
+                className="text-sm font-medium text-primary-foreground transition-colors hover:text-accent-300"
+              >
+                {t("contacto")}
+              </a>
+              <a
+                href="#reservar-button"
+                className="bg-secondary-500 text-white w-fit rounded-md  px-4 py-1.5 text-sm font-medium transition-colors hover:bg-accent"
+              >
+                {t("reservar")}
+              </a>
+
+            </nav>
+            {/* Currency selector */}
+            {!isReady ? (
+              <div
+                className="h-9 w-17 animate-pulse rounded-md bg-background/10"
+                aria-label={t("cargandoMoneda")}
               />
-            </a>
-          ) : (
-            <span className="text-xl font-bold tracking-tight text-primary-foreground md:text-2xl">
-              GEOCABAÑAS
-            </span>
-          )}
-        </h2>
-
-        {/* Desktop */}
-        <div className="hidden items-center gap-6 md:flex">
-          <nav className="flex items-center gap-6 uppercase">
-            <a
-              href="#reservar-button"
-              className="text-sm font-medium text-primary-foreground hover:underline"
-            >
-              {t("reservar")}
-            </a>
-
-            <a
-              href="#quienes-somos"
-              className="text-sm font-medium text-primary-foreground hover:underline"
-            >
-              {t("nuestrasCabanas")}
-            </a>
-
-            <a
-              href="#contact-section"
-              className="text-sm font-medium text-primary-foreground hover:underline"
-            >
-              {t("contacto")}
-            </a>
-          </nav>
-          {/* Currency selector */}
-          {!isReady ? (
-            <div
-              className="h-9 w-17 animate-pulse rounded-md bg-background/10"
-              aria-label={t("cargandoMoneda")}
-            />
-          ) : (
-            <select
-              value={currency}
-              onChange={(event) => handleCurrencyChange(event.target.value)}
-              aria-label={t("seleccionarMoneda")}
-              className="cursor-pointer rounded-md border border-white/30 bg-primary px-2 py-1 text-sm font-medium text-primary-foreground outline-none"
-            >
-              {activeCurrencies.map((item) => (
-                <option
-                  key={item}
-                  value={item}
-                  className="bg-background text-primary"
-                >
-                  {item}
-                </option>
-              ))}
-            </select>
-          )}
-          <LanguageSwitcher />
-        </div>
-
-        {/* Mobile menu button */}
-        <button
-          type="button"
-          onClick={openMenu}
-          aria-label={t("abrirMenu")}
-          aria-expanded={menuOpen}
-          className="flex h-8 w-8 items-center justify-center rounded-md md:hidden"
-        >
-          <div className="flex flex-col gap-1">
-            <span className="block h-0.5 w-6 bg-background" />
-            <span className="block h-0.5 w-6 bg-background" />
-            <span className="block h-0.5 w-6 bg-background" />
+            ) : (
+              <select
+                value={currency}
+                onChange={(event) => handleCurrencyChange(event.target.value)}
+                aria-label={t("seleccionarMoneda")}
+                className={`cursor-pointer rounded-md border border-white/30 px-2 py-1 text-sm font-medium text-primary-foreground outline-none transition-colors hover:bg-accent duration-300 ${
+                  atTop ? "bg-transparent backdrop-blur-sm" : "bg-primary"
+                }`}
+              >
+                {activeCurrencies.map((item) => (
+                  <option
+                    key={item}
+                    value={item}
+                    className="bg-background text-primary"
+                  >
+                    {item}
+                  </option>
+                ))}
+              </select>
+            )}
+            <LanguageSwitcher />
           </div>
-        </button>
-      </div>
 
+          {/* Mobile menu button */}
+          <button
+            type="button"
+            onClick={openMenu}
+            aria-label={t("abrirMenu")}
+            aria-expanded={menuOpen}
+            className="flex h-8 w-8 items-center justify-center rounded-md md:hidden"
+          >
+            <div className="flex flex-col gap-1">
+              <span className="block h-0.5 w-6 bg-background" />
+              <span className="block h-0.5 w-6 bg-background" />
+              <span className="block h-0.5 w-6 bg-background" />
+            </div>
+          </button>
+        </div>
+      </header>
       {/* Mobile drawer */}
       {drawerMounted && (
         <div className="fixed inset-0 z-50 md:hidden">
@@ -233,6 +273,6 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
           </nav>
         </div>
       )}
-    </header>
+    </>
   );
 }

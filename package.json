@@ -18,6 +18,7 @@
     "git-filter-repo": "^0.0.30",
     "ical-generator": "^11.1.0",
     "jose": "^6.2.8",
+    "lucide-react": "^1.49.0",
     "next": "16.3.0",
     "next-intl": "^4.13.7",
     "node-ical": "^0.27.1",
