@@ -99,7 +99,7 @@ export default function PropertyDetails({
   if (!hasAnything) return null;
 
   return (
-    <div className="w-full rounded-b-xl border border-zinc-200 bg-white p-3 md:p-6 shadow-sm">
+    <div className="w-full rounded-b-xl  border-zinc-200 bg-white p-3 md:p-6 shadow-sm">
       <h3 className="mb-4">{propertyName}</h3>
       {stats.length > 0 && (
         <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-zinc-700 ">

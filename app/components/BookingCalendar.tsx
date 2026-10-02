@@ -82,10 +82,10 @@ export default function BookingCalendar() {
   const [viewMonth, setViewMonth] = useState<number | null>(null);
 
   useEffect(() => {
-    const t = startOfToday();
-    setToday(t);
-    setViewYear(t.getFullYear());
-    setViewMonth(t.getMonth());
+    const now = startOfToday();
+    setToday(now);
+    setViewYear(now.getFullYear());
+    setViewMonth(now.getMonth());
   }, []);
 
   const [hoveredDay, setHoveredDay] = useState<number | null>(null);
@@ -461,26 +461,30 @@ export default function BookingCalendar() {
       </div>
     );
   }
+  const belowMinStay =
+    !!startDate &&
+    !!endDate &&
+    nightsBetween(startDate, endDate) < (getDayInfo(startDate).minStay ?? 1);
 
   if (!today || viewYear === null || viewMonth === null) {
-    return <LoadingOverlay className=""/>;
+    return <LoadingOverlay className="" />;
   }
 
   return (
-    <div className="booking-wrapper mx-auto max-w-lg md:max-w-354 w-full space-y-4 justify-items-center md:grid md:grid-cols-2 md:gap-x-4">
-      {/* Property selector */}
-      <div className="property-details-wrapper w-full md:flex md:flex-col">
+    <div className="booking-wrapper mx-auto grid w-full max-w-lg gap-y-4 md:max-w-354 md:grid-cols-3 md:items-stretch md:gap-x-4">
+      {/* ───────── LEFT: selector + gallery + details ───────── */}
+      <div className="property-details-wrapper flex w-full flex-col md:col-span-3 lg:col-span-2">
         {properties && properties.length > 1 && (
-          <div className="flex flex-col items-center rounded-t-xl border border-b-0 border-zinc-200 bg-background shadow-sm">
+          <div className="flex flex-col items-center rounded-t-xl bg-background shadow-sm">
             <label
               htmlFor="visitor-property-select"
-              className="text-sm font-bold text-primary-foreground bg-primary rounded-t-xl w-full text-center content-center h-15"
+              className="h-15 w-full content-center rounded-t-xl bg-primary text-center text-sm font-bold text-primary-foreground"
             >
               {t("seleccionaPropiedad")}
             </label>
 
-            <div className="bg-white p-3 md:p-6 w-full">
-              <div className="relative w-full flex items-center gap-2">
+            <div className="w-full bg-white p-3 md:p-6">
+              <div className="relative flex w-full items-center gap-2">
                 <label
                   htmlFor="visitor-property-select"
                   className="inline text-sm"
@@ -507,7 +511,7 @@ export default function BookingCalendar() {
                   ))}
                 </select>
 
-                <div className="pointer-events-none absolute rotate-90 inset-y-0 right-0 flex items-center text-primary">
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex rotate-90 items-center text-primary">
                   <CaretIcon />
                 </div>
               </div>
@@ -515,20 +519,23 @@ export default function BookingCalendar() {
           </div>
         )}
 
-        <div className="property-content-wrapper relative md:grid md:h-full">
-          {isLoading && <LoadingOverlay className="bg-white!"/>}
+        <div className="property-content-wrapper relative flex flex-col md:flex-1">
+          {isLoading && <LoadingOverlay className="bg-white!" />}
 
+          {/* Gallery: 4/3 on mobile; on desktop it absorbs whatever height
+              the right column needs, so both columns end flush. */}
           <div
-            className={`overflow-hidden border border-zinc-200 shadow-sm ${
-              properties && properties.length > 1
-                ? ""
-                : "border rounded-t-xl"
+            className={`relative aspect-4/3 overflow-hidden bg-white md:aspect-auto md:min-h-96 md:flex-1 ${
+              properties && properties.length > 1 ? "" : "rounded-t-xl"
             }`}
           >
             {carouselImages.length > 0 ? (
-              <PropertyCarousel images={carouselImages} />
+              <PropertyCarousel
+                images={carouselImages}
+                alt={selectedProperty?.name ?? ""}
+              />
             ) : (
-              <div className="aspect-4/3 w-full animate-pulse bg-secondary-50" />
+              <div className="absolute inset-0 animate-pulse bg-secondary-50" />
             )}
           </div>
 
@@ -536,35 +543,37 @@ export default function BookingCalendar() {
         </div>
       </div>
 
-      {/* Calendar */}
-      <div className="booking-calendar-wrapper max-w-lg md:max-w-full w-full flex flex-col rounded-t-xl">
+      {/* ───────── RIGHT: calendar + summary + guest form, one card ───────── */}
+      <div className="booking-calendar-wrapper flex w-full max-w-lg flex-col md:max-w-full">
+        {/* Hint / error bar */}
         <div
           id="reservar-section"
-          className="w-full rounded-t-xl bg-primary text-primary-foreground mb-0 h-15 flex flex-col justify-center p-3 md:p-6"
+          className="flex h-15 w-full flex-col justify-center rounded-t-xl bg-primary p-3 text-primary-foreground md:p-6"
         >
           {rangeError ? (
             <p className="text-center text-sm font-medium text-red-200">
               {rangeError}
             </p>
           ) : (
-            <p className="text-center font-bold text-sm text-primary-foreground">
+            <p className="text-center text-sm font-bold text-primary-foreground">
               {selectionHint}
             </p>
           )}
         </div>
 
-        <div className="w-full relative border border-zinc-200 bg-white p-3 md:p-6 shadow-sm">
+        {/* Calendar */}
+        <div className="relative w-full border border-zinc-200 bg-white p-3 shadow-sm md:p-6">
           <div className="mb-4 flex items-center justify-between">
             <button
               type="button"
               onClick={goToPreviousMonth}
               aria-label={t("mesAnterior")}
-              className="rounded-md px-3 max-h-10 flex items-center text-primary-foreground transition-colors hover:bg-zinc-100"
+              className="flex max-h-10 items-center rounded-md px-3 text-primary-foreground transition-colors hover:bg-zinc-100"
             >
               <CaretIcon className="rotate-180" />
             </button>
 
-            <p className="text-lg font-semibold">
+            <p className="text-lg text-center font-semibold">
               {months[viewMonth]} {viewYear}
             </p>
 
@@ -572,21 +581,19 @@ export default function BookingCalendar() {
               type="button"
               onClick={goToNextMonth}
               aria-label={t("mesSiguiente")}
-              className="rounded-md px-3 max-h-10 flex items-center text-primary-foreground transition-colors hover:bg-zinc-100"
+              className="flex max-h-10 items-center rounded-md px-3 text-primary-foreground transition-colors hover:bg-zinc-100"
             >
               <CaretIcon />
             </button>
           </div>
 
-          <div className="">
-            {isLoading && <LoadingOverlay className="bg-white!"/>}
+          <div>
+            {isLoading && <LoadingOverlay className="bg-white!" />}
 
             <div
               className="grid grid-cols-7 gap-1 text-center text-sm"
               onPointerLeave={(e) => {
-                if (e.pointerType === "mouse") {
-                  setHoveredDay(null);
-                }
+                if (e.pointerType === "mouse") setHoveredDay(null);
               }}
             >
               {weekdays.map((weekday) => (
@@ -596,9 +603,7 @@ export default function BookingCalendar() {
               ))}
 
               {calendarDays.map((day, index) => {
-                if (day === null) {
-                  return <div key={index} aria-hidden />;
-                }
+                if (day === null) return <div key={index} aria-hidden />;
 
                 const {
                   isPast,
@@ -615,13 +620,10 @@ export default function BookingCalendar() {
                 const isHovered = hoveredDay === day;
 
                 let dateLabel: string | null = null;
-                if (isStart) {
-                  dateLabel = "IN";
-                } else if (isEnd) {
-                  dateLabel = "OUT";
-                } else if (isHovered && !isDisabled) {
+                if (isStart) dateLabel = "IN";
+                else if (isEnd) dateLabel = "OUT";
+                else if (isHovered && !isDisabled)
                   dateLabel = !startDate || endDate ? "IN" : "OUT";
-                }
 
                 return (
                   <button
@@ -631,13 +633,11 @@ export default function BookingCalendar() {
                     title={booked ? t("ocupado") : undefined}
                     onClick={() => handleDayClick(day)}
                     onPointerEnter={(e) => {
-                      if (e.pointerType === "mouse") {
-                        setHoveredDay(day);
-                      }
+                      if (e.pointerType === "mouse") setHoveredDay(day);
                     }}
                     className={`relative flex aspect-square flex-col items-center justify-center gap-0.5 rounded-md transition-colors ${
                       booked && isToday
-                        ? "cursor-not-allowed font-extrabold bg-zinc-100 text-zinc-300 line-through"
+                        ? "cursor-not-allowed bg-zinc-100 font-extrabold text-zinc-300 line-through"
                         : booked && isPast
                           ? "cursor-not-allowed bg-white text-zinc-300 line-through"
                           : booked
@@ -665,7 +665,7 @@ export default function BookingCalendar() {
                       !booked &&
                       !selectedProperty?.hideNightlyPrice &&
                       info.price != null && (
-                        <span className="text-[9px] lg:text-[12px] font-normal leading-none opacity-70">
+                        <span className="text-[9px] font-normal leading-none opacity-70 lg:text-[12px]">
                           {formatPrice(info.price)}
                         </span>
                       )}
@@ -676,19 +676,17 @@ export default function BookingCalendar() {
           </div>
         </div>
 
-        {/* Reservation summary */}
-        <div className="h-full w-full min-h-34 content-center rounded-b-xl border border-zinc-200 bg-primary p-3 shadow-sm md:p-6">
+        {/* Booking summary bar */}
+        <div className="flex min-h-24 md:min-h-31 w-full flex-col justify-center border-x border-zinc-200 bg-primary p-3 shadow-sm md:p-6">
           {hasValidRange && !rangeError && stayTotal ? (
             <>
-              <p className="text-primary-foreground font-bold mb-2 text-center">
+              <p className="mb-1 text-center font-bold text-primary-foreground">
                 {t("datosDeTuReserva")}
               </p>
-
               <p className="text-center text-sm font-bold text-primary-foreground">
                 {formatDisplayDate(startDate, months)} →{" "}
                 {formatDisplayDate(endDate, months)}
               </p>
-
               <p className="mt-1 text-center text-sm text-primary-foreground">
                 {tUnits("noches", { count: stayTotal.nights })} ·{" "}
                 <span className="text-[16px] font-bold">
@@ -702,89 +700,86 @@ export default function BookingCalendar() {
             </p>
           )}
         </div>
-      </div>
 
-      {/* Guest details */}
-      <div className="booking-details-wrapper max-w-lg md:max-w-full md:col-span-2 w-full h-fit rounded-xl border border-zinc-200 bg-white p-3 md:p-6 shadow-sm">
-        <h3 className="mb-4">{t("completaTusDatos")}</h3>
+        {/* Guest details: flex-1 so the card's bottom edge matches the left column */}
+        <div className="booking-details-wrapper w-full rounded-b-xl border border-zinc-200 bg-white p-3 shadow-sm md:flex-1 md:p-6">
+          <h3 className="mb-4">{t("completaTusDatos")}</h3>
 
-        <div className="grid gap-3">
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-zinc-600">
-              {t("nombreYApellido")}
-            </span>
-
-            <input
-              type="text"
-              value={guestName}
-              onChange={(e) => setGuestName(e.target.value)}
-              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-zinc-600">
-              {t("email")}
-            </span>
-
-            <input
-              type="email"
-              value={guestEmail}
-              onChange={(e) => setGuestEmail(e.target.value)}
-              className={`w-full rounded-md border px-3 py-1.5 text-sm ${
-                isEmailFormatValid ? "border-zinc-300" : "border-red-400"
-              }`}
-            />
-
-            {!isEmailFormatValid && (
-              <span className="mt-1 block text-xs font-medium text-red-600">
-                {t("emailInvalido")}
+          <div className="grid gap-3">
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-medium text-zinc-600">
+                {t("nombreYApellido")}
               </span>
-            )}
-          </label>
+              <input
+                type="text"
+                value={guestName}
+                onChange={(e) => setGuestName(e.target.value)}
+                className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
+              />
+            </label>
 
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-zinc-600">
-              {t("telefono")}
-            </span>
+            <div className="grid gap-3">
+              <label className="block">
+                <span className="mb-1.5 block text-sm font-medium text-zinc-600">
+                  {t("email")}
+                </span>
+                <input
+                  type="email"
+                  value={guestEmail}
+                  onChange={(e) => setGuestEmail(e.target.value)}
+                  className={`w-full rounded-md border px-3 py-1.5 text-sm ${
+                    isEmailFormatValid ? "border-zinc-300" : "border-red-400"
+                  }`}
+                />
+                {!isEmailFormatValid && (
+                  <span className="mt-1 block text-xs font-medium text-red-600">
+                    {t("emailInvalido")}
+                  </span>
+                )}
+              </label>
 
-            <input
-              type="tel"
-              value={guestPhone}
-              onChange={(e) => setGuestPhone(e.target.value)}
-              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
-            />
-          </label>
+              <label className="block">
+                <span className="mb-1.5 block text-sm font-medium text-zinc-600">
+                  {t("telefono")}
+                </span>
+                <input
+                  type="tel"
+                  value={guestPhone}
+                  onChange={(e) => setGuestPhone(e.target.value)}
+                  className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm"
+                />
+              </label>
+            </div>
+          </div>
+
+          <p className="mt-4 text-sm">{t("condicionesReserva")}</p>
+
+          <button
+            type="button"
+            disabled={
+              submitting ||
+              isLoading ||
+              !startDate ||
+              !endDate ||
+              !!rangeError ||
+              !guestName.trim() ||
+              !guestEmail.trim() ||
+              !isEmailFormatValid ||
+              !guestPhone.trim() ||
+              belowMinStay
+            }
+            onClick={handleReserve}
+            className="mt-4 w-full rounded-md bg-foreground px-4 py-2 text-sm font-semibold text-background transition not-disabled:hover:bg-accent-500 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {submitting ? t("reservando") : t("reservar")}
+          </button>
+
+          {submitError && (
+            <p className="mt-3 text-sm font-medium text-red-600">
+              {submitError}
+            </p>
+          )}
         </div>
-
-        <p className="mt-4 text-sm">{t("condicionesReserva")}</p>
-
-        <button
-          type="button"
-          disabled={
-            submitting ||
-            isLoading ||
-            !startDate ||
-            !endDate ||
-            !!rangeError ||
-            !guestName.trim() ||
-            !guestEmail.trim() ||
-            !isEmailFormatValid ||
-            !guestPhone.trim() ||
-            (startDate &&
-              endDate &&
-              nightsBetween(startDate, endDate) <
-                (getDayInfo(startDate).minStay ?? 1))
-          }
-          onClick={handleReserve}
-          className="mt-4 w-full md:w-fit rounded-md bg-foreground not-disabled:hover:bg-accent-500 px-4 py-2 text-sm font-semibold text-background transition disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          {submitting ? t("reservando") : t("reservar")}
-        </button>
-
-        {submitError && (
-          <p className="mt-3 text-sm font-medium text-red-600">{submitError}</p>
-        )}
       </div>
     </div>
   );

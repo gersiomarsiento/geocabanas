@@ -232,7 +232,7 @@ export default function AvailabilitySearch() {
       : null;
 
   return (
-    <div className="w-full mx-auto max-w-lg md:max-w-354 mt-4 flex flex-col md:grid md:grid-cols-2 gap-4">
+    <div className={`w-full mx-auto max-w-lg md:max-w-354 mt-4 flex flex-col md:grid ${searched ? "md:grid-cols-2" : ""} gap-4`}>
       <div className="overflow-hidden rounded-xl border border-zinc-200 shadow-sm w-full flex flex-col md:grid md:grid-rows-12">
         <div className="bg-primary px-4 py-3 md:px-6 md:py-4 text-primary-foreground md:row-span-3">
           <h3 className="font-bold">{t("titulo")}</h3>
@@ -337,12 +337,17 @@ export default function AvailabilitySearch() {
       {searched ? (
         <div className="overflow-hidden rounded-xl border border-zinc-200 shadow-sm w-full flex flex-col md:grid md:grid-rows-12">
           {recommended === null ? (
-            <div className="bg-white p-3 md:p-6">
-              <p className="text-sm text-zinc-600">{t("sinResultados")}</p>
-            </div>
+            <>
+              <div className="bg-primary px-4 py-3 md:px-6 md:py-4 text-primary-foreground md:row-span-3">
+                <h3 className="font-bold">{t("resultados")}</h3>
+              </div>
+              <div className="bg-white p-3 md:p-6  md:row-span-9 content-center">
+                <p className="text-sm text-zinc-600">{t("sinResultados")}</p>
+              </div>
+            </>
           ) : (
             <>
-              <div className="bg-primary px-4 py-3 md:px-6 md:py-4 text-primary-foreground">
+              <div className="bg-primary px-4 py-3 md:px-6 md:py-4 text-primary-foreground  md:row-span-3">
                 <h3 className="font-bold">
                   {recommended.type === "single"
                     ? recommended.property.name
@@ -357,7 +362,7 @@ export default function AvailabilitySearch() {
                 </p>
               </div>
 
-              <div className="bg-white p-3 md:p-6">
+              <div className="bg-white p-3 md:p-6 md:row-span-9">
                 {bedroomsRelaxed && (
                   <p className="mb-4 rounded-md bg-primary-50 px-3 py-2 text-sm text-primary">
                     {t("habitacionesRelajadas")}
@@ -482,15 +487,15 @@ export default function AvailabilitySearch() {
             </>
           )}
         </div>
-      ) : (
-        <div className="overflow-hidden rounded-xl border border-zinc-200 shadow-sm w-full flex flex-col md:grid md:grid-rows-12">
-          <div className="bg-primary px-4 py-3 md:px-6 md:py-4 text-primary-foreground md:row-span-3">
-            <h3 className="font-bold">{t("resultados")}</h3>
-          </div>
-          <div className="bg-white p-3 md:p-6 min-h-69 h-auto content-center text-center md:row-span-9">
-            {t("realizaUnaBusqueda")}
-          </div>
-        </div>
+      ) : (""
+        // <div className="overflow-hidden rounded-xl border border-zinc-200 shadow-sm w-full flex flex-col md:grid md:grid-rows-12">
+        //   <div className="bg-primary px-4 py-3 md:px-6 md:py-4 text-primary-foreground md:row-span-3">
+        //     <h3 className="font-bold">{t("resultados")}</h3>
+        //   </div>
+        //   <div className="bg-white p-3 md:p-6 min-h-69 h-auto content-center text-center md:row-span-9">
+        //     {t("realizaUnaBusqueda")}
+        //   </div>
+        // </div>
       )}
     </div>
   );
