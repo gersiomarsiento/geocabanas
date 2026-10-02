@@ -9,7 +9,7 @@ import {
   toDate,
   toDateKey,
   startOfToday,
-  buildCalendarDays,
+  buildCalendarCells,
   rangeHasDateInSet,
 } from "@/lib/calendar/dates";
 
@@ -88,7 +88,7 @@ export default function BookingCalendar() {
     setViewMonth(now.getMonth());
   }, []);
 
-  const [hoveredDay, setHoveredDay] = useState<number | null>(null);
+  const [hoveredDay, setHoveredDay] = useState<string | null>(null);
 
   const [startDate, setStartDate] = useState<DateParts | null>(null);
   const [endDate, setEndDate] = useState<DateParts | null>(null);
@@ -217,9 +217,9 @@ export default function BookingCalendar() {
     return set;
   }, [days]);
 
-  const calendarDays =
+  const calendarCells =
     viewYear !== null && viewMonth !== null
-      ? buildCalendarDays(viewYear, viewMonth)
+      ? buildCalendarCells(viewYear, viewMonth)
       : [];
 
   const todayKey = today
@@ -294,9 +294,8 @@ export default function BookingCalendar() {
     }
   }
 
-  function handleDayClick(day: number) {
-    if (!today || viewYear === null || viewMonth === null) return;
-    const clicked: DateParts = { year: viewYear, month: viewMonth, day };
+  function handleDayClick(clicked: DateParts) {
+    if (!today) return;
     const clickedTime = toDate(clicked).getTime();
 
     if (clickedTime < today.getTime() || isBooked(clicked)) {
@@ -407,8 +406,8 @@ export default function BookingCalendar() {
     }
   }
 
-  function getDayState(day: number) {
-    if (!today || viewYear === null || viewMonth === null) {
+  function getDayState(parts: DateParts) {
+    if (!today) {
       return {
         isPast: false,
         isToday: false,
@@ -419,7 +418,6 @@ export default function BookingCalendar() {
         info: { date: "", available: false, price: null, minStay: null },
       };
     }
-    const parts: DateParts = { year: viewYear, month: viewMonth, day };
     const key = toDateKey(parts);
     const time = toDate(parts).getTime();
     const isPast = time < today.getTime();
@@ -602,9 +600,8 @@ export default function BookingCalendar() {
                 </div>
               ))}
 
-              {calendarDays.map((day, index) => {
-                if (day === null) return <div key={index} aria-hidden />;
-
+              {calendarCells.map((cell) => {
+                const key = toDateKey(cell);
                 const {
                   isPast,
                   isToday,
@@ -613,11 +610,10 @@ export default function BookingCalendar() {
                   isInRange,
                   booked,
                   info,
-                } = getDayState(day);
-
+                } = getDayState(cell);
                 const isSelected = isStart || isEnd;
                 const isDisabled = isPast || booked;
-                const isHovered = hoveredDay === day;
+                const isHovered = hoveredDay === key;
 
                 let dateLabel: string | null = null;
                 if (isStart) dateLabel = "IN";
@@ -627,13 +623,13 @@ export default function BookingCalendar() {
 
                 return (
                   <button
-                    key={index}
+                    key={key}
                     type="button"
                     disabled={isDisabled}
                     title={booked ? t("ocupado") : undefined}
-                    onClick={() => handleDayClick(day)}
+                    onClick={() => handleDayClick(cell)}
                     onPointerEnter={(e) => {
-                      if (e.pointerType === "mouse") setHoveredDay(day);
+                      if (e.pointerType === "mouse") setHoveredDay(key);
                     }}
                     className={`relative flex aspect-square flex-col items-center justify-center gap-0.5 rounded-md transition-colors ${
                       booked && isToday
@@ -651,6 +647,10 @@ export default function BookingCalendar() {
                                   : isToday
                                     ? "font-extrabold text-foreground hover:bg-accent-500 hover:text-white"
                                     : "text-zinc-700 hover:bg-accent-500 hover:text-white"
+                    }${
+                      cell.outside && !isSelected && !isInRange
+                        ? " opacity-50"
+                        : ""
                     }`}
                   >
                     {dateLabel && (
@@ -659,8 +659,7 @@ export default function BookingCalendar() {
                       </span>
                     )}
 
-                    <span>{day}</span>
-
+                    <span>{cell.day}</span>
                     {!isPast &&
                       !booked &&
                       !selectedProperty?.hideNightlyPrice &&

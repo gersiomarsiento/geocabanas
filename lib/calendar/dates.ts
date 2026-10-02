@@ -65,6 +65,24 @@ export function startOfToday() {
   return new Date(today.getFullYear(), today.getMonth(), today.getDate());
 }
 
+export type CalendarCell = DateParts & { outside: boolean };
+
+export function buildCalendarCells(year: number, month: number): CalendarCell[] {
+  const lead = new Date(year, month, 1).getDay(); // Sunday-first, same as before
+  // const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const total = 42;
+
+  return Array.from({ length: total }, (_, i) => {
+    const d = new Date(year, month, 1 - lead + i);
+    return {
+      year: d.getFullYear(),
+      month: d.getMonth(),
+      day: d.getDate(),
+      outside: d.getMonth() !== month,
+    };
+  });
+}
+
 export function buildCalendarDays(year: number, month: number) {
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();

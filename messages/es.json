@@ -61,7 +61,7 @@
     "email": "Email *",
     "emailInvalido": "Ingresá un email con formato válido.",
     "telefono": "Teléfono *",
-    "condicionesReserva": "Tras enviar el formulario, la reserva quedará pendiente de confirmación durante 24 horas. Para confirmarla, deberás hacer un depósito por el 50% del total, de lo contrario la misma se cancelará. Te enviaremos un correo electrónico con los pasos a seguir.",
+    "condicionesReserva": "Tras enviar el formulario, te enviaremos un correo electrónico con los pasos a seguir para confirmar tu reserva.",
     "reservando": "Reservando…",
     "reservar": "Reservar",
     "seleccionaEntrada": "Seleccioná la fecha de entrada",

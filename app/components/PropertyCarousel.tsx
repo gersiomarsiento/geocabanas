@@ -60,7 +60,7 @@ export default function PropertyCarousel({
                 key={image.id}
                 className="h-auto! cursor-pointer opacity-50 transition-opacity hover:opacity-80 [&.swiper-slide-thumb-active]:opacity-100"
               >
-                <div className="relative aspect-square w-full overflow-hidden rounded-md">
+                <div className="relative aspect-square w-full overflow-hidden">
                   <Image
                     src={image.url}
                     alt=""
@@ -74,9 +74,8 @@ export default function PropertyCarousel({
           </Swiper>
         </div>
       )}
-
       {/* Main slider */}
-      <div className="relative min-w-0 flex-1 md:mr-2">
+      <div className={`relative min-w-0 flex-1 ${images.length > 1 ? "md:mr-2": ""}`}>
         <Swiper
           onSwiper={setMain}
           onSlideChange={(s) => setActiveIndex(s.activeIndex)}
@@ -96,7 +95,7 @@ export default function PropertyCarousel({
                   alt={alt}
                   fill
                   priority={index === 0}
-                  sizes="(max-width: 768px) 100vw, 560px"
+                  sizes="(max-width: 1024px) 100vw, 990px"
                   className="object-cover bg-primary"
                 />
               </div>
