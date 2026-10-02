@@ -30,38 +30,11 @@ const stayInfo = [
   { value: "2", label: "Mín. noches" },
 ];
 
-const sharedSpaces = [
-  {
-    src: "/images/beach.webp",
-    alt: "Piscina compartida",
-  },
-  {
-    src: "/images/hero-image.jpg",
-    alt: "Piscina compartida",
-  },
-  {
-    src: "/images/ocean.webp",
-    alt: "Deck y reposeras",
-  },
-  {
-    src: "/images/hero.webp",
-    alt: "Jardín y parrillero",
-  },
-  {
-    src: "/images/bg_dark_mesh.webp",
-    alt: "Deck y reposeras",
-  },
-  {
-    src: "/images/bg_light_mesh.webp",
-    alt: "Jardín y parrillero",
-  },
-  {
-    src: "/images/hero.jpg",
-    alt: "Piscina compartida",
-  },
-];
-
-export default function FeaturesSection() {
+export default function FeaturesSection({
+  commonAreas,
+}: {
+  commonAreas: { id: string; url: string }[];
+}) {
   return (
     <section
       aria-labelledby="highlights-title"
@@ -92,11 +65,13 @@ export default function FeaturesSection() {
 
         {/* Stay info — ticket-stub treatment */}
         <div className="relative mx-auto mb-10 max-w-3xl md:mb-16">
-          <div className="grid grid-cols-2 divide-y divide-dashed divide-primary/30 rounded-2xl bg-primary-50 py-6 shadow-md md:grid-cols-4 md:divide-x md:divide-y-0">
-            {stayInfo.map(({ value, label }) => (
+          <div className="grid grid-cols-2 rounded-2xl bg-primary-50 py-6 shadow-md md:grid-cols-4">
+            {stayInfo.map(({ value, label }, i) => (
               <div
                 key={label}
-                className="flex flex-col items-center justify-center gap-1 px-4 py-4 md:py-0"
+                className={`flex flex-col items-center justify-center gap-1 border-dashed border-primary/30 px-4 py-4 md:py-0 ${
+                  i < 2 ? "border-b md:border-b-0" : ""
+                } ${i < stayInfo.length - 1 ? "md:border-r" : ""}`}
               >
                 <span className="font-gotham text-2xl font-semibold text-primary md:text-3xl">
                   {value}
@@ -110,50 +85,55 @@ export default function FeaturesSection() {
         </div>
 
         {/* Shared spaces — asymmetric mosaic, distinct from the cabin gallery */}
-        <div>
-          {/* <div className="grid grid-cols-2 grid-rows-2 gap-3 md:gap-4 md:h-110">
-            {sharedSpaces.map(({ src, alt, className }) => (
-              <div key={src} className={`relative overflow-hidden rounded-xl ${className ?? ""}`}>
-                <Image src={src} alt={alt} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
-              </div>
-            ))}
-          </div> */}
+        {commonAreas.length > 0 && (
           <Swiper
             effect="cards"
             grabCursor
             modules={[EffectCards]}
-            initialSlide={3}
-            cardsEffect={{ perSlideOffset: 50, perSlideRotate: 0 }}
+            initialSlide={Math.floor((commonAreas.length - 1) / 2)}
+            cardsEffect={{
+              perSlideOffset: 40,
+              perSlideRotate: 3, // each card behind tilts a bit, like a scattered pile
+              slideShadows: false, // the built-in shadows would darken the white frames
+            }}
             className="shared-spaces-swiper mx-auto w-64 md:w-100"
           >
-            {sharedSpaces.map(({ src, alt }) => (
-              <SwiperSlide key={src} className="overflow-hidden rounded-2xl">
-                <div className="relative h-full w-full">
+            {commonAreas.map(({ id, url }) => (
+              <SwiperSlide key={id} className="polaroid-slide">
+                <div className="relative h-full w-full bg-zinc-200">
                   <Image
-                    src={src}
-                    alt={alt}
+                    src={url}
+                    alt="Espacios comunes"
                     fill
-                    sizes="320px"
+                    sizes="(min-width: 768px) 400px, 256px"
                     className="object-cover"
                   />
                 </div>
               </SwiperSlide>
             ))}
           </Swiper>
-        </div>
+        )}
       </div>
       {/* Swiper's cards effect needs the slide (and swiper el) to have an explicit height */}
       <style jsx global>{`
         .shared-spaces-swiper {
-          height: 16rem;
+          height: 20rem;
         }
         @media (min-width: 768px) {
           .shared-spaces-swiper {
-            height: 26rem;
+            height: 31rem;
           }
         }
-        .shared-spaces-swiper .swiper-slide {
-          border-radius: 1rem;
+        .shared-spaces-swiper .polaroid-slide {
+          background: #fdfcf8; /* slightly warm white, reads as photo paper */
+          padding: 0.75rem 0.75rem 3rem; /* thick bottom edge */
+          border-radius: 0.125rem;
+          box-shadow: 0 6px 18px rgb(0 0 0 / 0.35);
+        }
+        @media (min-width: 768px) {
+          .shared-spaces-swiper .polaroid-slide {
+            padding: 1rem 1rem 4rem;
+          }
         }
       `}</style>
     </section>

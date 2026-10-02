@@ -84,17 +84,22 @@ export async function POST(
     );
   }
 
-  const { count } = await supabaseAdmin
+  const { data: last } = await supabaseAdmin
     .from("property_images")
-    .select("id", { count: "exact", head: true })
-    .eq("property_id", propertyId);
+    .select("sort_order")
+    .eq("property_id", propertyId)
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const nextSortOrder = (last?.sort_order ?? -1) + 1;
 
   const { data: image, error: insertError } = await supabaseAdmin
     .from("property_images")
     .insert({
       property_id: propertyId,
       storage_path: storagePath,
-      sort_order: count ?? 0,
+      sort_order: nextSortOrder,
     })
     .select("id, storage_path, sort_order")
     .single();

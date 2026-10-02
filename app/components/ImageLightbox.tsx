@@ -33,12 +33,13 @@ export default function ImageLightbox({
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
-      if (e.key === "ArrowLeft") goPrev();
-      if (e.key === "ArrowRight") goNext();
+      if (e.key === "ArrowLeft") setIndex((i) => Math.max(i - 1, 0));
+      if (e.key === "ArrowRight")
+        setIndex((i) => Math.min(i + 1, images.length - 1));
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  }, [onClose, images.length]);
 
   useEffect(() => {
     const originalOverflow = document.body.style.overflow;
@@ -102,19 +103,34 @@ export default function ImageLightbox({
       )}
 
       <div
-        className="relative h-full max-h-[85vh] w-full max-w-5xl px-4"
+        className="relative h-[85dvh] w-full max-w-5xl px-4"
         onClick={(e) => e.stopPropagation()}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
         <Image
           src={image.url}
-          alt=""
+          alt={`Foto ${index + 1} de ${images.length}`}
           fill
-          sizes="100vw"
+          sizes="(max-width: 1024px) 100vw, 1024px"
           className="object-contain"
           priority
         />
+
+        <div className="sr-only" aria-hidden="true">
+          {[index - 1, index + 1].map((i) =>
+            images[i] ? (
+              <Image
+                key={images[i].id}
+                src={images[i].url}
+                alt=""
+                fill
+                sizes="(max-width: 1024px) 100vw, 1024px"
+                loading="eager"
+              />
+            ) : null,
+          )}
+        </div>
       </div>
 
       {images.length > 1 && (
@@ -126,7 +142,7 @@ export default function ImageLightbox({
           }}
           disabled={index === images.length - 1}
           aria-label="Foto siguiente"
-          className="absolute right-2 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-30 md:right-4"
+          className="absolute right-2 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-30 md:right-4 z-10"
         >
           <CaretIcon />
         </button>

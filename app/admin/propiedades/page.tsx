@@ -10,14 +10,8 @@ import type {
 // import SiteHeroCard from "./SiteHeroCard";
 // import SiteContactCard from "./SiteContactCard";
 import PropertyDetailsForm from "./PropertyDetailsForm";
-import { resizeImageForUpload } from "@/lib/resizeImageForUpload";
+import PropertyImages from "../../components/PropertyImages";
 import { ChevronIcon, CollapsibleSection, Switch } from "./AdminUI";
-
-interface PropertyImage {
-  id: string;
-  url: string;
-  sortOrder: number;
-}
 
 export default function PropiedadesPage() {
   const [properties, setProperties] = useState<Property[] | null>(null);
@@ -354,115 +348,6 @@ function PropertyCard({
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function PropertyImages({ propertyId }: { propertyId: string }) {
-  const [images, setImages] = useState<PropertyImage[] | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch(`/api/admin/properties/${propertyId}/images`)
-      .then((res) => {
-        if (!res.ok) throw new Error("No se pudieron cargar las imágenes");
-        return res.json() as Promise<PropertyImage[]>;
-      })
-      .then(setImages)
-      .catch((e) => setError(e.message));
-  }, [propertyId]);
-
-  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    e.target.value = ""; // allow re-selecting the same file later
-
-    setUploading(true);
-    setError(null);
-
-    try {
-      const resized = await resizeImageForUpload(file);
-      const formData = new FormData();
-      formData.append("file", resized);
-      const res = await fetch(`/api/admin/properties/${propertyId}/images`, {
-        method: "POST",
-        body: formData,
-      });
-      if (!res.ok) throw new Error("No se pudo subir la imagen");
-      const image = (await res.json()) as PropertyImage;
-      setImages((prev) => [...(prev ?? []), image]);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido");
-    } finally {
-      setUploading(false);
-    }
-  }
-
-  async function handleDelete(imageId: string) {
-    const confirmed = window.confirm("¿Eliminar esta imagen?");
-    if (!confirmed) return;
-
-    try {
-      const res = await fetch(
-        `/api/admin/properties/${propertyId}/images/${imageId}`,
-        { method: "DELETE" },
-      );
-      if (!res.ok) throw new Error("No se pudo eliminar la imagen");
-      setImages((prev) => prev?.filter((img) => img.id !== imageId) ?? null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido");
-    }
-  }
-
-  return (
-    <div>
-      <div className="mb-3 flex items-center justify-between">
-        <span className="text-sm font-medium text-zinc-600">Fotos</span>
-        <label className="cursor-pointer rounded-md border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50">
-          {uploading ? "Subiendo…" : "+ Agregar foto"}
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleUpload}
-            disabled={uploading}
-            className="hidden"
-          />
-        </label>
-      </div>
-
-      {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
-
-      {!images ? (
-        <p className="text-sm text-zinc-500">Cargando…</p>
-      ) : images.length === 0 ? (
-        <p className="rounded-md border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500">
-          Todavía no hay fotos.
-        </p>
-      ) : (
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-          {images.map((image) => (
-            <div
-              key={image.id}
-              className="group relative aspect-square overflow-hidden rounded-md"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={image.url}
-                alt=""
-                className="h-full w-full object-cover"
-              />
-              <button
-                type="button"
-                onClick={() => handleDelete(image.id)}
-                className="absolute right-1 top-1 rounded-md bg-primary/60 px-2 py-1 text-xs text-primary-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
-              >
-                Eliminar
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

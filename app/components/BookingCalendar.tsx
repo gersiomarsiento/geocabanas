@@ -560,13 +560,13 @@ export default function BookingCalendar() {
         </div>
 
         {/* Calendar */}
-        <div className="relative w-full border border-zinc-200 bg-white p-3 shadow-sm md:p-6">
+        <div className="relative w-full border border-zinc-200 bg-white px-2 py-3 shadow-sm md:py-6">
           <div className="mb-4 flex items-center justify-between">
             <button
               type="button"
               onClick={goToPreviousMonth}
               aria-label={t("mesAnterior")}
-              className="flex max-h-10 items-center rounded-md px-3 text-primary-foreground transition-colors hover:bg-zinc-100"
+              className="flex max-h-10 items-center rounded-md px-3 text-primary-foreground transition-colors hover:bg-accent"
             >
               <CaretIcon className="rotate-180" />
             </button>
@@ -579,7 +579,7 @@ export default function BookingCalendar() {
               type="button"
               onClick={goToNextMonth}
               aria-label={t("mesSiguiente")}
-              className="flex max-h-10 items-center rounded-md px-3 text-primary-foreground transition-colors hover:bg-zinc-100"
+              className="flex max-h-10 items-center rounded-md px-3 text-primary-foreground transition-colors hover:bg-accent"
             >
               <CaretIcon />
             </button>

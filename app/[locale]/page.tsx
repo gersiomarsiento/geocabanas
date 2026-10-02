@@ -15,10 +15,12 @@ import WhatsAppButton from "../components/WhatsAppButton";
 import AvailabilitySearch from "../components/AvailabilitySearch";
 import PropertiesSection from "../components/PropertiesSection";
 import FeaturesSection from "../components/FeaturesSection";
+import { getCommonAreaImages } from "@/lib/commonAreas";
 
 export default async function Home() {
   const t = await getTranslations("Hero");
   const tBooking = await getTranslations("Booking");
+  const commonAreas = await getCommonAreaImages();
 
   return (
     <div className="flex min-h-screen flex-col bg-white font-sans">
@@ -43,7 +45,7 @@ export default async function Home() {
             ]}
           />
         </section>
-        <FeaturesSection />
+        <FeaturesSection commonAreas={commonAreas} />
         <section
           id="reservar-button"
           aria-labelledby="booking-title"
@@ -56,8 +58,8 @@ export default async function Home() {
           <AvailabilitySearch />
         </section>
 
-        <AboutSection />
-        <PropertiesSection />
+        {/* <AboutSection /> */}
+        {/* <PropertiesSection /> */}
 
         <ReviewsSection />
         <InstagramGallery />

@@ -90,6 +90,18 @@ create table property_images (
   created_at timestamptz not null default now()
 );
 
+-- ==========================
+-- COMMON AREAS IMAGES
+-- ==========================
+
+create table common_area_images (
+  id uuid primary key default gen_random_uuid(),
+  storage_path text not null,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+alter table common_area_images enable row level security;
 
 
 -- ==========================
