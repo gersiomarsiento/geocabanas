@@ -135,7 +135,7 @@ export default function SiteFaqCard() {
         </div>
       )}
 
-      <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+      <div className="mt-6 rounded-xl border border-zinc-200 p-4 shadow-sm">
         <h4 className="mb-3 text-lg font-semibold text-primary">
           Agregar nueva pregunta
         </h4>
@@ -148,7 +148,7 @@ export default function SiteFaqCard() {
               type="text"
               value={newQuestion}
               onChange={(e) => setNewQuestion(e.target.value)}
-              className="w-full rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary-100"
+              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary-100"
             />
           </label>
           <label className="block">
@@ -159,7 +159,7 @@ export default function SiteFaqCard() {
               value={newAnswer}
               onChange={(e) => setNewAnswer(e.target.value)}
               rows={3}
-              className="w-full rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary-100"
+              className="w-full rounded-md border border-zinc-300 px-3 py-1.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary-100"
             />
           </label>
           <button
@@ -201,7 +201,7 @@ function FaqRow({
   }
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-zinc-200 p-4 shadow-sm">
       <div className="mb-2 flex items-center justify-between">
         <div className="flex gap-1">
           <button

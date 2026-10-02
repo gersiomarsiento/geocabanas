@@ -39,7 +39,7 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen bg-zinc-50">
-      <header className="border-b border-zinc-200 bg-white">
+      <header className="border-b border-zinc-200 ">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <nav className="flex gap-1">
             {NAV_ITEMS.map((item) => {

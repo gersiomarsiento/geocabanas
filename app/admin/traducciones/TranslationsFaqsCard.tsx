@@ -87,7 +87,7 @@ function FaqTranslationRow({
   }
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-zinc-200 p-4 shadow-sm">
       <p className="mb-1 text-xs text-zinc-400">ES: {faq.question.es}</p>
       <input
         type="text"

@@ -95,7 +95,7 @@ export default function PropiedadesPage() {
       </div>
 
       {addingOpen && (
-        <div className="mb-4 flex items-center gap-2 rounded-xl border border-zinc-200 bg-white p-3">
+        <div className="mb-4 flex items-center gap-2 rounded-xl border border-zinc-200 p-3">
           <input
             type="text"
             autoFocus
@@ -216,7 +216,7 @@ function PropertyCard({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-xl border border-zinc-200 shadow-sm">
       <button
         type="button"
         onClick={onToggle}
@@ -238,7 +238,7 @@ function PropertyCard({
           <div className="space-y-4 border-t border-zinc-200 px-6 py-5">
             <CollapsibleSection
               title="Precio y disponibilidad"
-              className="bg-zinc-50! text-foreground! hover:bg-primary! hover:text-background!"
+              className="bg-secondary-200! text-foreground! hover:bg-primary! hover:text-background!"
               open={openSubsection === "pricing"}
               onToggle={() =>
                 setOpenSubsection((s) => (s === "pricing" ? null : "pricing"))
@@ -332,7 +332,7 @@ function PropertyCard({
 
             <CollapsibleSection
               title="Detalles de la propiedad"
-              className="bg-zinc-50! text-foreground! hover:bg-primary! hover:text-background!"
+              className="bg-secondary-200! text-foreground! hover:bg-primary! hover:text-background!"
               open={openSubsection === "details"}
               onToggle={() =>
                 setOpenSubsection((s) => (s === "details" ? null : "details"))
@@ -343,7 +343,7 @@ function PropertyCard({
 
             <CollapsibleSection
               title="Fotos"
-              className="bg-zinc-50! text-foreground! hover:bg-primary! hover:text-background!"
+              className="bg-secondary-200! text-foreground! hover:bg-primary! hover:text-background!"
               open={openSubsection === "photos"}
               onToggle={() =>
                 setOpenSubsection((s) => (s === "photos" ? null : "photos"))

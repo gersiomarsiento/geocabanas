@@ -36,7 +36,7 @@ export default function AdminLoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-zinc-50  ">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-2xl rounded-xl border border-zinc-200 bg-white p-6 shadow-sm    "
+        className="w-full max-w-2xl rounded-xl border border-zinc-200 p-6 shadow-sm    "
       >
         <h1 className="mb-4 text-[20px]! md:text-[40px]! font-semibold">Acceso administrador</h1>
 

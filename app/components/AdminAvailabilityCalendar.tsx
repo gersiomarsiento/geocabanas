@@ -467,7 +467,7 @@ export default function AdminAvailabilityCalendar() {
 
   if (propertiesError) {
     return (
-      <div className="w-full rounded-xl border border-zinc-200 bg-white p-3 md:p-6 text-center text-sm text-zinc-500 shadow-sm    ">
+      <div className="w-full rounded-xl border border-zinc-200 p-3 md:p-6 text-center text-sm text-zinc-500 shadow-sm    ">
         No se pudieron cargar las propiedades en este momento.
       </div>
     );
@@ -477,7 +477,7 @@ export default function AdminAvailabilityCalendar() {
     <div className="w-full space-y-4">
       {/* Property / room selector — only shown when the admin manages more than one */}
       {properties && properties.length > 1 && (
-        <div className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm ">
+        <div className="flex items-center gap-3 rounded-xl border border-zinc-200 p-4 shadow-sm ">
           <label
             htmlFor="property-select"
             className="text-sm font-medium text-zinc-600  "
@@ -491,7 +491,7 @@ export default function AdminAvailabilityCalendar() {
               setSelectedPropertyId(e.target.value);
               clearSelection();
             }}
-            className="rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm    "
+            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm    "
           >
             {properties.map((p) => (
               <option key={p.id} value={p.id}>
@@ -503,7 +503,7 @@ export default function AdminAvailabilityCalendar() {
       )}
 
       <div className="flex flex-col gap-4 md:flex-row">
-        <div className="w-full rounded-xl border border-zinc-200 bg-white p-3 md:p-6 shadow-sm    ">
+        <div className="w-full rounded-xl border border-zinc-200 p-3 md:p-6 shadow-sm    ">
           <div className="mb-4 flex items-center justify-between">
             <button
               type="button"
@@ -603,7 +603,7 @@ export default function AdminAvailabilityCalendar() {
           )}
         </div>
         {/* Bulk / single-day edit panel */}
-        <div className="w-full rounded-xl border border-zinc-200 bg-white p-3 md:p-6 shadow-sm    ">
+        <div className="w-full rounded-xl border border-zinc-200 p-3 md:p-6 shadow-sm    ">
           <div className="mb-4 flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-zinc-600  ">Editando</p>

@@ -152,7 +152,7 @@ export default function SiteReviewsCard() {
         </div>
       )}
 
-      <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+      <div className="mt-6 rounded-xl border border-zinc-200 p-4 shadow-sm">
         <h4 className="mb-3 text-lg font-semibold text-primary">
           Agregar nueva reseña
         </h4>
@@ -285,7 +285,7 @@ function ReviewRow({
   }
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-zinc-200 p-4 shadow-sm">
       <div className="mb-2 flex items-center justify-between">
         <div className="flex gap-1">
           <button
