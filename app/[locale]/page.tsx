@@ -3,7 +3,7 @@ import HeroSlider from "../components/HeroSlider";
 import BookingCalendar from "../components/BookingCalendar";
 import ContactSection from "../components/ContactSection";
 import FaqSection from "../components/FaqSection";
-import AboutSection from "../components/AboutSection";
+// import AboutSection from "../components/AboutSection";
 import ReviewsSection from "../components/ReviewsSection";
 
 import Footer from "../components/Footer";
@@ -13,7 +13,7 @@ import Header from "../components/Header";
 import InstagramGallery from "../components/InstagramGallery";
 import WhatsAppButton from "../components/WhatsAppButton";
 import AvailabilitySearch from "../components/AvailabilitySearch";
-import PropertiesSection from "../components/PropertiesSection";
+// import PropertiesSection from "../components/PropertiesSection";
 import FeaturesSection from "../components/FeaturesSection";
 import { getCommonAreaImages } from "@/lib/commonAreas";
 

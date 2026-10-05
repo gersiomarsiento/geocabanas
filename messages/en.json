@@ -156,7 +156,9 @@
     "reservarTodas": "Book all",
     "placeholderNombre": "Full name",
     "placeholderEmail": "Email",
-    "placeholderTelefono": "Phone number"
+    "placeholderTelefono": "Phone number",
+    "solicitudEnviada": "Request sent! We emailed you the details. Your {count, plural, =1 {booking} other {bookings}} will be confirmed once we contact you.",
+    "enviarPorWhatsapp": "Send via WhatsApp"
   },
   "Instagram": {
     "titulo": "Follow us on Instagram"

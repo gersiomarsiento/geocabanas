@@ -21,6 +21,7 @@ import { getStayAvailability } from "@/lib/booking/availability";
 import { isoDate } from "@/lib/calendar/dates";
 import { sendReservationEmails } from "@/lib/email/reservationEmails";
 import { resolveLocale } from "@/lib/i18n/getEmailMessages";
+import { getContactSettings } from "@/lib/site/settings";
 
 interface ReservationRequest {
   propertyId: string;
@@ -110,6 +111,8 @@ export async function POST(request: Request) {
 
   const { totalPrice, nights } = availability;
   const depositAmount = totalPrice * ((property.deposit_percentage ?? 0) / 100);
+  const settings = await getContactSettings();
+  const status = settings.bookingMode === "request" ? "requested" : "pending";
 
   const { data: reservation, error: insertError } = await supabaseAdmin
     .from("reservations")
@@ -122,7 +125,8 @@ export async function POST(request: Request) {
       end_date: endDate,
       total_price: totalPrice,
       deposit_amount: depositAmount,
-      status: "pending",
+      status,
+      locale,
     })
     .select()
     .single();
@@ -147,25 +151,37 @@ export async function POST(request: Request) {
     );
   }
 
-  await sendReservationEmails({
-    reservationId: reservation.id,
-    propertyName: property.name,
-    guestName,
-    guestEmail,
-    guestPhone: guestPhone ?? null,
-    startDate,
-    endDate,
-    nights,
-    totalPrice,
-    depositAmount,
-    locale,
-  });
+  let guestWhatsappUrl: string | null = null;
+  try {
+    ({ guestWhatsappUrl } = await sendReservationEmails({
+      groupId: null,
+      guestName,
+      guestEmail,
+      guestPhone: guestPhone ?? null,
+      locale,
+      legs: [
+        {
+          reservationId: reservation.id,
+          propertyName: property.name,
+          startDate,
+          endDate,
+          nights,
+          totalPrice,
+          depositAmount,
+        },
+      ],
+    }));
+  } catch (e) {
+    console.error("Reservation email failed:", e);
+  }
 
   return NextResponse.json({
     ok: true,
     reservationId: reservation.id,
     nights,
+    bookingMode: settings.bookingMode,
     totalPrice,
     depositAmount,
+    whatsappUrl: guestWhatsappUrl,
   });
 }

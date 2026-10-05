@@ -156,7 +156,9 @@
     "reservarTodas": "Reservar todas",
     "placeholderNombre": "Nome e sobrenome",
     "placeholderEmail": "E-mail",
-    "placeholderTelefono": "Telefone"
+    "placeholderTelefono": "Telefone",
+    "solicitudEnviada": "Solicitação enviada! Enviamos um email com os detalhes. Confirmaremos sua {count, plural, =1 {reserva} other {reservas}} quando entrarmos em contato.",
+    "enviarPorWhatsapp": "Enviar pelo WhatsApp"
   },
   "Instagram": {
     "titulo": "Siga a gente no Instagram"

@@ -153,11 +153,13 @@
     "realizaUnaBusqueda": "Realizá una búsqueda para ver aquí los hospedajes disponibles.",
     "total": "Total",
     "reservasCount": "{count, plural, =1 {# reserva} other {# reservas}}",
-    "reservaExitosa": "¡Listo! Te enviamos un email con los detalles de tu {count, plural, =1 {reserva} other {reservas}}.",
+    "reservaExitosa": "¡Listo! Te enviamos un email con los detalles de tu reserva.",
     "reservarTodas": "Reservar todas",
     "placeholderNombre": "Nombre y apellido",
     "placeholderEmail": "Email",
-    "placeholderTelefono": "Teléfono"
+    "placeholderTelefono": "Teléfono",
+    "solicitudEnviada": "¡Solicitud enviada! Te enviamos un email con los detalles. Confirmaremos tu reserva cuando nos pongamos en contacto.",
+    "enviarPorWhatsapp": "Enviar por WhatsApp"
   },
   "Instagram": {
     "titulo": "Seguinos en Instagram"

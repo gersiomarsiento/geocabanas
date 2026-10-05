@@ -13,6 +13,18 @@ const intlMiddleware = createMiddleware({
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  if (pathname.startsWith("/api/admin")) {
+    if (pathname === "/api/admin/login") return NextResponse.next();
+
+    const token = req.cookies.get(COOKIE_NAME)?.value;
+    const isValid = token ? await verifySessionToken(token) : false;
+
+    if (!isValid) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+    return NextResponse.next();
+  }
+
   if (pathname.startsWith("/admin")) {
     const isLoginPage = pathname === "/admin/login";
     const token = req.cookies.get(COOKIE_NAME)?.value;
@@ -39,5 +51,5 @@ export const config = {
   // Corre en todo excepto /api, /_next y archivos estáticos (con extensión).
   // /admin queda adentro a propósito: así el branch de arriba se ejecuta,
   // pero intlMiddleware nunca llega a tocarlo porque el `if` corta antes.
-  matcher: ["/((?!api|_next|.*\\..*).*)"],
+  matcher: ["/((?!api|_next|.*\\..*).*)", "/api/admin/:path*"],
 };

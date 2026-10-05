@@ -6,29 +6,37 @@
 // `searchParams.id` directly instead.
 
 import Link from "next/link";
+import WhatsappButton from "./WhatsAppButton";
 
 export default async function ReservaConfirmadaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ id?: string }>;
+  searchParams: Promise<{ id?: string; mode?: string }>;
 }) {
-  const { id } = await searchParams;
+  const { id, mode } = await searchParams;
+  const isRequest = mode === "request";
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 px-6 py-12  ">
       <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-8 text-center shadow-sm    ">
         <h1 className="mb-3 text-xl font-semibold">¡Solicitud recibida!</h1>
 
-        <p className="text-sm text-zinc-600  ">
-          En breve vas a recibir un email con la información para confirmar tu
-          reserva. Revisá tu bandeja de entrada (y la carpeta de spam, por las
-          dudas).
+        <p className="text-sm text-zinc-600">
+          {isRequest
+            ? "Todavía no está confirmada: te contactaremos a la brevedad para confirmar la disponibilidad e indicarte cómo realizar el depósito."
+            : "En breve vas a recibir un email con la información para confirmar tu reserva. Revisá tu bandeja de entrada (y la carpeta de spam, por las dudas)."}
         </p>
 
         {id && (
           <p className="mt-4 text-xs text-zinc-400">
             Número de referencia: <span className="font-mono">{id}</span>
           </p>
+        )}
+
+        {id && (
+          <div>
+            <WhatsappButton reservationId={id} />
+          </div>
         )}
 
         <Link

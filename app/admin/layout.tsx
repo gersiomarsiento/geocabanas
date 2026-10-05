@@ -14,6 +14,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Disponibilidad" },
+  { href: "/admin/reservas", label: "Reservas" },
   { href: "/admin/propiedades", label: "Propiedades" },
   { href: "/admin/sitio", label: "Sitio" },
   { href: "/admin/traducciones", label: "Traducciones" },

@@ -398,7 +398,17 @@ export default function BookingCalendar() {
         return;
       }
 
-      router.push(`/reserva-confirmada?id=${data.reservationId}`);
+      if (data.whatsappUrl) {
+        try {
+          sessionStorage.setItem(`wa:${data.reservationId}`, data.whatsappUrl);
+        } catch {
+          // storage unavailable (private mode): the email still has the button
+        }
+      }
+
+      router.push(
+        `/reserva-confirmada?id=${data.reservationId}&mode=${data.bookingMode}`,
+      );
     } catch {
       setSubmitError(t("errorGenerico"));
     } finally {

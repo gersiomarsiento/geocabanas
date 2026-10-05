@@ -74,3 +74,27 @@ export type PropertySettingsUpdate = {
   /** Pass "" (or null) explicitly to clear it. */
   externalIcalUrl?: string | null;
 };
+
+export type ReservationStatus =
+  | "requested"
+  | "pending"
+  | "confirmed"
+  | "cancelled"
+  | "expired";
+
+export type AdminReservation = {
+  id: string;
+  /** Legs of the same group booking share this. null for single bookings. */
+  groupId: string | null;
+  propertyId: string;
+  propertyName: string;
+  currency: string;
+  guestName: string;
+  guestEmail: string;
+  guestPhone: string | null;
+  startDate: string; // "YYYY-MM-DD", check-in
+  endDate: string; // "YYYY-MM-DD", check-out (exclusive)
+  totalPrice: number;
+  depositAmount: number;
+  status: ReservationStatus;
+};

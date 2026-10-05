@@ -110,6 +110,8 @@ export default function AvailabilitySearch() {
   const [reserving, setReserving] = useState(false);
   const [reserveError, setReserveError] = useState<string | null>(null);
   const [reserved, setReserved] = useState(false);
+  const [reservedMode, setReservedMode] = useState<string>("reservation");
+  const [whatsappHref, setWhatsappHref] = useState<string | null>(null);
 
   function formatPrice(amount: number) {
     return formatCurrency(convertFromUSD(amount, currency, rates), currency);
@@ -128,6 +130,8 @@ export default function AvailabilitySearch() {
     setSearching(true);
     setSearchError(null);
     setReserved(false);
+    setWhatsappHref(null);
+    setReservedMode("reservation");
     setReserveError(null);
 
     try {
@@ -215,7 +219,8 @@ export default function AvailabilitySearch() {
       if (!res.ok || !data.ok) {
         throw new Error(data.error ?? tBooking("noSePudoCompletarReserva"));
       }
-
+      setReservedMode(data.bookingMode);
+      setWhatsappHref(data.whatsappUrl ?? null);
       setReserved(true);
     } catch (e) {
       setReserveError(
@@ -232,7 +237,9 @@ export default function AvailabilitySearch() {
       : null;
 
   return (
-    <div className={`w-full mx-auto max-w-lg md:max-w-354 mt-4 flex flex-col md:grid ${searched ? "md:grid-cols-2" : ""} gap-4`}>
+    <div
+      className={`w-full mx-auto max-w-lg md:max-w-354 mt-4 flex flex-col md:grid ${searched ? "md:grid-cols-2" : ""} gap-4`}
+    >
       <div className="overflow-hidden rounded-xl border border-zinc-200 shadow-sm w-full flex flex-col md:grid md:grid-rows-12">
         <div className="bg-primary px-4 py-3 md:px-6 md:py-4 text-primary-foreground md:row-span-3">
           <h3 className="font-bold">{t("titulo")}</h3>
@@ -429,14 +436,33 @@ export default function AvailabilitySearch() {
                 </div>
 
                 {reserved ? (
-                  <p className="mt-4 rounded-md bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800">
-                    {t("reservaExitosa", {
-                      count:
-                        recommended.type === "combo"
-                          ? recommended.combo.properties.length
-                          : 1,
-                    })}
-                  </p>
+                  <div className="mt-4 space-y-3">
+                    <p className="rounded-md bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800">
+                      {reservedMode === "request"
+                        ? t("solicitudEnviada", {
+                            count:
+                              recommended.type === "combo"
+                                ? recommended.combo.properties.length
+                                : 1,
+                          })
+                        : t("reservaExitosa", {
+                            count:
+                              recommended.type === "combo"
+                                ? recommended.combo.properties.length
+                                : 1,
+                          })}
+                    </p>
+                    {whatsappHref && (
+                      <a
+                        href={whatsappHref}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-block rounded-md bg-[#25D366] px-4 py-2 text-sm font-semibold text-white"
+                      >
+                        {t("enviarPorWhatsapp")}
+                      </a>
+                    )}
+                  </div>
                 ) : (
                   <div className="mt-4 border-t border-zinc-200 pt-4">
                     <div className="grid gap-3 md:grid-cols-3">
@@ -487,7 +513,8 @@ export default function AvailabilitySearch() {
             </>
           )}
         </div>
-      ) : (""
+      ) : (
+        ""
         // <div className="overflow-hidden rounded-xl border border-zinc-200 shadow-sm w-full flex flex-col md:grid md:grid-rows-12">
         //   <div className="bg-primary px-4 py-3 md:px-6 md:py-4 text-primary-foreground md:row-span-3">
         //     <h3 className="font-bold">{t("resultados")}</h3>

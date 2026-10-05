@@ -3,8 +3,12 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { getStayAvailability } from "@/lib/booking/availability";
-import { sendReservationEmails } from "@/lib/email/reservationEmails";
+import {
+  sendReservationEmails,
+  type ReservationLeg,
+} from "@/lib/email/reservationEmails";
 import { resolveLocale } from "@/lib/i18n/getEmailMessages";
+import { getContactSettings } from "@/lib/site/settings";
 
 interface GroupLeg {
   propertyId: string;
@@ -22,6 +26,7 @@ interface GroupReservationRequest {
 
 interface GroupReservationRow {
   id: string;
+  group_id: string | null;
   property_id: string;
   start_date: string;
   end_date: string;
@@ -105,6 +110,8 @@ export async function POST(request: Request) {
       availability.totalPrice * ((property.deposit_percentage ?? 0) / 100),
   }));
 
+  const { bookingMode } = await getContactSettings();
+
   const { data: reservations, error: rpcError } = (await supabaseAdmin.rpc(
     "create_group_reservation",
     {
@@ -112,6 +119,7 @@ export async function POST(request: Request) {
       p_guest_email: guestEmail,
       p_guest_phone: guestPhone,
       p_legs: legsPayload,
+      p_status: bookingMode === "request" ? "requested" : "pending",
     },
   )) as {
     data: GroupReservationRow[] | null;
@@ -135,40 +143,64 @@ export async function POST(request: Request) {
     );
   }
 
-  await Promise.all(
-    reservations.map((reservation) => {
-      const property = propertyRows.find(
-        (p) => p.id === reservation.property_id,
-      )!;
-      const nights = Math.round(
-        (new Date(reservation.end_date).getTime() -
-          new Date(reservation.start_date).getTime()) /
-          86_400_000,
-      );
+  // The RPC doesn't know about locale; store it so the confirm/cancel
+  // emails sent later from the admin use the guest's language.
+  const { error: localeError } = await supabaseAdmin
+    .from("reservations")
+    .update({ locale })
+    .in(
+      "id",
+      reservations.map((r) => r.id),
+    );
+  if (localeError) console.error("Failed to store locale:", localeError);
 
-      return sendReservationEmails({
-        reservationId: reservation.id,
-        propertyName: property.name,
-        guestName,
-        guestEmail,
-        guestPhone,
-        startDate: reservation.start_date,
-        endDate: reservation.end_date,
-        nights,
-        totalPrice: reservation.total_price,
-        depositAmount: reservation.deposit_amount,
-        locale,
-      });
-    }),
-  );
+  const groupId = reservations[0].group_id ?? null;
+
+  const emailLegs: ReservationLeg[] = reservations.map((reservation) => {
+    const property = propertyRows.find(
+      (p) => p.id === reservation.property_id,
+    )!;
+    const nights = Math.round(
+      (new Date(reservation.end_date).getTime() -
+        new Date(reservation.start_date).getTime()) /
+        86_400_000,
+    );
+    return {
+      reservationId: reservation.id,
+      propertyName: property.name,
+      startDate: reservation.start_date,
+      endDate: reservation.end_date,
+      nights,
+      totalPrice: Number(reservation.total_price),
+      depositAmount: Number(reservation.deposit_amount),
+    };
+  });
+
+  // One email to the guest and one to the admin for the whole group.
+  let guestWhatsappUrl: string | null = null;
+  try {
+    ({ guestWhatsappUrl } = await sendReservationEmails({
+      groupId,
+      legs: emailLegs,
+      guestName,
+      guestEmail,
+      guestPhone,
+      locale,
+    }));
+  } catch (e) {
+    console.error("Group reservation email failed:", e);
+  }
 
   return NextResponse.json({
     ok: true,
+    bookingMode,
+    groupId,
     reservationIds: reservations.map((r) => r.id),
     totalPrice: reservations.reduce((s, r) => s + Number(r.total_price), 0),
     depositAmount: reservations.reduce(
       (s, r) => s + Number(r.deposit_amount),
       0,
     ),
+    whatsappUrl: guestWhatsappUrl,
   });
 }
