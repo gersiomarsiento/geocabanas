@@ -31,6 +31,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 import { resizeImageForUpload } from "@/lib/resizeImageForUpload";
+import { useConfirm } from "@/app/components/ConfirmProvider";
 
 interface ManagedImage {
   id: string;
@@ -116,6 +117,10 @@ export default function ImageManager({
   const [images, setImages] = useState<ManagedImage[] | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [progress, setProgress] = useState<{
+    done: number;
+    total: number;
+  } | null>(null);
 
   const sensors = useSensors(
     // distance: a plain click on a button doesn't start a drag
@@ -139,30 +144,53 @@ export default function ImageManager({
   }, [apiBase]);
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    e.target.value = ""; // allow re-selecting the same file later
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = ""; // allow re-selecting the same files later
+    if (files.length === 0) return;
 
     setUploading(true);
     setError(null);
+    setProgress({ done: 0, total: files.length });
 
-    try {
-      const resized = await resizeImageForUpload(file);
-      const formData = new FormData();
-      formData.append("file", resized);
-      const res = await fetch(apiBase, { method: "POST", body: formData });
-      if (!res.ok) throw new Error("No se pudo subir la imagen");
-      const image = (await res.json()) as ManagedImage;
-      setImages((prev) => [...(prev ?? []), image]);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido");
-    } finally {
-      setUploading(false);
+    let failed = 0;
+
+    for (const file of files) {
+      try {
+        const resized = await resizeImageForUpload(file);
+        const formData = new FormData();
+        formData.append("file", resized);
+        const res = await fetch(apiBase, { method: "POST", body: formData });
+        if (!res.ok) throw new Error();
+        const image = (await res.json()) as ManagedImage;
+        setImages((prev) => [...(prev ?? []), image]); // appears as each one finishes
+      } catch {
+        failed++;
+      } finally {
+        setProgress((p) => (p ? { ...p, done: p.done + 1 } : p));
+      }
     }
+
+    if (failed > 0) {
+      setError(
+        failed === files.length
+          ? "No se pudieron subir las imágenes"
+          : `No se pudieron subir ${failed} de ${files.length} imágenes`,
+      );
+    }
+
+    setProgress(null);
+    setUploading(false);
   }
 
+  const confirm = useConfirm();
+
   async function handleDelete(imageId: string) {
-    if (!window.confirm("¿Eliminar esta imagen?")) return;
+    const ok = await confirm({
+      message: "¿Eliminar esta imagen?",
+      confirmLabel: "Eliminar",
+      destructive: true,
+    });
+    if (!ok) return;
 
     try {
       const res = await fetch(`${apiBase}/${imageId}`, { method: "DELETE" });
@@ -215,10 +243,13 @@ export default function ImageManager({
           )}
         </span>
         <label className="cursor-pointer rounded-md border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50">
-          {uploading ? "Subiendo…" : "+ Agregar foto"}
+          {uploading
+            ? `Subiendo ${progress ? `${progress.done}/${progress.total}` : ""}…`
+            : "+ Agregar fotos"}
           <input
             type="file"
             accept="image/*"
+            multiple
             onChange={handleUpload}
             disabled={uploading}
             className="hidden"

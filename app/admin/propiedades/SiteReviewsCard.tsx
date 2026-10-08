@@ -5,6 +5,7 @@
 import { useEffect, useState } from "react";
 import type { Review, ReviewSource } from "@/types/reviews";
 import { CaretIcon } from "@/app/components/icons";
+import { useConfirm } from "@/app/components/ConfirmProvider";
 
 const SOURCES: ReviewSource[] = ["Google", "Booking", "Airbnb"];
 
@@ -60,9 +61,15 @@ export default function SiteReviewsCard() {
     }
   }
 
+  const confirm = useConfirm();
+
   async function handleDelete(id: string) {
-    const confirmed = window.confirm("¿Eliminar esta reseña?");
-    if (!confirmed) return;
+    const ok = await confirm({
+      message: "¿Eliminar esta reseña?",
+      confirmLabel: "Eliminar",
+      destructive: true,
+    });
+    if (!ok) return;
     try {
       const res = await fetch(`/api/admin/reviews/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("No se pudo eliminar");

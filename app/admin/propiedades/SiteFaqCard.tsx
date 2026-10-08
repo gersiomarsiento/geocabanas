@@ -5,6 +5,7 @@
 import { useEffect, useState } from "react";
 import type { Faq } from "@/types/faqs";
 import { CaretIcon } from "@/app/components/icons";
+import { useConfirm } from "@/app/components/ConfirmProvider";
 
 export default function SiteFaqCard() {
   const [faqs, setFaqs] = useState<Faq[] | null>(null);
@@ -46,9 +47,14 @@ export default function SiteFaqCard() {
     }
   }
 
+  const confirm = useConfirm();
   async function handleDelete(id: string) {
-    const confirmed = window.confirm("¿Eliminar esta pregunta?");
-    if (!confirmed) return;
+    const ok = await confirm({
+      message: "¿Eliminar esta pregunta?",
+      confirmLabel: "Eliminar",
+      destructive: true,
+    });
+    if (!ok) return;
     try {
       const res = await fetch(`/api/admin/faqs/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("No se pudo eliminar");

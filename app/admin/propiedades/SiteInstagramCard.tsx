@@ -4,6 +4,8 @@
 
 import { useEffect, useState } from "react";
 import { resizeImageForUpload } from "@/lib/resizeImageForUpload";
+import { useConfirm } from "@/app/components/ConfirmProvider";
+
 
 interface InstagramPost {
   id: string;
@@ -86,10 +88,16 @@ export default function SiteInstagramCard() {
       setError(err instanceof Error ? err.message : "Error desconocido");
     }
   }
+  
+  const confirm = useConfirm();
 
   async function handleDelete(id: string) {
-    const confirmed = window.confirm("¿Eliminar este posteo?");
-    if (!confirmed) return;
+    const ok = await confirm({
+      message: "¿Eliminar esta publicación?",
+      confirmLabel: "Eliminar",
+      destructive: true,
+    });
+    if (!ok) return;
 
     try {
       const res = await fetch(`/api/admin/instagram-posts/${id}`, {

@@ -11,6 +11,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { ConfirmProvider } from "../components/ConfirmProvider";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Disponibilidad" },
@@ -71,7 +72,7 @@ export default function AdminLayout({
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-3 md:px-6 py-8">{children}</main>
+      <main className="mx-auto max-w-5xl px-3 md:px-6 py-8"><ConfirmProvider>{children}</ConfirmProvider></main>
     </div>
   );
 }

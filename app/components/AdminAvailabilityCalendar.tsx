@@ -16,6 +16,7 @@ import {
   startOfToday,
   buildCalendarDays,
 } from "@/lib/calendar/dates";
+import { useConfirm } from "@/app/components/ConfirmProvider";
 
 const WEEKDAYS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const MONTHS = [
@@ -70,14 +71,6 @@ type PatchResult = {
 
 type AvailabilityChoice = "unchanged" | "available" | "blocked";
 
-type ConfirmRequest = {
-  title: string;
-  message: string;
-  confirmLabel: string;
-  cancelLabel: string;
-  resolve: (value: boolean) => void;
-};
-
 async function submitAvailabilityPatch(
   payload: BulkUpdatePayload & { confirmIcalOverride?: boolean },
 ): Promise<PatchResult> {
@@ -94,6 +87,7 @@ export default function AdminAvailabilityCalendar() {
   const today = startOfToday();
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
+  const confirmDialog = useConfirm();
 
   // --- Properties (for admins managing more than one property/room) ---
   const [properties, setProperties] = useState<Property[] | null>(null);
@@ -266,19 +260,6 @@ export default function AdminAvailabilityCalendar() {
     text: string;
   } | null>(null);
 
-  // Replaces window.confirm with an in-app modal. Resolve/reject the
-  // returned promise from the rendered dialog's buttons.
-  const [confirmRequest, setConfirmRequest] = useState<ConfirmRequest | null>(
-    null,
-  );
-  function confirmDialog(
-    options: Omit<ConfirmRequest, "resolve">,
-  ): Promise<boolean> {
-    return new Promise((resolve) => {
-      setConfirmRequest({ ...options, resolve });
-    });
-  }
-
   // Prefill the form whenever the selection settles on a single day, so
   // single-day edits show the day's real current values.
   useEffect(() => {
@@ -315,6 +296,8 @@ export default function AdminAvailabilityCalendar() {
       minStay: minStayInput.trim() === "" ? null : Number(minStayInput),
     };
 
+    let cancelFailed = false;
+
     try {
       let result = await submitAvailabilityPatch(basePayload);
 
@@ -349,10 +332,7 @@ export default function AdminAvailabilityCalendar() {
               },
             );
             if (!cancelRes.ok) {
-              setFormMessage({
-                type: "error",
-                text: `No se pudo cancelar la reserva de ${reservation.guestName}.`,
-              });
+              cancelFailed = true;
             }
           }
         }
@@ -385,10 +365,19 @@ export default function AdminAvailabilityCalendar() {
       // local state — cancelling a reservation can free nights outside
       // the edited range too, and this is the only way the grid is
       // guaranteed to match reality rather than a stale local guess.
-      const freshRates = await loadRates(selectedPropertyId, viewYear, viewMonth);
+      const freshRates = await loadRates(
+        selectedPropertyId,
+        viewYear,
+        viewMonth,
+      );
       setRates(freshRates);
 
-      if (result.failedDates.length > 0) {
+      if (cancelFailed) {
+        setFormMessage({
+          type: "error",
+          text: "No se pudo cancelar alguna reserva. Revisá las fechas e intentá de nuevo.",
+        });
+      } else if (result.failedDates.length > 0) {
         setFormMessage({
           type: "error",
           text: `Algunas fechas no se pudieron guardar (${result.failedDates.length}).`,
@@ -408,54 +397,6 @@ export default function AdminAvailabilityCalendar() {
       setSaving(false);
     }
   }
-
-  // --- Property-level settings (default price, default min stay, min reservation fee) ---
-  // const [settingsOpen, setSettingsOpen] = useState(false);
-  // const [settingsDraft, setSettingsDraft] = useState<PropertySettingsUpdate>(
-  //   {},
-  // );
-  // const [settingsSaving, setSettingsSaving] = useState(false);
-  // const [settingsMessage, setSettingsMessage] = useState<{
-  //   type: "success" | "error";
-  //   text: string;
-  // } | null>(null);
-
-  // useEffect(() => {
-  //   if (!selectedProperty) return;
-  //   setSettingsDraft({
-  //     defaultPrice: selectedProperty.defaultPrice,
-  //     defaultMinStay: selectedProperty.defaultMinStay,
-  //     minReservationFee: selectedProperty.minReservationFee,
-  //   });
-  // }, [selectedProperty]);
-
-  // async function saveSettings() {
-  //   if (!selectedProperty) return;
-  //   setSettingsSaving(true);
-  //   setSettingsMessage(null);
-  //   try {
-  //     const res = await fetch(`/api/admin/properties/${selectedProperty.id}`, {
-  //       method: "PATCH",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify(settingsDraft),
-  //     });
-  //     if (!res.ok) throw new Error("No se pudo guardar la configuración");
-  //     setProperties(
-  //       (prev) =>
-  //         prev?.map((p) =>
-  //           p.id === selectedProperty.id ? { ...p, ...settingsDraft } : p,
-  //         ) ?? null,
-  //     );
-  //     setSettingsMessage({ type: "success", text: "Configuración guardada." });
-  //   } catch (e) {
-  //     setSettingsMessage({
-  //       type: "error",
-  //       text: e instanceof Error ? e.message : "Error desconocido",
-  //     });
-  //   } finally {
-  //     setSettingsSaving(false);
-  //   }
-  // }
 
   const money = currencyFormatter(selectedProperty?.currency ?? "UYU");
   const selectionLabel =
@@ -545,7 +486,9 @@ export default function AdminAvailabilityCalendar() {
             </span>
           </div>
           {ratesError ? (
-            <p className="py-8 text-center text-sm text-red-600 ">{ratesError}</p>
+            <p className="py-8 text-center text-sm text-red-600 ">
+              {ratesError}
+            </p>
           ) : !rates ? (
             <p className="py-8 text-center text-sm text-zinc-500  ">
               Cargando disponibilidad…
@@ -559,8 +502,14 @@ export default function AdminAvailabilityCalendar() {
               ))}
               {days.map((day, index) => {
                 if (day === null) return <div key={index} aria-hidden />;
-                const { isPast, isToday, isSelected, isInRange, occupied, rate } =
-                  getDayState(day);
+                const {
+                  isPast,
+                  isToday,
+                  isSelected,
+                  isInRange,
+                  occupied,
+                  rate,
+                } = getDayState(day);
                 const isDisabled = isPast;
                 const price = rate.price ?? selectedProperty?.defaultPrice;
                 return (
@@ -666,8 +615,8 @@ export default function AdminAvailabilityCalendar() {
               </div>
               {availableInput === "unchanged" && (
                 <p className="mt-1.5 text-xs text-zinc-400">
-                  No se va a modificar la disponibilidad de estas fechas —
-                  solo precio / estadía mínima.
+                  No se va a modificar la disponibilidad de estas fechas — solo
+                  precio / estadía mínima.
                 </p>
               )}
             </div>
@@ -730,41 +679,6 @@ export default function AdminAvailabilityCalendar() {
           )}
         </div>
       </div>
-
-      {confirmRequest && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-sm rounded-xl bg-white p-5 shadow-lg">
-            <p className="text-base font-semibold text-zinc-900">
-              {confirmRequest.title}
-            </p>
-            <p className="mt-2 text-sm text-zinc-600">
-              {confirmRequest.message}
-            </p>
-            <div className="mt-5 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  confirmRequest.resolve(false);
-                  setConfirmRequest(null);
-                }}
-                className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50"
-              >
-                {confirmRequest.cancelLabel}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  confirmRequest.resolve(true);
-                  setConfirmRequest(null);
-                }}
-                className="rounded-md bg-foreground px-3 py-1.5 text-sm font-semibold text-background hover:opacity-90"
-              >
-                {confirmRequest.confirmLabel}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
