@@ -110,12 +110,12 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
           {/* Desktop */}
           <div className="hidden items-center gap-6 md:flex">
             <nav className="flex items-center gap-6 uppercase">
-              <a
+              {/* <a
                 href="#quienes-somos"
                 className="text-sm font-medium text-primary-foreground transition-colors hover:text-accent-300"
               >
                 {t("nuestrasCabanas")}
-              </a>
+              </a> */}
 
               <a
                 href="#contact-section"

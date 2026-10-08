@@ -18,7 +18,11 @@ const geistMono = Geist_Mono({
 
 const gothamBook = Gotham({
   variable: "--font-gotham",
-  src: "../public/Gotham_Book.otf",
+  src: "../public/Gotham_Book.woff2",
+  weight: "400",
+  display: "swap",
+  preload: true,
+  fallback: ["Arial", "Helvetica", "sans-serif"],
 });
 
 export async function generateMetadata(): Promise<Metadata> {
