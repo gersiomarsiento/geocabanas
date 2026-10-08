@@ -5,5 +5,6 @@ export function getLocalized(
   locale: string,
 ): string {
   if (!field) return "";
-  return field[locale as keyof LocalizedText] || field.es;
+  const value = field[locale as keyof LocalizedText];
+  return value?.trim() ? value : (field.es ?? "");
 }

@@ -10,10 +10,12 @@ import SiteReviewsCard from "../propiedades/SiteReviewsCard";
 import SiteCurrencyCard from "../propiedades/SiteCurrencyCard";
 import SiteInstagramCard from "../propiedades/SiteInstagramCard";
 import SiteCommonAreasCard from "../propiedades/SiteCommonAreasCard";
+import SiteFeaturesCard from "../propiedades/SiteFeaturesCard";
 import { CollapsibleSection } from "../propiedades/AdminUI";
 
 type SectionId =
   | "hero"
+  | "features"
   | "commonAreas"
   | "contact"
   | "currency"
@@ -47,6 +49,14 @@ export default function SitioPage() {
           onToggle={() => handleToggle("commonAreas")}
         >
           <SiteCommonAreasCard />
+        </CollapsibleSection>
+
+        <CollapsibleSection
+          title="Características y estadía"
+          open={openSection === "features"}
+          onToggle={() => handleToggle("features")}
+        >
+          <SiteFeaturesCard />
         </CollapsibleSection>
 
         <CollapsibleSection

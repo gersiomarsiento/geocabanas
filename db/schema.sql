@@ -275,6 +275,11 @@ create table site_settings (
   exchange_rate_brl numeric not null default 5.4,
 
   updated_at timestamptz not null default now()
+
+    -- [{"icon": "pool", "label": {"es": "...", "en"?: "...", "pt"?: "..."}}]
+  features jsonb,
+  -- [{"value": "3 PM", "label": {"es": "...", ...}}]
+  stay_info jsonb,
 );
 
 

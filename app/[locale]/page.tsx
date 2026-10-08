@@ -1,4 +1,3 @@
-import { getTranslations } from "next-intl/server";
 import HeroSlider from "../components/HeroSlider";
 import BookingCalendar from "../components/BookingCalendar";
 import ContactSection from "../components/ContactSection";
@@ -16,11 +15,34 @@ import AvailabilitySearch from "../components/AvailabilitySearch";
 // import PropertiesSection from "../components/PropertiesSection";
 import FeaturesSection from "../components/FeaturesSection";
 import { getCommonAreaImages } from "@/lib/commonAreas";
+import { getLocalized } from "@/lib/i18n/getLocalized";
+import { getLocale, getTranslations } from "next-intl/server";
+import { getContactSettings } from "@/lib/site/settings";
+import {
+  DEFAULT_FEATURES,
+  DEFAULT_STAY_INFO,
+  DEFAULT_FEATURES_TITLE,
+} from "@/lib/site/features";
 
 export default async function Home() {
-  const t = await getTranslations("Hero");
-  const tBooking = await getTranslations("Booking");
-  const commonAreas = await getCommonAreaImages();
+  const locale = await getLocale();
+  const [t, tBooking, commonAreas, contact] = await Promise.all([
+    getTranslations("Hero"),
+    getTranslations("Booking"),
+    getCommonAreaImages(),
+    getContactSettings(),
+  ]);
+
+  const featuresTitle = getLocalized(
+    contact.featuresTitle ?? DEFAULT_FEATURES_TITLE,
+    locale,
+  );
+  const features = (
+    contact.features?.length ? contact.features : DEFAULT_FEATURES
+  ).map((f) => ({ icon: f.icon, label: getLocalized(f.label, locale) }));
+  const stayInfo = (
+    contact.stayInfo?.length ? contact.stayInfo : DEFAULT_STAY_INFO
+  ).map((s) => ({ value: s.value, label: getLocalized(s.label, locale) }));
 
   return (
     <div className="flex min-h-screen flex-col bg-white font-sans">
@@ -45,7 +67,12 @@ export default async function Home() {
             ]}
           />
         </section>
-        <FeaturesSection commonAreas={commonAreas} />
+        <FeaturesSection
+          commonAreas={commonAreas}
+          features={features}
+          stayInfo={stayInfo}
+          title={featuresTitle}
+        />
         <section
           id="reservar-button"
           aria-labelledby="booking-title"

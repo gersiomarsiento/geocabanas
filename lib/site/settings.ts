@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import type { LocalizedText } from "@/lib/i18n/getLocalized";
+import type { FeatureItem, StayInfoItem } from "@/lib/site/features";
 
 export type BookingMode = "reservation" | "request";
 export interface ContactSettings {
@@ -31,6 +32,10 @@ export interface ContactSettings {
   aboutText: LocalizedText | null;
 
   bookingMode: BookingMode;
+
+  featuresTitle: LocalizedText | null;
+  features: FeatureItem[] | null;
+  stayInfo: StayInfoItem[] | null;
 }
 
 export async function getContactSettings(): Promise<ContactSettings> {
@@ -58,7 +63,10 @@ export async function getContactSettings(): Promise<ContactSettings> {
       exchange_rate_brl,
       about_title,
       about_text,
-      booking_mode
+      booking_mode,
+      features_title,
+      features,
+      stay_info
       `,
     )
     .eq("id", "singleton")
@@ -94,6 +102,9 @@ export async function getContactSettings(): Promise<ContactSettings> {
       aboutTitle: null,
       aboutText: null,
       bookingMode: "reservation",
+      featuresTitle: null,
+      features: null,
+      stayInfo: null,
     };
   }
 
@@ -125,5 +136,9 @@ export async function getContactSettings(): Promise<ContactSettings> {
     aboutTitle: data.about_title,
     aboutText: data.about_text,
     bookingMode: (data.booking_mode as BookingMode) ?? "reservation",
+
+    featuresTitle: data.features_title,
+    features: (data.features ?? null) as FeatureItem[] | null,
+    stayInfo: (data.stay_info ?? null) as StayInfoItem[] | null,
   };
 }

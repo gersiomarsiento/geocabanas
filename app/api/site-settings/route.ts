@@ -16,6 +16,8 @@ export async function GET(req: NextRequest) {
     heroUrl,
     logoUrl,
     ...contact,
+    features: contact.features,
+    stayInfo: contact.stayInfo,
     aboutTitle: getLocalized(contact.aboutTitle, locale),
     aboutText: getLocalized(contact.aboutText, locale),
     heroTitle: getLocalized(contact.heroTitle, locale),

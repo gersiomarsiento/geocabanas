@@ -30,6 +30,9 @@ interface SiteSettingsUpdate {
   emailIntro?: LocalizedFieldUpdate;
   exchangeRateUyu?: number;
   exchangeRateBrl?: number;
+  featuresTitle?: LocalizedFieldUpdate;
+  features?: { icon: string; label: LocalizedFieldUpdate }[];
+  stayInfo?: { value: string; label: LocalizedFieldUpdate }[];
 }
 
 const LOCALIZED_FIELDS = [
@@ -40,7 +43,17 @@ const LOCALIZED_FIELDS = [
   ["aboutText", "about_text"],
   ["emailSubject", "email_subject"],
   ["emailIntro", "email_intro"],
+  ["featuresTitle", "features_title"],
 ] as const;
+
+type StoredFeature = { icon: string; label: LocalizedText };
+type StoredStayInfo = { value: string; label: LocalizedText };
+type CurrentSettings = Partial<
+  Record<(typeof LOCALIZED_FIELDS)[number][1], LocalizedText | null>
+> & {
+  features?: StoredFeature[] | null;
+  stay_info?: StoredStayInfo[] | null;
+};
 
 function pickLocales(value: LocalizedFieldUpdate): LocalizedFieldUpdate {
   const result: LocalizedFieldUpdate = {};
@@ -53,20 +66,21 @@ function pickLocales(value: LocalizedFieldUpdate): LocalizedFieldUpdate {
 export async function PATCH(request: Request) {
   const body = (await request.json()) as SiteSettingsUpdate;
 
-  const needsLocalizedMerge = LOCALIZED_FIELDS.some(
-    ([key]) => body[key] != null,
-  );
+  const needsLocalizedMerge =
+    LOCALIZED_FIELDS.some(([key]) => body[key] != null) ||
+    body.features != null ||
+    body.stayInfo != null;
 
-  let currentLocalized: Record<string, LocalizedText | null> = {};
+  let currentLocalized: CurrentSettings = {};
   if (needsLocalizedMerge) {
     const { data } = await supabaseAdmin
       .from("site_settings")
       .select(
-        "hero_title, hero_subtitle, hero_button_text, about_title, about_text, email_subject, email_intro",
+        "hero_title, hero_subtitle, hero_button_text, about_title, about_text, email_subject, email_intro, features_title, features, stay_info",
       )
       .eq("id", "singleton")
       .single();
-    currentLocalized = data ?? {};
+    currentLocalized = (data ?? {}) as CurrentSettings;
   }
 
   const update: Record<string, unknown> = {};
@@ -92,6 +106,42 @@ export async function PATCH(request: Request) {
       ...(currentLocalized[column] ?? {}),
       ...pickLocales(value),
     };
+  }
+  const MAX_FEATURES = 8;
+  const MAX_STAY_INFO = 4;
+
+  function cleanLabel(label: LocalizedFieldUpdate | undefined, max: number) {
+    const out: LocalizedFieldUpdate = {};
+    for (const locale of ["es", "en", "pt"] as const) {
+      const v = label?.[locale]?.trim();
+      if (v) out[locale] = v.slice(0, max);
+    }
+    return out;
+  }
+
+  if (body.features != null) {
+    if (!Array.isArray(body.features)) {
+      return NextResponse.json({ error: "Formato inválido" }, { status: 400 });
+    }
+    update.features = body.features
+      .filter((f) => typeof f?.icon === "string")
+      .map((f) => ({ icon: f.icon, label: cleanLabel(f.label, 60) }))
+      .filter((f) => f.label.es) // Spanish is required
+      .slice(0, MAX_FEATURES);
+  }
+
+  if (body.stayInfo != null) {
+    if (!Array.isArray(body.stayInfo)) {
+      return NextResponse.json({ error: "Formato inválido" }, { status: 400 });
+    }
+    update.stay_info = body.stayInfo
+      .filter((s) => typeof s?.value === "string" && s.value.trim() !== "")
+      .map((s) => ({
+        value: s.value.trim().slice(0, 12),
+        label: cleanLabel(s.label, 30),
+      }))
+      .filter((s) => s.label.es)
+      .slice(0, MAX_STAY_INFO);
   }
 
   if (body.heroButtonHref != null)
