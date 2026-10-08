@@ -24,6 +24,14 @@ interface SiteSettingsUpdate {
   heroSubtitle?: LocalizedFieldUpdate;
   heroButtonText?: LocalizedFieldUpdate;
   heroButtonHref?: string;
+  hero2Title?: LocalizedFieldUpdate;
+  hero2Subtitle?: LocalizedFieldUpdate;
+  hero2ButtonText?: LocalizedFieldUpdate;
+  hero2ButtonHref?: string;
+  hero3Title?: LocalizedFieldUpdate;
+  hero3Subtitle?: LocalizedFieldUpdate;
+  hero3ButtonText?: LocalizedFieldUpdate;
+  hero3ButtonHref?: string;
   aboutTitle?: LocalizedFieldUpdate;
   aboutText?: LocalizedFieldUpdate;
   emailSubject?: LocalizedFieldUpdate;
@@ -39,12 +47,30 @@ const LOCALIZED_FIELDS = [
   ["heroTitle", "hero_title"],
   ["heroSubtitle", "hero_subtitle"],
   ["heroButtonText", "hero_button_text"],
+  ["hero2Title", "hero2_title"],
+  ["hero2Subtitle", "hero2_subtitle"],
+  ["hero2ButtonText", "hero2_button_text"],
+  ["hero3Title", "hero3_title"],
+  ["hero3Subtitle", "hero3_subtitle"],
+  ["hero3ButtonText", "hero3_button_text"],
   ["aboutTitle", "about_title"],
   ["aboutText", "about_text"],
   ["emailSubject", "email_subject"],
   ["emailIntro", "email_intro"],
   ["featuresTitle", "features_title"],
 ] as const;
+
+const PLAIN_TEXT_FIELDS = [
+  ["heroButtonHref", "hero_button_href"],
+  ["hero2ButtonHref", "hero2_button_href"],
+  ["hero3ButtonHref", "hero3_button_href"],
+] as const;
+
+const MERGE_SELECT = [
+  ...LOCALIZED_FIELDS.map(([, column]) => column),
+  "features",
+  "stay_info",
+].join(", ");
 
 type StoredFeature = { icon: string; label: LocalizedText };
 type StoredStayInfo = { value: string; label: LocalizedText };
@@ -75,9 +101,7 @@ export async function PATCH(request: Request) {
   if (needsLocalizedMerge) {
     const { data } = await supabaseAdmin
       .from("site_settings")
-      .select(
-        "hero_title, hero_subtitle, hero_button_text, about_title, about_text, email_subject, email_intro, features_title, features, stay_info",
-      )
+      .select(MERGE_SELECT)
       .eq("id", "singleton")
       .single();
     currentLocalized = (data ?? {}) as CurrentSettings;
@@ -107,6 +131,12 @@ export async function PATCH(request: Request) {
       ...pickLocales(value),
     };
   }
+
+  for (const [bodyKey, column] of PLAIN_TEXT_FIELDS) {
+    const value = body[bodyKey];
+    if (value != null) update[column] = value;
+  }
+
   const MAX_FEATURES = 8;
   const MAX_STAY_INFO = 4;
 
@@ -144,8 +174,6 @@ export async function PATCH(request: Request) {
       .slice(0, MAX_STAY_INFO);
   }
 
-  if (body.heroButtonHref != null)
-    update.hero_button_href = body.heroButtonHref;
   if (body.exchangeRateUyu != null) {
     update.exchange_rate_uyu = body.exchangeRateUyu;
   }

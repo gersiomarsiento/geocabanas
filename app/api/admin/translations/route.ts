@@ -21,6 +21,12 @@ interface SiteTranslations {
   heroTitle: LocalizedText;
   heroSubtitle: LocalizedText;
   heroButtonText: LocalizedText;
+  hero2Title: LocalizedText;
+  hero2Subtitle: LocalizedText;
+  hero2ButtonText: LocalizedText;
+  hero3Title: LocalizedText;
+  hero3Subtitle: LocalizedText;
+  hero3ButtonText: LocalizedText;
   aboutTitle: LocalizedText;
   aboutText: LocalizedText;
   emailSubject: LocalizedText;
@@ -32,7 +38,7 @@ export async function GET() {
     supabaseAdmin
       .from("site_settings")
       .select(
-        "hero_title, hero_subtitle, hero_button_text, about_title, about_text, email_subject, email_intro",
+        "hero_title, hero_subtitle, hero_button_text, hero2_title, hero2_subtitle, hero2_button_text, hero3_title, hero3_subtitle, hero3_button_text, about_title, about_text, email_subject, email_intro",
       )
       .eq("id", "singleton")
       .single(),
@@ -58,6 +64,12 @@ export async function GET() {
     heroTitle: siteRow?.hero_title ?? EMPTY_LOCALIZED,
     heroSubtitle: siteRow?.hero_subtitle ?? EMPTY_LOCALIZED,
     heroButtonText: siteRow?.hero_button_text ?? EMPTY_LOCALIZED,
+    hero2Title: siteRow?.hero2_title ?? EMPTY_LOCALIZED,
+    hero2Subtitle: siteRow?.hero2_subtitle ?? EMPTY_LOCALIZED,
+    hero2ButtonText: siteRow?.hero2_button_text ?? EMPTY_LOCALIZED,
+    hero3Title: siteRow?.hero3_title ?? EMPTY_LOCALIZED,
+    hero3Subtitle: siteRow?.hero3_subtitle ?? EMPTY_LOCALIZED,
+    hero3ButtonText: siteRow?.hero3_button_text ?? EMPTY_LOCALIZED,
     aboutTitle: siteRow?.about_title ?? EMPTY_LOCALIZED,
     aboutText: siteRow?.about_text ?? EMPTY_LOCALIZED,
     emailSubject: siteRow?.email_subject ?? EMPTY_LOCALIZED,

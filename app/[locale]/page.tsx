@@ -1,4 +1,4 @@
-import HeroSlider from "../components/HeroSlider";
+import HeroSlides from "@/app/components/HeroSlides";
 import BookingCalendar from "../components/BookingCalendar";
 import ContactSection from "../components/ContactSection";
 import FaqSection from "../components/FaqSection";
@@ -6,8 +6,6 @@ import FaqSection from "../components/FaqSection";
 import ReviewsSection from "../components/ReviewsSection";
 
 import Footer from "../components/Footer";
-import HeroImage from "../components/HeroImage";
-import HeroImageClient from "../components/HeroImageClient";
 import Header from "../components/Header";
 import InstagramGallery from "../components/InstagramGallery";
 import WhatsAppButton from "../components/WhatsAppButton";
@@ -53,19 +51,7 @@ export default async function Home() {
           aria-label={t("imagenPrincipal")}
           className="relative flex h-svh w-full items-center justify-center bg-primary"
         >
-          <HeroSlider
-            slides={[
-              <HeroImage key="1" />,
-              <HeroImageClient
-                key="2"
-                heroUrl={"/images/hero.webp"}
-                heroTitle={"Geo"}
-                heroSubtitle={"Siempre con vos"}
-                heroButtonHref={"/#"}
-                heroButtonText={"RESERVAR"}
-              />,
-            ]}
-          />
+          <HeroSlides />
         </section>
         <FeaturesSection
           commonAreas={commonAreas}

@@ -6,36 +6,46 @@ import { useEffect, useState } from "react";
 import type { LocalizedText } from "@/lib/i18n/getLocalized";
 import type { EditableLocale } from "./page";
 
-interface SiteTranslations {
-  heroTitle: LocalizedText;
-  heroSubtitle: LocalizedText;
-  heroButtonText: LocalizedText;
-  aboutTitle: LocalizedText;
-  aboutText: LocalizedText;
-  emailSubject: LocalizedText;
-  emailIntro: LocalizedText;
-}
+const LOCALIZED_KEYS = [
+  "heroTitle",
+  "heroSubtitle",
+  "heroButtonText",
+  "hero2Title",
+  "hero2Subtitle",
+  "hero2ButtonText",
+  "hero3Title",
+  "hero3Subtitle",
+  "hero3ButtonText",
+  "aboutTitle",
+  "aboutText",
+  "emailSubject",
+  "emailIntro",
+] as const;
 
-interface SiteDraft {
-  heroTitle: string;
-  heroSubtitle: string;
-  heroButtonText: string;
-  aboutTitle: string;
-  aboutText: string;
-  emailSubject: string;
-  emailIntro: string;
+type LocalizedKey = (typeof LOCALIZED_KEYS)[number];
+
+type SiteTranslations = Record<LocalizedKey, LocalizedText | undefined>;
+type SiteDraft = Record<LocalizedKey, string>;
+
+const SLIDES = [
+  { label: "Slide 1", prefix: "hero" },
+  { label: "Slide 2", prefix: "hero2" },
+  { label: "Slide 3", prefix: "hero3" },
+] as const;
+
+function getText(
+  value: LocalizedText | undefined,
+  locale: "es" | EditableLocale,
+): string {
+  return (value?.[locale] as string | undefined) ?? "";
 }
 
 function buildDraft(data: SiteTranslations, locale: EditableLocale): SiteDraft {
-  return {
-    heroTitle: data.heroTitle[locale] ?? "",
-    heroSubtitle: data.heroSubtitle[locale] ?? "",
-    heroButtonText: data.heroButtonText[locale] ?? "",
-    aboutTitle: data.aboutTitle[locale] ?? "",
-    aboutText: data.aboutText[locale] ?? "",
-    emailSubject: data.emailSubject[locale] ?? "",
-    emailIntro: data.emailIntro[locale] ?? "",
-  };
+  const draft = {} as SiteDraft;
+  for (const key of LOCALIZED_KEYS) {
+    draft[key] = getText(data[key], locale);
+  }
+  return draft;
 }
 
 export default function TranslationsSiteCard({
@@ -59,22 +69,40 @@ export default function TranslationsSiteCard({
     setMessage(null);
   }, [data, locale]);
 
+  function setField(key: LocalizedKey, value: string) {
+    setDraft((d) => ({ ...d, [key]: value }));
+  }
+
+  // Slide 1 always shows; 2 and 3 only if they have Spanish text.
+  function slideVisible(prefix: string) {
+    if (prefix === "hero") return true;
+    return (
+      getText(data[`${prefix}Title` as LocalizedKey], "es") !== "" ||
+      getText(data[`${prefix}Subtitle` as LocalizedKey], "es") !== "" ||
+      getText(data[`${prefix}ButtonText` as LocalizedKey], "es") !== ""
+    );
+  }
+
   async function handleSave() {
     setSaving(true);
     setMessage(null);
     try {
+      const body: Record<string, LocalizedText | Record<string, string>> = {};
+      for (const key of LOCALIZED_KEYS) {
+        // Don't send fields of slides that aren't shown
+        const slide = SLIDES.find(
+          (s) =>
+            key.startsWith(s.prefix) &&
+            /^hero\d?(Title|Subtitle|ButtonText)$/.test(key),
+        );
+        if (slide && !slideVisible(slide.prefix)) continue;
+        body[key] = { [locale]: draft[key] };
+      }
+
       const res = await fetch("/api/admin/site-settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          heroTitle: { [locale]: draft.heroTitle },
-          heroSubtitle: { [locale]: draft.heroSubtitle },
-          heroButtonText: { [locale]: draft.heroButtonText },
-          aboutTitle: { [locale]: draft.aboutTitle },
-          aboutText: { [locale]: draft.aboutText },
-          emailSubject: { [locale]: draft.emailSubject },
-          emailIntro: { [locale]: draft.emailIntro },
-        }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error("No se pudo guardar");
       onSaved();
@@ -89,58 +117,47 @@ export default function TranslationsSiteCard({
     }
   }
 
+  function renderField(key: LocalizedKey, label: string, multiline?: boolean) {
+    return (
+      <Field
+        key={key}
+        label={label}
+        reference={getText(data[key], "es")}
+        value={draft[key]}
+        onChange={(v) => setField(key, v)}
+        multiline={multiline}
+      />
+    );
+  }
+
   return (
     <div className="grid gap-4">
-      <h4 className="">Portada</h4>
-      <Field
-        label="Título"
-        reference={data.heroTitle.es}
-        value={draft.heroTitle}
-        onChange={(v) => setDraft((d) => ({ ...d, heroTitle: v }))}
-      />
-      <Field
-        label="Subtítulo"
-        reference={data.heroSubtitle.es}
-        value={draft.heroSubtitle}
-        onChange={(v) => setDraft((d) => ({ ...d, heroSubtitle: v }))}
-      />
-      <Field
-        label="Texto del botón"
-        reference={data.heroButtonText.es}
-        value={draft.heroButtonText}
-        onChange={(v) => setDraft((d) => ({ ...d, heroButtonText: v }))}
-      />
+      <h4>Portada</h4>
+
+      {SLIDES.filter((s) => slideVisible(s.prefix)).map((s, i) => (
+        <div
+          key={s.prefix}
+          className={`grid gap-4 ${i > 0 ? "border-t border-zinc-200 pt-4" : ""}`}
+        >
+          <p className="text-sm font-semibold text-zinc-500">{s.label}</p>
+          {renderField(`${s.prefix}Title` as LocalizedKey, "Título")}
+          {renderField(`${s.prefix}Subtitle` as LocalizedKey, "Subtítulo")}
+          {renderField(
+            `${s.prefix}ButtonText` as LocalizedKey,
+            "Texto del botón",
+          )}
+        </div>
+      ))}
+
       <h4 className="border-t border-zinc-200 mt-3 pt-3">Quiénes Somos</h4>
-      <Field
-        label="Título"
-        reference={data.aboutTitle.es}
-        value={draft.aboutTitle}
-        onChange={(v) => setDraft((d) => ({ ...d, aboutTitle: v }))}
-      />
-      <Field
-        label="Texto"
-        reference={data.aboutText.es}
-        value={draft.aboutText}
-        onChange={(v) => setDraft((d) => ({ ...d, aboutText: v }))}
-        multiline
-      />
+      {renderField("aboutTitle", "Título")}
+      {renderField("aboutText", "Texto", true)}
+
       <h4 className="border-t border-zinc-200 mt-3 pt-3">
         Email de confirmación
       </h4>
-      <Field
-        label="Asunto"
-        reference={data.emailSubject.es}
-        value={draft.emailSubject}
-        onChange={(v) => setDraft((d) => ({ ...d, emailSubject: v }))}
-        multiline
-      />
-      <Field
-        label="Contenido"
-        reference={data.emailIntro.es}
-        value={draft.emailIntro}
-        onChange={(v) => setDraft((d) => ({ ...d, emailIntro: v }))}
-        multiline
-      />
+      {renderField("emailSubject", "Asunto", true)}
+      {renderField("emailIntro", "Contenido", true)}
 
       <button
         type="button"

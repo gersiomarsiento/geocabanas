@@ -17,6 +17,12 @@ interface SiteTranslations {
   heroTitle: LocalizedText;
   heroSubtitle: LocalizedText;
   heroButtonText: LocalizedText;
+  hero2Title: LocalizedText;
+  hero2Subtitle: LocalizedText;
+  hero2ButtonText: LocalizedText;
+  hero3Title: LocalizedText;
+  hero3Subtitle: LocalizedText;
+  hero3ButtonText: LocalizedText;
   aboutTitle: LocalizedText;
   aboutText: LocalizedText;
   emailSubject: LocalizedText;

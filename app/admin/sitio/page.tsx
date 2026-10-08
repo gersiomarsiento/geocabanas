@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 
-import SiteHeroCard from "../propiedades/SiteHeroCard";
+import SiteSlideCard from "../propiedades/SiteSlideCard";
+import SiteIdentityCard from "../propiedades/SiteIdentityCard";
 import SiteContactCard from "../propiedades/SiteContactCard";
 import SiteEmailCard from "../propiedades/SiteEmailCard";
 import SiteFaqCard from "../propiedades/SiteFaqCard";
@@ -14,7 +15,8 @@ import SiteFeaturesCard from "../propiedades/SiteFeaturesCard";
 import { CollapsibleSection } from "../propiedades/AdminUI";
 
 type SectionId =
-  | "hero"
+  | "portada"
+  | "identity"
   | "features"
   | "commonAreas"
   | "contact"
@@ -25,7 +27,7 @@ type SectionId =
   | "reviews";
 
 export default function SitioPage() {
-  const [openSection, setOpenSection] = useState<SectionId | null>("hero");
+  const [openSection, setOpenSection] = useState<SectionId | null>("portada");
 
   function handleToggle(section: SectionId) {
     setOpenSection((current) => (current === section ? null : section));
@@ -37,11 +39,39 @@ export default function SitioPage() {
 
       <div className="space-y-4">
         <CollapsibleSection
-          title="Identidad"
-          open={openSection === "hero"}
-          onToggle={() => handleToggle("hero")}
+          title="Portada"
+          open={openSection === "portada"}
+          onToggle={() => handleToggle("portada")}
         >
-          <SiteHeroCard />
+          <div className="space-y-3">
+            <CollapsibleSection
+              className="bg-secondary-200! text-foreground! hover:bg-primary! hover:text-background!"
+              title="Slide 1"
+              defaultOpen
+            >
+              <SiteSlideCard slide={1} />
+            </CollapsibleSection>
+            <CollapsibleSection
+              className="bg-secondary-200! text-foreground! hover:bg-primary! hover:text-background!"
+              title="Slide 2"
+            >
+              <SiteSlideCard slide={2} />
+            </CollapsibleSection>
+            <CollapsibleSection
+              className="bg-secondary-200! text-foreground! hover:bg-primary! hover:text-background!"
+              title="Slide 3"
+            >
+              <SiteSlideCard slide={3} />
+            </CollapsibleSection>
+          </div>
+        </CollapsibleSection>
+
+        <CollapsibleSection
+          title="Identidad"
+          open={openSection === "identity"}
+          onToggle={() => handleToggle("identity")}
+        >
+          <SiteIdentityCard />
         </CollapsibleSection>
         <CollapsibleSection
           title="Espacios comunes"

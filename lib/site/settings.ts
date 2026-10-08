@@ -22,6 +22,16 @@ export interface ContactSettings {
   heroButtonText: LocalizedText | null;
   heroButtonHref: string | null;
 
+  hero2Title: LocalizedText | null;
+  hero2Subtitle: LocalizedText | null;
+  hero2ButtonText: LocalizedText | null;
+  hero2ButtonHref: string | null;
+
+  hero3Title: LocalizedText | null;
+  hero3Subtitle: LocalizedText | null;
+  hero3ButtonText: LocalizedText | null;
+  hero3ButtonHref: string | null;
+
   emailSubject: LocalizedText | null;
   emailIntro: LocalizedText | null;
 
@@ -57,6 +67,14 @@ export async function getContactSettings(): Promise<ContactSettings> {
       hero_subtitle,
       hero_button_text,
       hero_button_href,
+      hero2_title,
+      hero2_subtitle,
+      hero2_button_text,
+      hero2_button_href,
+      hero3_title,
+      hero3_subtitle,
+      hero3_button_text,
+      hero3_button_href,
       email_subject,
       email_intro,
       exchange_rate_uyu,
@@ -94,6 +112,16 @@ export async function getContactSettings(): Promise<ContactSettings> {
       heroButtonText: null,
       heroButtonHref: null,
 
+      hero2Title: null,
+      hero2Subtitle: null,
+      hero2ButtonText: null,
+      hero2ButtonHref: null,
+
+      hero3Title: null,
+      hero3Subtitle: null,
+      hero3ButtonText: null,
+      hero3ButtonHref: null,
+
       emailSubject: null,
       emailIntro: null,
 
@@ -126,6 +154,16 @@ export async function getContactSettings(): Promise<ContactSettings> {
     heroSubtitle: data.hero_subtitle,
     heroButtonText: data.hero_button_text,
     heroButtonHref: data.hero_button_href,
+
+    hero2Title: data.hero2_title,
+    hero2Subtitle: data.hero2_subtitle,
+    hero2ButtonText: data.hero2_button_text,
+    hero2ButtonHref: data.hero2_button_href,
+
+    hero3Title: data.hero3_title,
+    hero3Subtitle: data.hero3_subtitle,
+    hero3ButtonText: data.hero3_button_text,
+    hero3ButtonHref: data.hero3_button_href,
 
     emailSubject: data.email_subject,
     emailIntro: data.email_intro,

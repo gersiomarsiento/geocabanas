@@ -60,7 +60,7 @@ export default function HeroSlider({ slides }: { slides: ReactNode[] }) {
       >
         {slides.map((slide, i) => (
           <SwiperSlide key={i}>
-            <div className="relative flex h-svh w-full items-center justify-center bg-primary">
+            <div className="relative flex h-svh w-full items-center justify-center bg-black">
               {slide}
             </div>
           </SwiperSlide>
@@ -71,16 +71,18 @@ export default function HeroSlider({ slides }: { slides: ReactNode[] }) {
       </Swiper>
 
       {/* Pagination */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-30">
-        {slides.map((_, i) => (
-          <span
-            key={i}
-            className={`h-2 rounded-full transition-all ${
-              i === activeIndex ? "w-4 bg-secondary" : "w-2 bg-white"
-            }`}
-          />
-        ))}
-      </div>
+      {slides.length > 1 && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-30">
+          {slides.map((_, i) => (
+            <span
+              key={i}
+              className={`h-2 rounded-full transition-all ${
+                i === activeIndex ? "w-4 bg-secondary" : "w-2 bg-white"
+              }`}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
