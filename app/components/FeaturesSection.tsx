@@ -1,14 +1,23 @@
 "use client";
 
-import Image from "next/image";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { EffectCards } from "swiper/modules";
 import { getFeatureIcon } from "@/lib/site/features";
-import "swiper/css";
-import "swiper/css/effect-cards";
+import CommonAreasGallery, {
+  type CommonArea,
+  type GalleryVariant,
+} from "./CommonAreasGallery";
 
 type Feature = { icon: string; label: string };
 type StayItem = { value: string; label: string };
+
+/**
+ * Change this to try the different galleries:
+ *  - "polaroid": small polaroid-style stacked cards
+ *  - "cards":    big, clean stacked cards
+ *  - "grid":     free-sliding mosaic
+ *
+ * You can also override it per use: <FeaturesSection galleryVariant="grid" ... />
+ */
+const GALLERY_VARIANT: GalleryVariant = "polaroid";
 
 const STAY_COLS: Record<number, string> = {
   1: "md:grid-cols-1",
@@ -22,11 +31,13 @@ export default function FeaturesSection({
   features,
   stayInfo,
   title,
+  galleryVariant = GALLERY_VARIANT,
 }: {
-  commonAreas: { id: string; url: string }[];
+  commonAreas: CommonArea[];
   features: Feature[];
   stayInfo: StayItem[];
   title: string;
+  galleryVariant?: GalleryVariant;
 }) {
   const stayCount = stayInfo.length;
   // first index of the last row on mobile (2 columns), so it has no bottom border
@@ -35,7 +46,7 @@ export default function FeaturesSection({
   return (
     <section
       aria-labelledby="highlights-title"
-      className="w-full bg-gradient-1 px-3 py-10 md:px-6 md:py-16"
+      className="w-full overflow-x-clip bg-gradient-1 px-3 py-10 md:px-6 md:py-16"
     >
       <div className="mx-auto max-w-354">
         <div className="mx-auto mb-8 max-w-xl md:max-w-3xl text-center md:mb-12">
@@ -91,56 +102,9 @@ export default function FeaturesSection({
         )}
 
         {commonAreas.length > 0 && (
-          <Swiper
-            effect="cards"
-            grabCursor
-            modules={[EffectCards]}
-            initialSlide={Math.floor((commonAreas.length - 1) / 2)}
-            cardsEffect={{
-              perSlideOffset: 40,
-              perSlideRotate: 3,
-              slideShadows: false,
-            }}
-            className="shared-spaces-swiper mx-auto w-64 md:w-100"
-          >
-            {commonAreas.map(({ id, url }) => (
-              <SwiperSlide key={id} className="polaroid-slide">
-                <div className="relative h-full w-full bg-zinc-200">
-                  <Image
-                    src={url}
-                    alt={`Espacios comunes ${id}`}
-                    fill
-                    sizes="(min-width: 768px) 400px, 256px"
-                    className="object-cover"
-                  />
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          <CommonAreasGallery items={commonAreas} variant={galleryVariant} />
         )}
       </div>
-
-      <style jsx global>{`
-        .shared-spaces-swiper {
-          height: 20rem;
-        }
-        @media (min-width: 768px) {
-          .shared-spaces-swiper {
-            height: 31rem;
-          }
-        }
-        .shared-spaces-swiper .polaroid-slide {
-          background: #fdfcf8;
-          padding: 0.75rem 0.75rem 3rem;
-          border-radius: 0.125rem;
-          box-shadow: 0 6px 18px rgb(0 0 0 / 0.35);
-        }
-        @media (min-width: 768px) {
-          .shared-spaces-swiper .polaroid-slide {
-            padding: 1rem 1rem 4rem;
-          }
-        }
-      `}</style>
     </section>
   );
 }
