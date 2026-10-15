@@ -196,7 +196,7 @@ export default function ReservasPage() {
 
   return (
     <div>
-      <h1 className="small mb-6 text-xl font-semibold">Reservas</h1>
+      <h1 className="hidden md:block small mb-6 text-xl font-semibold">Reservas</h1>
 
       <div className="mb-4 flex flex-wrap gap-1">
         {TABS.map((t) => (
@@ -207,7 +207,7 @@ export default function ReservasPage() {
               setTab(t.status);
               setMessage(null);
             }}
-            className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+            className={`rounded-md px-3 py-1.5 text-[11px] md:text-sm font-medium transition-colors ${
               tab === t.status
                 ? "bg-foreground text-background"
                 : "text-zinc-600 hover:bg-zinc-100"
@@ -292,7 +292,7 @@ export default function ReservasPage() {
                         className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-6"
                       >
                         <div className="min-w-0 space-y-0.5 text-sm">
-                          <p className="flex items-center gap-2 font-semibold">
+                          <p className="flex items-center gap-2 font-semibold text-[16px]">
                             {r.propertyName}
                             <span
                               className={`rounded-full px-2 py-0.5 text-xs font-medium ${badge.className}`}
@@ -304,7 +304,7 @@ export default function ReservasPage() {
                             {formatDate(r.startDate)} → {formatDate(r.endDate)}{" "}
                             · {nightsBetween(r.startDate, r.endDate)} noches
                           </p>
-                          <p className="text-zinc-600">
+                          <p className="text-zinc-600 font-bold py-2">
                             Total {formatMoney(r.totalPrice, r.currency)}
                             {r.depositAmount > 0 &&
                               ` · Seña ${formatMoney(r.depositAmount, r.currency)}`}

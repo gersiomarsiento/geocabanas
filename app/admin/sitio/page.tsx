@@ -35,7 +35,7 @@ export default function SitioPage() {
 
   return (
     <div>
-      <h1 className="small mb-6 text-xl font-semibold">Sitio</h1>
+      <h1 className="hidden md:block small mb-6 text-xl font-semibold">Sitio</h1>
 
       <div className="space-y-4">
         <CollapsibleSection

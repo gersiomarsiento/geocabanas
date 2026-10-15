@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { AMENITY_OPTIONS } from "@/lib/amenities";
+import { Bed, Toilet, Users } from "lucide-react";
 
 interface PropertyDetailsInfo {
   name: string | null;
@@ -11,52 +12,6 @@ interface PropertyDetailsInfo {
   childrenAllowed: boolean | null;
   petsAllowed: boolean | null;
   amenities: string[];
-}
-
-function BedIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.8}
-      className="h-4 w-4"
-    >
-      <path d="M3 18v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6" />
-      <path d="M3 18v2M21 18v2M3 12V6a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v4M14 10V6a1 1 0 0 1 1-1h4a2 2 0 0 1 2 2v3" />
-    </svg>
-  );
-}
-
-function BathIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.8}
-      className="h-4 w-4"
-    >
-      <path d="M4 12h16v2a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-2z" />
-      <path d="M6 12V6a2 2 0 0 1 3.5-1.3M4 19h16" />
-    </svg>
-  );
-}
-
-function UsersIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.8}
-      className="h-4 w-4"
-    >
-      <circle cx="9" cy="8" r="3" />
-      <path d="M2 20c0-3.3 3-6 7-6s7 2.7 7 6" />
-      <path d="M16 4.5a3 3 0 0 1 0 6M22 20c0-2.7-2-5-5-5.8" />
-    </svg>
-  );
 }
 
 export default function PropertyDetails({
@@ -71,15 +26,15 @@ export default function PropertyDetails({
 
   const stats = [
     property.bedrooms != null && {
-      icon: <BedIcon />,
+      icon: <Bed className="w-5"/>,
       label: tUnits("habitaciones", { count: property.bedrooms }),
     },
     property.bathrooms != null && {
-      icon: <BathIcon />,
+      icon: <Toilet className="w-5"/>,
       label: tUnits("banos", { count: property.bathrooms }),
     },
     property.maxGuests != null && {
-      icon: <UsersIcon />,
+      icon: <Users className="w-5"/>,
       label: tUnits("huespedes", { count: property.maxGuests }),
     },
   ].filter(Boolean) as { icon: React.ReactNode; label: string }[];

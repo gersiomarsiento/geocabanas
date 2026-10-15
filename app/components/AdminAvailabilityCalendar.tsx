@@ -17,6 +17,7 @@ import {
   buildCalendarDays,
 } from "@/lib/calendar/dates";
 import { useConfirm } from "@/app/components/ConfirmProvider";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const WEEKDAYS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const MONTHS = [
@@ -452,7 +453,7 @@ export default function AdminAvailabilityCalendar() {
               aria-label="Mes anterior"
               className="rounded-md px-3 py-1.5 text-zinc-600 transition-colors hover:bg-zinc-100"
             >
-              ←
+              <ChevronLeft />
             </button>
             <p className="text-lg font-semibold">
               {MONTHS[viewMonth]} {viewYear}
@@ -463,7 +464,7 @@ export default function AdminAvailabilityCalendar() {
               aria-label="Mes siguiente"
               className="rounded-md px-3 py-1.5 text-zinc-600 transition-colors hover:bg-zinc-100"
             >
-              →
+              <ChevronRight />
             </button>
           </div>
           {/* Color legend */}

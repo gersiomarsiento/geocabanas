@@ -4,8 +4,8 @@
 
 import { useEffect, useState } from "react";
 import type { Faq } from "@/types/faqs";
-import { CaretIcon } from "@/app/components/icons";
 import { useConfirm } from "@/app/components/ConfirmProvider";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 export default function SiteFaqCard() {
   const [faqs, setFaqs] = useState<Faq[] | null>(null);
@@ -207,7 +207,7 @@ function FaqRow({
   }
 
   return (
-    <div className="rounded-xl border border-zinc-200 p-4 shadow-sm">
+    <div className="rounded-xl border border-zinc-200 p-2 md:p-4 shadow-sm">
       <div className="mb-2 flex items-center justify-between">
         <div className="flex gap-1">
           <button
@@ -217,7 +217,7 @@ function FaqRow({
             aria-label="Subir"
             className="rounded-md px-2 py-1 text-primary hover:bg-primary-50 disabled:opacity-30"
           >
-            <CaretIcon className="rotate-270" />
+            <ChevronUp/>
           </button>
           <button
             type="button"
@@ -226,7 +226,7 @@ function FaqRow({
             aria-label="Bajar"
             className="rounded-md px-2 py-1 text-primary hover:bg-primary-50 disabled:opacity-30"
           >
-            <CaretIcon className="rotate-90" />
+            <ChevronDown />
           </button>
         </div>
         <button

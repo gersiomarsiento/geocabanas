@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import LanguageSwitcher from "./LanguageSwitcher";
 import Image from "next/image";
 
@@ -14,6 +15,7 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
   const [drawerMounted, setDrawerMounted] = useState(false);
   const [atTop, setAtTop] = useState(true);
   const [hidden, setHidden] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     let lastY = window.scrollY;
@@ -76,6 +78,14 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
     };
   }, [menuOpen]);
 
+  // Check if Admin
+  useEffect(() => {
+    fetch("/api/session", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : { authenticated: false }))
+      .then((data) => setIsAdmin(Boolean(data.authenticated)))
+      .catch(() => setIsAdmin(false));
+  }, []);
+
   function handleCurrencyChange(value: string) {
     setCurrency(value as Currency);
   }
@@ -84,13 +94,15 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
     <>
       <header
         className={`fixed inset-x-0 top-0 z-20 transition-all duration-300 ease-in-out ${
-            atTop ? "bg-linear-to-b from-black/50 to-transparent" : "bg-primary shadow-md"
+          atTop
+            ? "bg-linear-to-b from-black/50 to-transparent"
+            : "bg-primary shadow-md"
         } ${hidden && !menuOpen ? "-translate-y-full" : "translate-y-0"}`}
       >
         <div className="flex md:max-w-360 items-center justify-between p-3 md:px-6 mx-auto">
           <h2 className="text-xl font-bold tracking-tight text-primary-foreground md:text-2xl">
             {logoUrl ? (
-              <a href="#">
+              <Link href="/">
                 <Image
                   src={logoUrl}
                   alt="Geocabañas"
@@ -99,7 +111,7 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
                   priority
                   className="h-14 w-auto md:h-18"
                 />
-              </a>
+              </Link>
             ) : (
               <span className="text-xl font-bold tracking-tight text-primary-foreground md:text-2xl">
                 GEOCABAÑAS
@@ -130,6 +142,14 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
                 {t("reservar")}
               </a>
 
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="w-fit rounded-md border border-white/40 px-4 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-white/10"
+                >
+                  Admin
+                </Link>
+              )}
             </nav>
             {/* Currency selector */}
             {!isReady ? (
@@ -232,6 +252,15 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
               >
                 {t("contacto")}
               </a>
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  onClick={closeMenu}
+                  className="border-t border-zinc-200 py-4 text-base font-medium text-primary"
+                >
+                  Admin
+                </Link>
+              )}
             </div>
             {/* Currency selector mobile */}
             <div className="flex justify-between mt-auto">

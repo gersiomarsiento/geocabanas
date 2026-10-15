@@ -510,7 +510,7 @@ export default function BookingCalendar() {
                     setEndDate(null);
                     setRangeError(null);
                   }}
-                  className="inline w-full appearance-none rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 pr-10 text-sm font-medium text-zinc-900 shadow-sm outline-none transition focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
+                  className="inline w-full appearance-none rounded-xl border border-accent-200 bg-zinc-50 px-3 py-2 pr-10 text-sm font-medium text-zinc-900 shadow-sm outline-none transition focus:border-accent-400 focus:ring-2 focus:ring-accent-200"
                 >
                   {properties.map((p) => (
                     <option key={p.id} value={p.slug}>
@@ -576,7 +576,7 @@ export default function BookingCalendar() {
               type="button"
               onClick={goToPreviousMonth}
               aria-label={t("mesAnterior")}
-              className="flex max-h-10 items-center rounded-md px-3 text-primary-foreground transition-colors hover:bg-accent"
+              className="flex max-h-10 items-center rounded-md px-3 text-black transition-colors hover:bg-accent-400"
             >
               <CaretIcon className="rotate-180" />
             </button>
@@ -589,7 +589,7 @@ export default function BookingCalendar() {
               type="button"
               onClick={goToNextMonth}
               aria-label={t("mesSiguiente")}
-              className="flex max-h-10 items-center rounded-md px-3 text-primary-foreground transition-colors hover:bg-accent"
+              className="flex max-h-10 items-center rounded-md px-3 text-black transition-colors hover:bg-accent-400"
             >
               <CaretIcon />
             </button>

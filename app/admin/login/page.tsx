@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -36,9 +37,11 @@ export default function AdminLoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-zinc-50  ">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-2xl rounded-xl border border-zinc-200 p-6 shadow-sm    "
+        className="w-full max-w-2xl rounded-xl border border-zinc-200 m-2 p-3 md:p-6 shadow-sm"
       >
-        <h1 className="mb-4 text-[20px]! md:text-[40px]! font-semibold">Acceso administrador</h1>
+        <h1 className="mb-4 text-[20px]! md:text-[40px]! font-semibold">
+          Acceso administrador
+        </h1>
 
         <input
           type="password"
@@ -60,6 +63,13 @@ export default function AdminLoginPage() {
         >
           {loading ? "Ingresando..." : "Ingresar"}
         </button>
+        <Link
+          type="button"
+          href="/"
+          className="block text-center mt-2 w-full rounded-md bg-secondary-400 px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+        >
+          Volver al sitio
+        </Link>
       </form>
     </div>
   );

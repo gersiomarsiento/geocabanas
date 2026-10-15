@@ -110,7 +110,7 @@ export function CollapsibleSection({
         type="button"
         onClick={handleClick}
         aria-expanded={open}
-        className={`flex w-full items-center justify-between px-4 py-3 text-left transition-colors bg-primary text-background hover:text-foreground hover:bg-zinc-50 ${className}`}
+        className={`flex w-full items-center justify-between p-2 md:px-4 md:py-3 text-left transition-colors bg-primary text-background hover:text-foreground hover:bg-zinc-50 ${className}`}
       >
         <span className="text-sm font-semibold uppercase tracking-wide">
           {title}
@@ -124,7 +124,7 @@ export function CollapsibleSection({
         }`}
       >
         <div className="overflow-hidden">
-          <div className="border-t border-zinc-200 px-4 py-4">{children}</div>
+          <div className="border-t border-zinc-200 p-2 md:px-4 md:py-4">{children}</div>
         </div>
       </div>
     </div>

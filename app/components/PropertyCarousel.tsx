@@ -180,7 +180,7 @@ export default function PropertyCarousel({
               onClick={() => main?.slidePrev()}
               disabled={activeIndex === 0}
               aria-label={t("fotoAnterior")}
-              className="absolute left-1 top-1/2 z-10 -translate-y-1/2 rounded-full text-primary-foreground transition-colors hover:bg-white disabled:cursor-default! disabled:bg-transparent disabled:opacity-10"
+              className="absolute left-1 top-1/2 z-10 -translate-y-1/2 rounded-full text-black bg-white/30 transition-colors hover:bg-white disabled:cursor-default! disabled:bg-transparent disabled:opacity-10"
             >
               <CaretIcon className="rotate-180" />
             </button>
@@ -189,7 +189,7 @@ export default function PropertyCarousel({
               onClick={() => main?.slideNext()}
               disabled={activeIndex === images.length - 1}
               aria-label={t("fotoSiguiente")}
-              className="absolute right-1 top-1/2 z-10 -translate-y-1/2 rounded-full text-primary-foreground transition-colors hover:bg-white disabled:cursor-default! disabled:bg-transparent disabled:opacity-10"
+              className="absolute right-1 top-1/2 z-10 -translate-y-1/2 rounded-full text-black bg-white/30 transition-colors hover:bg-white disabled:cursor-default! disabled:bg-transparent disabled:opacity-10"
             >
               <CaretIcon />
             </button>

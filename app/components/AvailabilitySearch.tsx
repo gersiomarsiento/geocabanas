@@ -2,10 +2,18 @@
 
 // app/components/AvailabilitySearch.tsx
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { convertFromUSD, formatCurrency } from "@/lib/currency";
 import { useCurrency } from "./CurrencyProvider";
+import { UsersIcon } from "./icons";
+import {
+  HouseIcon,
+  CheckIcon,
+  CalendarIcon,
+  ChevronRight,
+  Equal,
+} from "lucide-react";
 
 interface PropertyResult {
   id: string;
@@ -51,35 +59,6 @@ function nightsBetween(start: string, end: string) {
   return Math.round((endTime - startTime) / 86_400_000);
 }
 
-function CalendarIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.8}
-      className="h-4 w-4 shrink-0"
-    >
-      <rect x="3" y="5" width="18" height="16" rx="2" />
-      <path d="M8 3v4M16 3v4M3 10h18" />
-    </svg>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      className="h-4 w-4 shrink-0"
-    >
-      <path d="M20 6 9 17l-5-5" />
-    </svg>
-  );
-}
-
 export default function AvailabilitySearch() {
   const t = useTranslations("AvailabilitySearch");
   const tBooking = useTranslations("Booking");
@@ -112,6 +91,17 @@ export default function AvailabilitySearch() {
   const [reserved, setReserved] = useState(false);
   const [reservedMode, setReservedMode] = useState<string>("reservation");
   const [whatsappHref, setWhatsappHref] = useState<string | null>(null);
+
+  const shouldScrollRef = useRef(false);
+
+  useEffect(() => {
+    if (searching || !shouldScrollRef.current) return;
+    shouldScrollRef.current = false;
+
+    document
+      .querySelector(".group-resultados")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [searching, recommended, searched]);
 
   function formatPrice(amount: number) {
     return formatCurrency(convertFromUSD(amount, currency, rates), currency);
@@ -159,6 +149,7 @@ export default function AvailabilitySearch() {
       } else {
         setRecommended(null);
       }
+      shouldScrollRef.current = true;
     } catch (e) {
       setSearchError(e instanceof Error ? e.message : t("noSePudoBuscar"));
     } finally {
@@ -326,6 +317,7 @@ export default function AvailabilitySearch() {
 
           <button
             type="button"
+            id="group-reserve-btn"
             disabled={searching}
             onClick={handleSearch}
             className="mt-4 w-full md:w-fit rounded-md bg-accent-500 px-4 py-2 text-sm font-semibold text-accent-foreground transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-40"
@@ -346,7 +338,9 @@ export default function AvailabilitySearch() {
           {recommended === null ? (
             <>
               <div className="bg-primary px-4 py-3 md:px-6 md:py-4 text-primary-foreground md:row-span-3">
-                <h3 className="font-bold">{t("resultados")}</h3>
+                <h3 className="group-resultados font-bold">
+                  {t("resultados")}
+                </h3>
               </div>
               <div className="bg-white p-3 md:p-6  md:row-span-9 content-center">
                 <p className="text-sm text-zinc-600">{t("sinResultados")}</p>
@@ -355,7 +349,7 @@ export default function AvailabilitySearch() {
           ) : (
             <>
               <div className="bg-primary px-4 py-3 md:px-6 md:py-4 text-primary-foreground  md:row-span-3">
-                <h3 className="font-bold">
+                <h3 className="group-resultados font-bold">
                   {recommended.type === "single"
                     ? recommended.property.name
                     : t("cabanasParaGrupo", {
@@ -371,17 +365,19 @@ export default function AvailabilitySearch() {
 
               <div className="bg-white p-3 md:p-6 md:row-span-9">
                 {bedroomsRelaxed && (
-                  <p className="mb-4 rounded-md bg-primary-50 px-3 py-2 text-sm text-primary">
+                  <p className="mb-4 rounded-md bg-accent-50 px-3 py-2 text-sm text-primary">
                     {t("habitacionesRelajadas")}
                   </p>
                 )}
 
                 {searchedDates && nights !== null && (
                   <div className="mb-4 flex items-center gap-2 text-sm text-zinc-600">
-                    <CalendarIcon />
+                    <CalendarIcon className="w-5" />
                     <span>
-                      {formatDisplayDate(searchedDates.start)} →{" "}
-                      {formatDisplayDate(searchedDates.end)} ·{" "}
+                      {formatDisplayDate(searchedDates.start)}{" "}
+                      <ChevronRight className="inline w-5" />{" "}
+                      {formatDisplayDate(searchedDates.end)}{" "}
+                      <Equal className="inline w-5" />{" "}
                       {tUnits("noches", { count: nights })}
                     </span>
                   </div>
@@ -406,8 +402,15 @@ export default function AvailabilitySearch() {
                         className="flex items-center justify-between gap-3 rounded-lg bg-secondary-50 px-3 py-2 text-sm"
                       >
                         <span className="flex items-center gap-2 font-medium text-primary">
-                          <CheckIcon />
-                          {p.name}
+                          <span>
+                            <HouseIcon className="w-5" />
+                          </span>
+                          <span>{p.name}</span>
+                          <span>—</span>
+                          <span className="flex">
+                            <UsersIcon className="w-5 inline" />
+                            {p.maxGuests}
+                          </span>
                         </span>
                         <span className="text-zinc-600">
                           {formatPrice(p.totalPrice)}

@@ -76,7 +76,7 @@ export default function PropiedadesPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="small text-xl font-semibold">Propiedades</h1>
+        <h1 className="hidden md:block small text-xl font-semibold">Propiedades</h1>
         {!addingOpen && (
           <button
             type="button"
@@ -214,7 +214,7 @@ function PropertyCard({
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center gap-3 px-6 py-4 text-left transition bg-primary text-primary-foreground hover:bg-zinc-50 hover:text-foreground"
+        className="flex w-full items-center gap-3 p-2 md:px-6 md:py-4 text-left transition bg-primary text-primary-foreground hover:bg-zinc-50 hover:text-foreground"
       >
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-xs font-semibold text-zinc-600">
           {property.name.slice(0, 2).toUpperCase()}
@@ -229,7 +229,7 @@ function PropertyCard({
         }`}
       >
         <div className="overflow-hidden">
-          <div className="space-y-4 border-t border-zinc-200 px-6 py-5">
+          <div className="space-y-4 border-t border-zinc-200 p-2 md:px-6 md:py-5">
             <CollapsibleSection
               title="Precio y disponibilidad"
               className="bg-secondary-200! text-foreground! hover:bg-primary! hover:text-background!"

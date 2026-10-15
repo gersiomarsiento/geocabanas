@@ -234,14 +234,7 @@ export default function ImageManager({
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
-        <span className="text-sm font-medium text-zinc-600">
-          {label}
-          {images && images.length > 1 && (
-            <span className="ml-2 font-normal text-zinc-400">
-              Arrastrá para cambiar el orden
-            </span>
-          )}
-        </span>
+        <span className="text-sm font-medium text-zinc-600">{label}</span>
         <label className="cursor-pointer rounded-md border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50">
           {uploading
             ? `Subiendo ${progress ? `${progress.done}/${progress.total}` : ""}…`
@@ -287,6 +280,11 @@ export default function ImageManager({
             </div>
           </SortableContext>
         </DndContext>
+      )}
+      {images && images.length > 1 && (
+        <div className="pt-2 text-[12px] font-normal text-zinc-400">
+          Arrastrá para cambiar el orden
+        </div>
       )}
     </div>
   );

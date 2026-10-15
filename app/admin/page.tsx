@@ -5,7 +5,7 @@ import AdminAvailabilityCalendar from "@/app/components/AdminAvailabilityCalenda
 export default function AdminHome() {
   return (
     <div>
-      <h1 className="small mb-6 text-xl font-semibold">Disponibilidad y precios</h1>
+      <h1 className="hidden md:block small mb-6 text-xl font-semibold">Disponibilidad y precios</h1>
       <AdminAvailabilityCalendar />
     </div>
   );
