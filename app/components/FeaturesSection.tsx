@@ -17,7 +17,7 @@ type StayItem = { value: string; label: string };
  *
  * You can also override it per use: <FeaturesSection galleryVariant="grid" ... />
  */
-const GALLERY_VARIANT: GalleryVariant = "polaroid";
+const GALLERY_VARIANT: GalleryVariant = "grid";
 
 const STAY_COLS: Record<number, string> = {
   1: "md:grid-cols-1",
