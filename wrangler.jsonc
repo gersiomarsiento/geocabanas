@@ -24,4 +24,8 @@
   "vars": {
     "ADMIN_NOTIFICATION_EMAIL": "ignaciopatimo@gmail.com",
   },
+  "routes": [
+    { "pattern": "geopuntadeldiablo.com.uy", "zone_name": "geopuntadeldiablo.com.uy", "custom_domain": true },
+    { "pattern": "www.geopuntadeldiablo.com.uy", "zone_name": "geopuntadeldiablo.com.uy", "custom_domain": true }
+  ]
 }

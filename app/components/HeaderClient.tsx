@@ -152,7 +152,7 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
               )}
             </nav>
             {/* Currency selector */}
-            {!isReady ? (
+            {/* {!isReady ? (
               <div
                 className="h-9 w-17 animate-pulse rounded-md bg-background/10"
                 aria-label={t("cargandoMoneda")}
@@ -176,8 +176,8 @@ export default function HeaderClient({ logoUrl }: { logoUrl: string | null }) {
                   </option>
                 ))}
               </select>
-            )}
-            <LanguageSwitcher />
+            )} */}
+            {/* <LanguageSwitcher /> */}
           </div>
 
           {/* Mobile menu button */}

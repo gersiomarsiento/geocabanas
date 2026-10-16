@@ -35,7 +35,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description: title,
     openGraph: {
       title,
-      description: title,
+      description: "Naturaleza y comfort en Punta del Diablo.",
       url: "/",
       siteName: title,
       type: "website",
