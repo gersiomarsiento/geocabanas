@@ -31,10 +31,11 @@ import { nextDate, expandRangesToDateSet } from "@/lib/calendar/dates";
 
 export async function getIcalBookedDates(
   icalUrl: string | null,
+  propertyId: string,
 ): Promise<Set<string>> {
   if (!icalUrl) return new Set<string>();
   try {
-    const ranges = await getBookedRanges(icalUrl);
+    const ranges = await getBookedRanges(icalUrl, `ical:${propertyId}`);
     return expandRangesToDateSet(ranges);
   } catch (err) {
     // Fail open — never let a flaky external feed take down availability.
@@ -66,7 +67,10 @@ export async function getPropertyAvailabilityDays(
     throw new Error("Property not found");
   }
 
-  const icalBookedDates = await getIcalBookedDates(property.external_ical_url);
+  const icalBookedDates = await getIcalBookedDates(
+    property.external_ical_url,
+    property.id,
+  );
 
   const [{ data: overrides }, { data: reservations }] = await Promise.all([
     supabaseAdmin
@@ -141,7 +145,10 @@ export async function getStayAvailability(
     throw new Error("Property not found");
   }
 
-  const icalBookedDates = await getIcalBookedDates(property.external_ical_url);
+  const icalBookedDates = await getIcalBookedDates(
+    property.external_ical_url,
+    property.id,
+  );
 
   const [{ data: overrides }, { data: existingReservations }] =
     await Promise.all([

@@ -13,9 +13,11 @@ import { CheckIcon, Switch } from "./AdminUI";
 export default function PropertyDetailsForm({
   property,
   onUpdated,
+  onSynced,
 }: {
   property: Property;
   onUpdated: (patch: Partial<Property>) => void;
+  onSynced?: () => void;
 }) {
   const [draft, setDraft] = useState<PropertySettingsUpdate>({
     bedrooms: property.bedrooms,
@@ -31,6 +33,40 @@ export default function PropertyDetailsForm({
     type: "success" | "error";
     text: string;
   } | null>(null);
+
+  const [syncing, setSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
+  const icalSaved = Boolean(property.externalIcalUrl);
+  const icalDirty =
+    (draft.externalIcalUrl ?? "") !== (property.externalIcalUrl ?? "");
+
+  async function syncIcal() {
+    setSyncing(true);
+    setSyncMessage(null);
+    try {
+      const res = await fetch(
+        `/api/admin/properties/${property.id}/sync-ical`,
+        { method: "POST" },
+      );
+      if (!res.ok) throw new Error("No se pudo sincronizar");
+      onSynced?.();
+      setSyncMessage({
+        type: "success",
+        text: "Calendario actualizado. Si Airbnb cambió algo hace instantes, su feed puede tardar unos minutos en reflejarlo.",
+      });
+    } catch (e) {
+      setSyncMessage({
+        type: "error",
+        text: e instanceof Error ? e.message : "Error",
+      });
+    } finally {
+      setSyncing(false);
+    }
+  }
 
   function toggleAmenity(id: string) {
     setDraft((d) => {
@@ -186,6 +222,34 @@ export default function PropertyDetailsForm({
             ahí.
           </span>
         </label>
+        <div className="mt-2 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            disabled={syncing || !icalSaved || icalDirty}
+            onClick={syncIcal}
+            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors not-disabled:hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {syncing ? "Sincronizando…" : "Sincronizar con Airbnb ahora"}
+          </button>
+
+          {icalDirty && (
+            <span className="text-xs text-zinc-400">
+              Guardá los detalles antes de sincronizar.
+            </span>
+          )}
+        </div>
+
+        {syncMessage && (
+          <p
+            className={`mt-2 text-sm font-medium ${
+              syncMessage.type === "success"
+                ? "text-emerald-600"
+                : "text-red-600"
+            }`}
+          >
+            {syncMessage.text}
+          </p>
+        )}
       </div>
 
       <button

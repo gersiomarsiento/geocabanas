@@ -6,13 +6,16 @@ export interface BookedRange {
   end: string; // ISO date (checkout day — treated as exclusive)
 }
 
-export async function getBookedRanges(icalUrl: string): Promise<BookedRange[]> {
+export async function getBookedRanges(
+  icalUrl: string,
+  cacheTag?: string,
+): Promise<BookedRange[]> {
   if (!icalUrl) {
     throw new Error("No external_ical_url provided for this property");
   }
 
   const res = await fetch(icalUrl, {
-    next: { revalidate: 3600 }, // cache 1hr — External site's feed lags anyway
+    next: { revalidate: 3600, tags: cacheTag ? [cacheTag] : [] },
   });
 
   if (!res.ok) {
