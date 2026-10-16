@@ -5,7 +5,6 @@
 //  - application/json { action: "sign" }   -> validates a video and returns a signed upload URL
 //  - application/json { action: "commit" } -> after the browser uploaded the video, saves media type
 //
-// TODO: gate this route behind your admin auth/session check before ship.
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";

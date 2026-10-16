@@ -8,8 +8,7 @@ export const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Using Resend's shared sandbox sender for now — works immediately, no
 // domain verification needed. Swap this once you verify your own domain
-// (e.g. "Geocabañas <reservas@geocabanas.com>").
-export const FROM_ADDRESS = "Geocabañas <onboarding@resend.dev>";
+export const FROM_ADDRESS = "Geocabañas <reservas@geopuntadeldiablo.com.uy>";
 
 // Where guest-facing notification emails (new reservation, etc.) go.
 // Put the real admin inbox in .env.local as ADMIN_NOTIFICATION_EMAIL.

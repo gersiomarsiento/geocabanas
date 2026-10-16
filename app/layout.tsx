@@ -30,8 +30,25 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = businessName ?? "Cabañas";
 
   return {
+    metadataBase: new URL("https://geopuntadeldiablo.com.uy"),
     title,
     description: title,
+    openGraph: {
+      title,
+      description: title,
+      url: "/",
+      siteName: title,
+      type: "website",
+      locale: "es_UY",
+      images: [
+        {
+          url: "/images/og-image.webp", // file in /public
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
   };
 }
 

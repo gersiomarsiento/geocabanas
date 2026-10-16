@@ -6,8 +6,6 @@
 // Uses the "property-images" Storage bucket (under an "instagram/"
 // prefix) and the instagram_posts table.
 
-// TODO: gate this route behind your admin auth/session check before ship.
-
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { validateImageFile } from "@/lib/uploads/validateImageFile";

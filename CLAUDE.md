@@ -149,11 +149,7 @@ Single hardcoded password (`ADMIN_PASSWORD` env var), no user table.
 Signed JWT session cookie, issued/verified in `lib/auth.ts`.
 `middleware.ts` protects `/admin/:path*` and `/api/admin/:path*`, with
 `/admin/login` and `/api/admin/login`/`/api/admin/logout` excluded.
-Several individual route files under `app/api/admin/` still carry
-`// TODO: gate this route behind your admin auth/session check before
-ship` comments left over from early scaffolding — these are stale; the
-middleware already covers them. Cleanup tracked in `TO_DO.md`.
-
+Cleanup tracked in `TO_DO.md`.
 
 ## Testing
 

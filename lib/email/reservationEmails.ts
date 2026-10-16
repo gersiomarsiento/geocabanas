@@ -260,6 +260,10 @@ const REQUEST_INTRO: Record<
   `,
 };
 
+const BANK_INFO = escapeHtml(process.env.BANK_ACCOUNT_INFO ?? "");
+if (!process.env.BANK_ACCOUNT_INFO) {
+  console.error("BANK_ACCOUNT_INFO is not set");
+}
 const DEFAULT_INTRO: Record<
   SupportedLocale,
   (propertyName: string, whatsapp: string) => string
@@ -268,21 +272,21 @@ const DEFAULT_INTRO: Record<
     <p>Recibimos tu solicitud de reserva para <strong>${name}</strong>.</p>
     <p>La misma estará pendiente de confirmación durante las siguientes 24 horas. Para confirmar tu reserva, pedimos un depósito del 50% del total de la misma. En caso de no recibir el depósito, la reserva se cancelará y se liberarán las fechas en el calendario.</p>
     <p>Puedes hacer tu depósito a la siguiente cuenta:</p>
-    <p>BROU: xxxxxxxx</p>
+    <p>${BANK_INFO}</p>
     <p>Una vez realizada, contactanos por WhatsApp al ${whatsapp} para enviarnos el comprobante.</p>
   `,
   en: (name, whatsapp) => `
     <p>We received your reservation request for <strong>${name}</strong>.</p>
     <p>It will remain pending confirmation for the next 24 hours. To confirm your reservation, we require a deposit of 50% of the total. If the deposit isn't received, the reservation will be cancelled and the dates released on the calendar.</p>
     <p>You can make your deposit to the following account:</p>
-    <p>BROU: xxxxxxxx</p>
+    <p>${BANK_INFO}</p>
     <p>Once done, contact us on WhatsApp at ${whatsapp} to send us proof of payment.</p>
   `,
   pt: (name, whatsapp) => `
     <p>Recebemos sua solicitação de reserva para <strong>${name}</strong>.</p>
     <p>Ela ficará pendente de confirmação pelas próximas 24 horas. Para confirmar sua reserva, pedimos um sinal de 50% do total. Caso o sinal não seja recebido, a reserva será cancelada e as datas liberadas no calendário.</p>
     <p>Você pode fazer o sinal na seguinte conta:</p>
-    <p>BROU: xxxxxxxx</p>
+    <p>${BANK_INFO}</p>
     <p>Depois de feito, entre em contato conosco pelo WhatsApp ${whatsapp} para enviar o comprovante.</p>
   `,
 };
@@ -311,6 +315,7 @@ export async function sendGuestConfirmationEmail(data: ReservationEmailData) {
   return resend.emails.send({
     from: FROM_ADDRESS,
     to: data.guestEmail,
+    replyTo: ADMIN_EMAIL,
     subject,
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
@@ -516,6 +521,7 @@ export async function sendReservationStatusEmail(
   const result = await resend.emails.send({
     from: FROM_ADDRESS,
     to: data.guestEmail,
+    replyTo: ADMIN_EMAIL,
     subject: copy.subject(plainNames),
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
