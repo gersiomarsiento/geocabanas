@@ -24,7 +24,7 @@ function SlideButton({
       disabled={disabled}
       onClick={() => (isNext ? swiper.slideNext() : swiper.slidePrev())}
       aria-label={isNext ? "Siguiente slide" : "Slide anterior"}
-      className={`bg-white rounded-ful absolute top-1/2 -translate-y-1/2 z-30 transition ${
+      className={`bg-white/20 hover:bg-white rounded-full absolute top-1/2 -translate-y-1/2 z-30 transition ${
         isNext ? "right-2" : "left-2"
       } ${disabled ? "opacity-10 cursor-not-allowed" : ""}`}
     >
