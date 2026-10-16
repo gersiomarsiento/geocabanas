@@ -118,7 +118,7 @@ export async function PATCH(request: Request) {
 
   // NEW: same iCal fetch GET uses, so PATCH knows which dates are
   // Booking.com/Airbnb conflicts, not just internal reservation conflicts.
-  const icalBookedDates = await getIcalBookedDates(property.external_ical_url);
+  const icalBookedDates = await getIcalBookedDates(property.external_ical_url, property.id);
 
   const updatedDates: string[] = [];
   const skippedDates: {

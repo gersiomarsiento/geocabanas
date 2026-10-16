@@ -64,6 +64,7 @@ export async function PATCH(
 
       const ical = await getIcalBookedDates(
         property?.external_ical_url ?? null,
+        current.property_id,
       );
       const conflictDates: string[] = [];
       for (let d = current.start_date; d < current.end_date; d = nextDate(d)) {
